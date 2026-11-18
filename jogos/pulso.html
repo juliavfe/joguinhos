@@ -2,7 +2,7 @@
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Pulso · Joguinhos</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#ECECE7">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#1F2B25">
 <link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
 </head><body>
 <canvas class="full" id="c"></canvas>
@@ -49,7 +49,7 @@ function draw(){
   ctx.strokeStyle=K.vermelho;ctx.beginPath();ctx.arc(cx,cy,R,tA-tw/2,tA+tw/2);ctx.stroke();
   ctx.strokeStyle=K.ink;ctx.lineWidth=9;
   ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*(R-34),cy+Math.sin(a)*(R-34));ctx.lineTo(cx+Math.cos(a)*(R+34),cy+Math.sin(a)*(R+34));ctx.stroke();
-  ctx.fillStyle=K.ink;ctx.font='800 condensed '+Math.round(R*.62)+'px '+J.FONT;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle=K.ink;ctx.font='600 '+Math.round(R*.62)+'px '+J.FONT;ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText(score,cx,cy+R*.04);
   ctx.restore();
 }

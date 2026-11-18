@@ -2,13 +2,13 @@
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Fusão · Joguinhos</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#ECECE7">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#1F2B25">
 <link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
 <style>
   body{touch-action:none}
   .wrap{position:fixed;top:0;right:0;bottom:0;left:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding-top:50px}
-  .board{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:6px;width:min(92vw,420px);aspect-ratio:1;background:var(--paper-2)}
-  .cell{background:var(--paper-3);display:grid;place-items:center;font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;font-size:clamp(26px,9vw,42px);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .board{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:7px;border-radius:18px;width:min(92vw,420px);aspect-ratio:1;background:var(--paper-2)}
+  .cell{border-radius:11px;background:var(--paper-3);display:grid;place-items:center;font-family:var(--serif);font-variant-numeric:lining-nums tabular-nums;font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:clamp(26px,9vw,42px);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
   .cell.big{font-size:clamp(20px,6.8vw,32px)}
   .tip{color:var(--ink-2);font-size:15px}
   .wrap .row{width:min(92vw,420px);align-items:center}
@@ -26,12 +26,12 @@
 const ID='fusao';
 J.$('best').textContent=J.best(ID);
 // [fundo, texto] por valor
-const COLORS={2:['#F6F3EA','#16130F'],4:['#F3DE9C','#16130F'],8:['#FFC824','#16130F'],16:['#F08A24','#16130F'],32:['#D2311F','#FBF7EE'],64:['#8E1D12','#FBF7EE'],128:['#9DB4EE','#16130F'],256:['#2350D2','#FBF7EE'],512:['#14286E','#FBF7EE'],1024:['#0E8A4F','#FBF7EE'],2048:['#16130F','#FFC824']};
+const COLORS={2:['#F1EADB','#1F2B25'],4:['#E6DCC0','#1F2B25'],8:['#E9C96E','#1F2B25'],16:['#D8B24A','#1F2B25'],32:['#DDA69F','#1F2B25'],64:['#C98F8A','#1F2B25'],128:['#B9CBD4','#1F2B25'],256:['#9DB4C0','#1F2B25'],512:['#BFD0AF','#1F2B25'],1024:['#A9BE97','#1F2B25'],2048:['#F1EADB','#B08A2E']};
 let g,score,won;
 const cells=[...Array(16)].map(()=>{const d=document.createElement('div');d.className='cell';J.$('board').appendChild(d);return d;});
 function add(){const e=[];g.forEach((v,i)=>!v&&e.push(i));if(!e.length)return -1;const i=e[Math.random()*e.length|0];g[i]=Math.random()<.9?2:4;return i;}
 function render(news=[],merged=[]){
-  g.forEach((v,i)=>{const c=cells[i];c.textContent=v||'';const col=COLORS[v]||['#16130F','#FBF7EE'];c.style.background=v?col[0]:'';c.style.color=v?col[1]:'';
+  g.forEach((v,i)=>{const c=cells[i];c.textContent=v||'';const col=COLORS[v]||['#F1EADB','#1F2B25'];c.style.background=v?col[0]:'';c.style.color=v?col[1]:'';
     c.classList.toggle('big',v>=1000);c.classList.remove('pop');
     if(news.includes(i)||merged.includes(i)){void c.offsetWidth;c.classList.add('pop');}});
   J.$('score').textContent=score;J.set('fusao-save',{g,score,won});

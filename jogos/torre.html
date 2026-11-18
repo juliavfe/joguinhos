@@ -2,7 +2,7 @@
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Torre · Joguinhos</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#ECECE7">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#1F2B25">
 <link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
 </head><body>
 <canvas class="full" id="c"></canvas>
@@ -57,18 +57,18 @@ function update(dt){
   falling=falling.filter(f=>f.dy<C.H+200);flash*=.9;
 }
 function block(x,y,w,h,alpha=1){
-  ctx.globalAlpha=alpha;ctx.fillStyle=CORES[h%4];ctx.fillRect(x,y,w,BH-3);ctx.globalAlpha=1;
+  ctx.globalAlpha=alpha;ctx.fillStyle=CORES[h%4];ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,BH-4,6):ctx.rect(x,y,w,BH-4);ctx.fill();ctx.globalAlpha=1;
 }
 function draw(){
   ctx.fillStyle=K.paper;ctx.fillRect(0,0,C.W,C.H);
   const by=baseY()+cam;
-  ctx.fillStyle=K.ink;ctx.fillRect(0,by+BH,C.W,C.H);
+  ctx.fillStyle=K.paper2;ctx.fillRect(0,by+BH,C.W,C.H);
   if(!stack)return;
   stack.forEach((b,i)=>block(b.x,by-i*BH,b.w,b.h));
-  if(flash>.05){const t=stack[stack.length-1];ctx.strokeStyle=`rgba(22,19,15,${flash})`;ctx.lineWidth=3;ctx.strokeRect(t.x-4,by-(stack.length-1)*BH-4,t.w+8,BH+6);}
+  if(flash>.05){const t=stack[stack.length-1];ctx.strokeStyle=`rgba(241,234,219,${flash})`;ctx.lineWidth=3;ctx.strokeRect(t.x-4,by-(stack.length-1)*BH-4,t.w+8,BH+6);}
   if(mov&&state==='play')block(mov.x,by-stack.length*BH,mov.w,mov.h);
   for(const f of falling)block(f.x,by-f.y*BH+f.dy,f.w,f.h,.8);
-  if(perfect>=2&&state==='play'){ctx.font='800 condensed 20px '+J.FONT;ctx.textAlign='center';ctx.fillStyle=K.ink;ctx.fillText('Em cheio ×'+perfect,C.W/2,by-stack.length*BH-24);}
+  if(perfect>=2&&state==='play'){ctx.font='600 20px '+J.FONT;ctx.textAlign='center';ctx.fillStyle=K.ink;ctx.fillText('Em cheio ×'+perfect,C.W/2,by-stack.length*BH-24);}
 }
 let last=performance.now();
 function loop(t){const dt=Math.min((t-last)/1000,.05);last=t;update(dt);draw();requestAnimationFrame(loop);}

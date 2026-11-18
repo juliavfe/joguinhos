@@ -2,25 +2,25 @@
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Linha do Tempo · Joguinhos</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#ECECE7">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#1F2B25">
 <link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
 <style>
   #menu h1{font-size:clamp(66px,20vw,120px);margin:4px 0 14px}
   #menu .lede{font-size:18.5px;margin:0 0 22px;max-width:24em}
   .cats{display:grid;gap:8px}
-  .cat{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;min-height:118px;padding:16px;text-align:left;background:var(--c);color:var(--on-c);transition:transform .12s var(--ease)}
+  .cat{border-radius:var(--r);display:flex;justify-content:space-between;align-items:flex-end;gap:12px;min-height:118px;padding:16px;text-align:left;background:var(--c);color:var(--on-c);transition:transform .12s var(--ease)}
   .cat:active{transform:scale(.98)}
-  .cat b{display:block;font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;font-size:44px;line-height:.92}
+  .cat b{display:block;font-family:var(--serif);font-variant-numeric:lining-nums tabular-nums;font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:44px;line-height:.92}
   .cat small{display:block;font-size:15px;margin-top:6px}
   .cat em{font-style:normal;font-size:14.5px;font-weight:650;white-space:nowrap;font-variant-numeric:tabular-nums}
   .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
-  .top .chip:first-child{font-size:30px;font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;color:var(--ink)}
+  .top .chip:first-child{font-size:30px;font-family:var(--serif);font-variant-numeric:lining-nums tabular-nums;font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;color:var(--ink)}
   #hint{color:var(--ink-2);margin:6px 0 8px;font-size:16px;min-height:2.9em}
   .ev{display:flex;align-items:center;gap:14px;min-height:66px}
-  .ev .n{flex:none;width:36px;height:36px;display:grid;place-items:center;background:var(--paper);box-shadow:inset 0 0 0 2.5px var(--ink-2);font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
-  .ev.sel .n{background:var(--ink);color:var(--paper);box-shadow:none}
-  .ev.ok .n,.ev.no .n{background:#FBF7EE;color:var(--ink);box-shadow:none}
-  .ev .y{margin-left:auto;padding-left:10px;font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;font-size:22px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .ev .n{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--paper);box-shadow:inset 0 0 0 2px var(--ink-2);font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
+  .ev.sel .n{background:var(--amarelo);color:var(--pinho);box-shadow:none}
+  .ev.ok .n,.ev.no .n{background:var(--pinho);color:var(--ink);box-shadow:none}
+  .ev .y{margin-left:auto;padding-left:10px;font-family:var(--serif);font-variant-numeric:lining-nums tabular-nums;font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:22px;white-space:nowrap;font-variant-numeric:tabular-nums}
   #go{width:100%;margin-top:12px}
   #go:disabled{opacity:.35}
 </style>

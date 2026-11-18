@@ -1,9 +1,9 @@
 // Coisas compartilhadas entre os jogos
 const J = {
   // cores de impressão (as mesmas do style.css)
-  C: { paper: '#ECECE7', paper2: '#DEDED7', paper3: '#CBCBC2', ink: '#16130F', ink2: '#4D483F',
-       amarelo: '#FFC824', vermelho: '#D2311F', azul: '#2350D2', verde: '#0E8A4F' },
-  FONT: '"Bricolage", system-ui, sans-serif',
+  C: { paper: '#1F2B25', paper2: '#2A3830', paper3: '#384840', ink: '#F1EADB', ink2: '#B7B9A8', pinho: '#1F2B25',
+       amarelo: '#D8B24A', vermelho: '#C98F8A', azul: '#9DB4C0', verde: '#A9BE97', certo: '#A3C98C', errado: '#E08577' },
+  FONT: '"Fraunces", Georgia, serif',
   get(k, d = 0) { try { const v = localStorage.getItem('jg-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem('jg-' + k, JSON.stringify(v)); } catch (e) {} },
   best(id) { return J.get('best-' + id, 0); },

@@ -2,25 +2,25 @@
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Palavra · Joguinhos</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#ECECE7">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#1F2B25">
 <link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
 <style>
   .wrap{position:fixed;top:0;right:0;bottom:0;left:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(var(--top) + 72px) 8px calc(var(--bot) + 12px)}
   .grid{display:grid;grid-template-rows:repeat(6,1fr);gap:6px;width:min(78vw,330px)}
   .r{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-  .t{aspect-ratio:1;background:var(--paper-2);display:grid;place-items:center;font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;font-size:clamp(30px,9vw,40px);text-transform:uppercase;line-height:1}
-  .t.f{background:var(--paper);box-shadow:inset 0 0 0 3px var(--ink)}
-  .t.g{background:var(--verde);color:#FBF7EE;box-shadow:none}
+  .t{aspect-ratio:1;border-radius:10px;background:var(--paper-2);display:grid;place-items:center;font-family:var(--serif);font-variant-numeric:lining-nums tabular-nums;font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:clamp(30px,9vw,40px);text-transform:uppercase;line-height:1}
+  .t.f{background:var(--paper-2);box-shadow:inset 0 0 0 2px var(--ink-2)}
+  .t.g{background:var(--certo);color:var(--pinho);box-shadow:none}
   .t.y{background:var(--amarelo);color:var(--ink);box-shadow:none}
-  .t.x{background:var(--paper-3);color:var(--ink-2);box-shadow:none}
+  .t.x{background:#17211C;color:#7D877F;box-shadow:none}
   .kb{width:100%;max-width:500px;display:flex;flex-direction:column;gap:6px}
   .kr{display:flex;gap:5px;justify-content:center}
-  .k{flex:1;max-width:44px;height:54px;background:var(--paper-2);font-weight:700;font-size:18px;text-transform:uppercase}
-  .k:active{background:var(--paper-3)}
+  .k{flex:1;max-width:44px;height:54px;border-radius:8px;background:var(--paper-3);font-weight:700;font-size:18px;text-transform:uppercase}
+  .k:active{background:var(--paper-2)}
   .k.w{max-width:70px;flex:1.5;font-size:14px;text-transform:none}
-  .k.g{background:var(--verde);color:#FBF7EE}.k.y{background:var(--amarelo)}.k.x{background:var(--ink);color:#8A8478}
-  #toast{position:fixed;top:calc(var(--top) + 74px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);font-weight:700;padding:10px 16px;opacity:0;transition:opacity .2s;z-index:40}
-  .sq{display:inline-block;width:18px;height:18px;vertical-align:-3px;margin-right:4px}
+  .k.g{background:var(--certo);color:var(--pinho)}.k.y{background:var(--amarelo)}.k.x{background:#17211C;color:#5E6962}
+  #toast{border-radius:12px;position:fixed;top:calc(var(--top) + 74px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);font-weight:700;padding:10px 16px;opacity:0;transition:opacity .2s;z-index:40}
+  .sq{border-radius:4px;display:inline-block;width:18px;height:18px;vertical-align:-3px;margin-right:4px}
 </style>
 </head><body>
 <div class="bar"><a class="back" href="../index.html">←</a><div class="title">Palavra</div>
@@ -29,7 +29,7 @@
 <div id="toast"></div>
 <div class="overlay tinta" id="overlay"><h1>Palavra</h1><p class="big" id="big" style="display:none"></p>
   <p id="msg"></p>
-  <ul class="rules"><li>Descubra a palavra de 5 letras em 6 tentativas. Acento não conta.</li><li><span class="sq" style="background:var(--verde)"></span> Letra certa no lugar certo</li><li><span class="sq" style="background:var(--amarelo)"></span> A letra existe, mas em outro lugar</li><li><span class="sq" style="background:var(--paper-3)"></span> Não tem essa letra</li></ul>
+  <ul class="rules"><li>Descubra a palavra de 5 letras em 6 tentativas. Acento não conta.</li><li><span class="sq" style="background:var(--certo)"></span> Letra certa no lugar certo</li><li><span class="sq" style="background:var(--amarelo)"></span> A letra existe, mas em outro lugar</li><li><span class="sq" style="background:#17211C"></span> Não tem essa letra</li></ul>
   <button class="btn" id="play">Jogar</button></div>
 <script src="../common.js"></script>
 <script>
