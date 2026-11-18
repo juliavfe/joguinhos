@@ -2,25 +2,26 @@
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Eco · Joguinhos</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#07060f">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#ECECE7">
 <link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
 <style>
   .wrap{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding-top:40px}
-  #info{color:var(--muted);font-size:16px;height:22px}
-  .pads{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:min(82vw,360px);aspect-ratio:1}
-  .pad{border-radius:28px;opacity:.35;transition:opacity .08s,transform .08s;box-shadow:inset 0 0 0 2px rgba(255,255,255,.1)}
-  .pad.on{opacity:1;transform:scale(.96);box-shadow:0 0 40px var(--c)}
+  #info{font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;font-size:34px;line-height:1;height:34px}
+  .pads{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(86vw,380px);aspect-ratio:1}
+  .pad{opacity:.38;transition:opacity .08s,transform .1s var(--ease)}
+  .pad.on{opacity:1;transform:scale(.95)}
 </style>
 </head><body>
 <div class="bar"><a class="back" href="../index.html">←</a><div class="title">Eco</div>
   <div class="stat"><small>Nível</small><b id="score">0</b></div><div class="stat"><small>Recorde</small><b id="best">0</b></div></div>
 <div class="wrap"><div id="info"></div><div class="pads" id="pads"></div></div>
-<div class="overlay" id="overlay"><h1>ECO</h1><p class="big" id="big" style="display:none"></p>
-  <p id="msg">Preste atenção na sequência de cores e repita na mesma ordem.<br>A cada rodada ela cresce um pouquinho.</p>
+<div class="overlay vermelho" id="overlay"><h1>Eco</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg"></p>
+  <ul class="rules"><li>Os quadrados acendem numa sequência.</li><li>Repita tocando na mesma ordem.</li><li>A cada rodada a sequência ganha mais uma cor.</li></ul>
   <button class="btn" id="play">Jogar</button></div>
 <script src="../common.js"></script>
 <script>
-const ID='eco', COLS=['#7cf7ff','#ff7ad9','#ffe27a','#5dffa8'], NOTES=[392,330,262,196];
+const ID='eco', COLS=[J.C.amarelo,J.C.vermelho,J.C.azul,J.C.verde], NOTES=[392,330,262,196];
 J.$('best').textContent=J.best(ID);
 const pads=COLS.map((c,i)=>{const d=document.createElement('button');d.className='pad';d.style.background=c;d.style.setProperty('--c',c);
   d.addEventListener('pointerdown',e=>{e.preventDefault();press(i);});J.$('pads').appendChild(d);return d;});
@@ -38,9 +39,9 @@ function press(i){
   if(busy)return;
   light(i,180);
   if(i!==seq[pos]){busy=true;J.bad();J.$('pads').classList.add('shake');
-    setTimeout(()=>{J.$('pads').classList.remove('shake');J.over(ID,level,level<5?'A memória esquenta com o tempo. De novo!':level<10?'Memória boa, hein!':'Memória de elefante 🐘');},500);return;}
+    setTimeout(()=>{J.$('pads').classList.remove('shake');J.over(ID,level,level<5?'A memória esquenta com o tempo. De novo!':level<10?'Memória boa, hein!':'Memória de elefante.');},500);return;}
   pos++;
-  if(pos===seq.length){level++;J.$('score').textContent=level;busy=true;J.$('info').textContent='Isso! ✓';setTimeout(next,600);}
+  if(pos===seq.length){level++;J.$('score').textContent=level;busy=true;J.$('info').textContent='Isso!';setTimeout(next,600);}
 }
 function start(){seq=[];level=0;J.$('score').textContent=0;J.$('overlay').classList.add('hide');next();}
 J.$('play').onclick=start;

@@ -1,87 +1,211 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Quiz · Joguinhos</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#07060f">
+<title>Quiz do Milhão · Joguinhos</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#ECECE7">
 <link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
 <style>
-  .cats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
-  .cat{padding:18px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);text-align:left}
-  .cat .i{font-size:28px}.cat b{display:block;margin-top:8px;font-size:16px}.cat small{color:var(--gold);font-size:12px}
-  .cat.mix{grid-column:span 2;background:linear-gradient(120deg,#2a1b55,#15253b)}
-  h2{margin:4px 0 4px;font-size:24px}
-  .sub{color:var(--muted);margin:0 0 14px}
-  #question{font-size:21px;font-weight:700;line-height:1.35;margin:18px 0 8px}
-  .top{display:flex;justify-content:space-between;align-items:center}
-  #fact{margin-top:12px;padding:14px 16px;border-radius:16px;background:rgba(124,247,255,.08);color:#cfefff;line-height:1.45;display:none}
-  #next{display:none;width:100%;margin-top:14px}
+  /* menu */
+  #menu h1{font-size:clamp(72px,22vw,132px);margin:4px 0 14px}
+  #menu .lede{font-size:18.5px;margin:0 0 22px;max-width:24em}
+  .cats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .cat{display:flex;flex-direction:column;justify-content:flex-end;min-height:118px;padding:14px;text-align:left;background:var(--c);color:var(--on-c);transition:transform .12s var(--ease)}
+  .cat:active{transform:scale(.97)}
+  .cat.w{grid-column:span 2;min-height:150px}
+  .cat b{font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;font-size:32px;line-height:.95}
+  .cat.w b{font-size:44px}
+  .cat small{font-size:14.5px;margin-top:6px;opacity:.9}
+  .how{margin-top:26px;background:var(--paper-2);padding:18px}
+  .how h2{font-size:30px;margin:0 0 8px}
+  .how ul{margin:0;padding-left:18px;line-height:1.5}
+
+  /* jogo */
+  #game{padding-top:calc(var(--top) + 70px)}
+  .valendo{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+  .valendo b{font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;font-size:clamp(50px,15vw,76px);line-height:.88;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--vermelho)}
+  .valendo small{display:block;font-size:14px;color:var(--ink-2);margin-bottom:6px}
+  .riscos{font-size:14.5px;color:var(--ink-2);text-align:right;line-height:1.35;font-variant-numeric:tabular-nums}
+  .riscos strong{color:var(--ink)}
+  .escada{display:grid;grid-template-columns:repeat(16,1fr);gap:3px;margin:14px 0 4px;align-items:end}
+  .escada i{height:10px;background:var(--paper-3)}
+  .escada i.marco{height:16px}
+  .escada i.feito{background:var(--ink)}
+  .escada i.agora{background:var(--vermelho)}
+  #question{font-size:22px;font-weight:650;line-height:1.3;margin:16px 0 8px;min-height:2.6em}
+  .opt{display:flex;gap:12px;align-items:center;position:relative;overflow:hidden}
+  .opt .l{position:relative;flex:none;width:30px;height:30px;display:grid;place-items:center;background:var(--ink);color:var(--paper);font-weight:800;font-size:16px}
+  .opt .tx{position:relative;flex:1}
+  .opt .pct{position:relative;font-weight:800;font-variant-numeric:tabular-nums;font-size:16px}
+  .opt .barra{position:absolute;left:0;top:0;bottom:0;background:var(--amarelo);width:0;transition:width .8s var(--ease)}
+  .opt.fora{opacity:.28;pointer-events:none}
+  .opt.ok .l{background:#FBF7EE;color:var(--verde)}
+  .opt.no .l{background:#FBF7EE;color:var(--vermelho)}
+  .opt.ok .barra,.opt.no .barra{display:none}
+  .ajudas{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
+  .aj{min-height:62px;background:var(--paper-2);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13.5px;font-weight:650;line-height:1.1;gap:3px}
+  .aj b{font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;font-size:22px}
+  .aj:active{background:var(--paper-3)}
+  .aj:disabled{opacity:.3}
+  #parar{width:100%;margin-top:8px;min-height:52px;font-size:17px}
+  .aviso{margin:12px 0 0;padding:14px 16px;background:var(--ink);color:var(--paper);font-size:17px;line-height:1.45}
+  .aviso b{color:var(--amarelo)}
+  #next{width:100%;margin-top:10px}
 </style>
 </head><body>
-<div class="bar"><a class="back" href="../index.html" id="back">←</a><div class="title">Quiz</div>
-  <div class="stat"><small>Pontos</small><b id="score">0</b></div><div class="stat"><small>Recorde</small><b id="best">0</b></div></div>
+<div class="bar"><a class="back" href="../index.html">←</a><div class="title">Quiz do Milhão</div>
+  <div class="stat"><small>Garantido</small><b id="score">R$ 0</b></div><b id="best" hidden></b></div>
 
 <div class="page" id="menu">
-  <h2>Escolha um tema</h2><p class="sub">10 perguntas, 15 segundos cada. Quanto mais rápido, mais pontos.</p>
+  <h1 class="display">Quiz do Milhão</h1>
+  <p class="lede">16 perguntas até R$ 1 milhão. Use as ajudas com cuidado e saiba a hora de parar.</p>
   <div class="cats" id="cats"></div>
+  <div class="how">
+    <h2 class="display">Como funciona</h2>
+    <ul>
+      <li>Acertou, sobe um degrau. Errou, leva só metade do que já tinha.</li>
+      <li>Na pergunta do milhão, errar zera tudo.</li>
+      <li>Pode parar a qualquer momento e levar o que ganhou.</li>
+      <li>30 segundos por pergunta.</li>
+      <li>Ajudas: pular (3 vezes), cartas, plateia e universitários (uma vez cada).</li>
+    </ul>
+  </div>
 </div>
 
 <div class="page" id="game" style="display:none">
-  <div class="top"><span class="chip" id="cat"></span><span class="chip" id="count"></span></div>
+  <div class="valendo"><div><small id="num">Pergunta 1 de 16</small><b id="valendo">R$ 1 mil</b></div>
+    <div class="riscos" id="riscos"></div></div>
+  <div class="escada" id="escada" aria-hidden="true"></div>
   <div class="timer"><i id="bar"></i></div>
   <div id="question"></div>
   <div id="opts"></div>
-  <div id="fact"></div>
-  <button class="btn" id="next">Próxima →</button>
+  <div id="extra" aria-live="polite"></div>
+  <div id="ctrl">
+    <div class="ajudas">
+      <button class="aj" id="aj-pular"><b id="np">3</b>Pular</button>
+      <button class="aj" id="aj-cartas"><b>4</b>Cartas</button>
+      <button class="aj" id="aj-plateia"><b>%</b>Plateia</button>
+      <button class="aj" id="aj-univ"><b>3</b>Universitários</button>
+    </div>
+    <button class="btn ghost" id="parar">Parar e levar R$ 0</button>
+  </div>
+  <button class="btn" id="next" style="display:none">Próxima pergunta</button>
 </div>
 
-<div class="overlay hide" id="overlay"><h1>QUIZ</h1><p class="big" id="big" style="display:none"></p>
-  <p id="msg"></p><div class="row"><button class="btn" id="play">De novo</button><button class="btn ghost" id="other">Outro tema</button></div></div>
+<div class="overlay vermelho hide" id="overlay"><h1>Fim de jogo</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg"></p><div class="row"><button class="btn" id="play">Jogar de novo</button><button class="btn ghost" id="other">Trocar tema</button></div></div>
+
 <script src="../common.js"></script>
 <script src="../dados.js"></script>
 <script>
-const ID='quiz',N=10,T=15;
-J.$('best').textContent=J.best(ID);
-let qs,i,score,hits,left,timer,cur,catKey,answered;
+const ID='quiz', T=30, MARCOS=[4,9,14,15];
+const PREMIOS=[1e3,2e3,3e3,4e3,5e3,1e4,2e4,3e4,4e4,5e4,1e5,2e5,3e5,4e5,5e5,1e6];
+const fmt=v=>v>=1e6?'R$ 1 milhão':v>=1e3?'R$ '+(v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil':'R$ '+Math.round(v).toLocaleString('pt-BR');
+const CORES={mix:'tinta',biblia:'amarelo',filmes:'vermelho',ciencia:'azul',geo:'verde',brasil:'amarelo'};
+let pool,step,cur,left,timer,answered,ajudas,catKey,ganho;
+
 function menu(){
   J.$('menu').style.display='';J.$('game').style.display='none';J.$('overlay').classList.add('hide');
-  const all=Object.values(QUIZ).reduce((n,c)=>n+c.q.length,0);
-  J.$('cats').innerHTML=`<button class="cat mix" data-k="mix"><span class="i">🎲</span><b>Misturado</b><small>${J.best('quiz-mix')?'🏆 '+J.best('quiz-mix'):all+' perguntas'}</small></button>`+
-    Object.entries(QUIZ).map(([k,c])=>`<button class="cat" data-k="${k}"><span class="i">${c.ic}</span><b>${c.nome}</b><small>${J.best('quiz-'+k)?'🏆 '+J.best('quiz-'+k):c.q.length+' perguntas'}</small></button>`).join('');
+  J.$('cats').innerHTML=[['mix','Todos os temas','Um pouco de tudo, misturado']].concat(Object.entries(QUIZ).map(([k,c])=>[k,c.nome,c.q.length+' perguntas'])).map(([k,n,d],i)=>{
+    const r=J.best('quiz-'+k);
+    return `<button class="cat ${CORES[k]} ${i===0||i===5?'w':''}" data-k="${k}"><b>${n}</b><small>${r?'Maior prêmio: '+fmt(r):d}</small></button>`;}).join('');
   J.$('cats').querySelectorAll('.cat').forEach(b=>b.onclick=()=>start(b.dataset.k));
 }
 function start(k){
   catKey=k;
-  // evita repetir as perguntas da última rodada
+  const all=k==='mix'?Object.values(QUIZ).flatMap(c=>c.q.map(q=>({q,c:c.nome}))):QUIZ[k].q.map(q=>({q,c:QUIZ[k].nome}));
+  // evita repetir as perguntas das últimas partidas quando dá
   const seen=J.get('quiz-seen-'+k,[]);
-  let pool=k==='mix'?Object.entries(QUIZ).flatMap(([ck,c])=>c.q.map(q=>({q,c:c.nome,id:ck+':'+q[0]}))):QUIZ[k].q.map(q=>({q,c:QUIZ[k].nome,id:k+':'+q[0]}));
-  let fresh=pool.filter(p=>!seen.includes(p.id));if(fresh.length<N)fresh=pool;
-  qs=J.shuffle(fresh).slice(0,N);J.set('quiz-seen-'+k,qs.map(p=>p.id).concat(seen).slice(0,Math.max(0,pool.length-N)));
-  i=0;score=0;hits=0;J.$('score').textContent=0;
+  const fresh=all.filter(p=>!seen.includes(p.q[0]));
+  pool=J.shuffle(fresh.length>=19?fresh:all);
+  step=0;ganho=0;ajudas={pular:3,cartas:1,plateia:1,univ:1};
   J.$('menu').style.display='none';J.$('game').style.display='';J.$('overlay').classList.add('hide');
-  show();
+  J.$('escada').innerHTML=PREMIOS.map(()=>'<i></i>').join('');
+  ask();
 }
-function show(){
-  cur=qs[i];answered=false;const [q,ok,...rest]=cur.q;const wrong=rest.slice(0,3);
-  J.$('cat').textContent=cur.c;J.$('count').textContent=`${i+1} / ${N}`;
-  J.$('question').textContent=q;J.$('fact').style.display='none';J.$('next').style.display='none';
-  J.$('opts').innerHTML='';
-  J.shuffle([ok,...wrong]).forEach(t=>{const b=document.createElement('button');b.className='opt';b.textContent=t;b.onclick=()=>pick(b,t===ok);J.$('opts').appendChild(b);});
+function paintEscada(){[...J.$('escada').children].forEach((e,i)=>e.className=(MARCOS.includes(i)?'marco ':'')+(i<step?'feito':i===step?'agora':''));}
+function ask(){
+  const it=pool.shift(); if(!it){end('acabou');return;}
+  const [q,ok,...r]=it.q; cur={q,ok,fact:r[3],c:it.c,ops:J.shuffle([ok,...r.slice(0,3)])};
+  answered=false;
+  J.set('quiz-seen-'+catKey,[q].concat(J.get('quiz-seen-'+catKey,[])).slice(0,80));
+  const seErrar=step===15?0:Math.floor(ganho/2);
+  J.$('num').textContent=`Pergunta ${step+1} de 16 · ${cur.c}`;
+  J.$('valendo').textContent=fmt(PREMIOS[step]);
+  J.$('riscos').innerHTML=`Se parar: <strong>${fmt(ganho)}</strong><br>Se errar: <strong>${fmt(seErrar)}</strong>`;
+  J.$('score').textContent=fmt(ganho);
+  paintEscada();
+  J.$('question').textContent=q;
+  J.$('opts').innerHTML='';J.$('extra').innerHTML='';
+  cur.ops.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.dataset.t=t;
+    b.innerHTML=`<span class="barra"></span><span class="l">${'ABCD'[i]}</span><span class="tx"></span>`;b.querySelector('.tx').textContent=t;
+    b.onclick=()=>pick(b);J.$('opts').appendChild(b);});
+  J.$('ctrl').style.display='';J.$('next').style.display='none';
+  J.$('parar').textContent='Parar e levar '+fmt(ganho);
+  syncAjudas();
   left=T;clearInterval(timer);timer=setInterval(tick,100);tick();
 }
-function tick(){left-=.1;J.$('bar').style.width=Math.max(0,left/T*100)+'%';if(left<=0)pick(null,false);}
-function pick(b,right){
-  if(answered)return;answered=true;clearInterval(timer);
-  const ok=cur.q[1];
-  [...J.$('opts').children].forEach(x=>{if(x.textContent===ok)x.classList.add('ok');});
-  if(right){hits++;score+=10+Math.ceil(Math.max(0,left));J.$('score').textContent=score;J.good();}
-  else{if(b)b.classList.add('no');J.bad();}
-  const f=cur.q[5];J.$('fact').innerHTML=(right?'✅ ':b?'❌ ':'⏰ Tempo esgotado! ')+(f||'');J.$('fact').style.display='block';
-  J.$('next').textContent=i===N-1?'Ver resultado':'Próxima →';J.$('next').style.display='block';
+function syncAjudas(){
+  J.$('np').textContent=ajudas.pular;
+  J.$('aj-pular').disabled=!ajudas.pular||step===15;J.$('aj-cartas').disabled=!ajudas.cartas;
+  J.$('aj-plateia').disabled=!ajudas.plateia;J.$('aj-univ').disabled=!ajudas.univ;
 }
-J.$('next').onclick=()=>{i++;if(i<N)show();else end();};
-function end(){
-  J.record('quiz-'+catKey,score);
-  J.over(ID,score,`Você acertou <b>${hits} de ${N}</b>.<br>`+(hits===N?'Gabaritou! 🤩':hits>=7?'Mandou muito bem!':hits>=4?'Bom! Cada rodada você aprende mais.':'Bora de novo, agora você já sabe algumas 😉'));
+function tick(){left-=.1;J.$('bar').style.width=Math.max(0,left/T*100)+'%';if(left<=0)pick(null);}
+function vivos(){return [...J.$('opts').children].filter(b=>!b.classList.contains('fora'));}
+function aviso(html){J.$('extra').innerHTML=`<div class="aviso">${html}</div>`;}
+
+J.$('aj-pular').onclick=()=>{if(answered||!ajudas.pular||step===15)return;ajudas.pular--;clearInterval(timer);J.beep(500,.08);ask();};
+J.$('aj-cartas').onclick=()=>{
+  if(answered||!ajudas.cartas)return;ajudas.cartas--;syncAjudas();
+  const cartas=[['o Rei',0],['o Ás',1],['o 2',2],['o 3',3]], [nome,n]=cartas[Math.random()*4|0];
+  J.shuffle(vivos().filter(b=>b.dataset.t!==cur.ok)).slice(0,n).forEach(b=>b.classList.add('fora'));
+  J.beep(n?700:200,.1,'triangle');
+  aviso(`Você tirou <b>${nome}</b>. `+(n?`${n===1?'Uma alternativa errada saiu':n+' alternativas erradas saíram'}.`:'Nenhuma alternativa saiu. Que azar!'));
+};
+J.$('aj-plateia').onclick=()=>{
+  if(answered||!ajudas.plateia)return;ajudas.plateia--;syncAjudas();
+  const vs=vivos(), acerto=Math.random()<.85; // a plateia às vezes se engana
+  const fav=acerto?vs.find(b=>b.dataset.t===cur.ok):J.shuffle(vs.filter(b=>b.dataset.t!==cur.ok))[0]||vs[0];
+  const w=vs.map(b=>b===fav?40+Math.random()*30:Math.random()*20+3), s=w.reduce((a,b)=>a+b,0);
+  const pc=w.map(x=>Math.round(x/s*100)); pc[pc.indexOf(Math.max(...pc))]+=100-pc.reduce((a,b)=>a+b,0);
+  vs.forEach((b,i)=>{b.querySelector('.barra').style.width=pc[i]+'%';const p=document.createElement('span');p.className='pct';p.textContent=pc[i]+'%';b.appendChild(p);});
+  J.beep(520,.1,'triangle');aviso('A plateia votou. A faixa amarela mostra quanto cada alternativa recebeu.');
+};
+J.$('aj-univ').onclick=()=>{
+  if(answered||!ajudas.univ)return;ajudas.univ--;syncAjudas();
+  const todos=[...J.$('opts').children],vs=vivos(),letra=b=>'ABCD'[todos.indexOf(b)];
+  const certa=vs.find(b=>b.dataset.t===cur.ok), outras=vs.filter(b=>b!==certa);
+  const votos=[0,1,2].map(()=>Math.random()<.75||!outras.length?certa:outras[Math.random()*outras.length|0]);
+  const nomes=['Ana, de Letras','Caio, de Engenharia','Bia, de História'];
+  aviso('Os universitários acham que é:<br>'+votos.map((b,i)=>`${nomes[i]}: <b>${letra(b)}</b>`).join('<br>'));J.beep(600,.1,'triangle');
+};
+J.$('parar').onclick=()=>{if(answered)return;clearInterval(timer);end('parou');};
+
+function pick(b){
+  if(answered)return;answered=true;clearInterval(timer);
+  const certo=b&&b.dataset.t===cur.ok;
+  [...J.$('opts').children].forEach(x=>{x.disabled=true;if(x.dataset.t===cur.ok)x.classList.add('ok');});
+  J.$('ctrl').style.display='none';
+  if(certo){
+    ganho=PREMIOS[step];step++;J.$('score').textContent=fmt(ganho);J.good();paintEscada();
+    aviso(`<b>Certa resposta!</b> ${cur.fact||''}`);
+    if(step===16){J.$('next').textContent='Receber o prêmio';J.$('next').onclick=()=>end('milhao');}
+    else{J.$('next').textContent='Próxima, valendo '+fmt(PREMIOS[step]);J.$('next').onclick=ask;}
+  }else{
+    if(b)b.classList.add('no');J.bad();
+    ganho=step===15?0:Math.floor(ganho/2);
+    aviso(`<b>${b?'Que pena!':'O tempo acabou!'}</b> A resposta era “${cur.ok}”. ${cur.fact||''}`);
+    J.$('next').textContent='Ver quanto levei';J.$('next').onclick=()=>end('errou');
+  }
+  J.$('next').style.display='';
+}
+function end(como){
+  clearInterval(timer);
+  J.record('quiz-'+catKey,ganho);
+  const msgs={parou:`Você parou na pergunta ${step+1} e saiu com o dinheiro no bolso. Prudência também ganha jogo.`,
+    errou:ganho?'Errou, mas ainda levou metade do que tinha.':'Dessa vez saiu sem nada. Bora de novo?',
+    milhao:'Acertou as 16 perguntas e levou o prêmio máximo!',acabou:'As perguntas desse tema acabaram. Você levou o que tinha.'};
+  J.over(ID,ganho,msgs[como]);
+  J.$('big').textContent=(como==='milhao'?'Ganhou ':'Levou ')+fmt(ganho);
 }
 J.$('play').onclick=()=>start(catKey);J.$('other').onclick=menu;
 menu();

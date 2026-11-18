@@ -4,68 +4,132 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Joguinhos</title>
-<meta name="theme-color" content="#07060f">
+<meta name="theme-color" content="#ECECE7">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Joguinhos">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.json">
+<link rel="preload" href="fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 <style>
-  header{padding:calc(var(--top) + 26px) 20px 6px;max-width:560px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between}
-  header h1{margin:0;font-size:38px;letter-spacing:.03em;background:linear-gradient(90deg,var(--cyan),var(--violet),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
-  header p{margin:2px 0 0;color:var(--muted);font-size:14px}
-  #mute{width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.07);font-size:19px}
-  main{max-width:560px;margin:0 auto;padding:0 16px calc(var(--bot) + 30px)}
-  h2{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:26px 4px 10px}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .g{position:relative;display:block;padding:16px 14px 14px;border-radius:20px;background:var(--card);border:1px solid var(--line);overflow:hidden;min-height:118px}
+  .wrap{max-width:620px;margin:0 auto;padding:calc(var(--top) + 18px) var(--m) calc(var(--bot) + 32px)}
+  .mast{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .mast h1{font-size:clamp(78px,24.5vw,148px);margin:0 0 0 -3px}
+  #mute{width:46px;height:46px;display:grid;place-items:center;background:var(--paper-2);flex:none;margin-top:6px}
+  #mute svg{width:24px;height:24px}
+  .lede{font-size:19px;line-height:1.35;max-width:22em;margin:14px 0 26px}
+
+  /* desafio do dia */
+  .dia{background:var(--ink);color:var(--paper);padding:22px 18px 18px;margin:0 calc(var(--m) * -1) 0}
+  .dia h2{font-size:40px;margin:0 0 4px;color:var(--amarelo)}
+  .dia .tema{font-size:15px;color:#BDB6A6;margin:0 0 14px}
+  .dia .q{font-size:22px;line-height:1.3;font-weight:650;margin:0 0 14px}
+  .dia .opt{background:#2A2620;color:var(--paper);margin:6px 0}
+  .dia .opt:active{background:#3A352D}
+  .dia .opt.ok{background:var(--verde)}.dia .opt.no{background:var(--vermelho)}
+  .dia .fact{margin:14px 0 2px;font-size:17px;line-height:1.45;color:#E9E3D5}
+  .dia .fact b{color:var(--amarelo)}
+
+  section{margin-top:40px}
+  section>h2{font-size:52px;margin:0 0 12px}
+  .mosaic{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .g{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:184px;padding:16px;
+     background:var(--c);color:var(--on-c);transition:transform .14s var(--ease);opacity:0;transform:translateY(18px);animation:in .6s var(--ease) forwards}
   .g:active{transform:scale(.97)}
-  .g .ic{font-size:30px;line-height:1}
-  .g b{display:block;margin-top:10px;font-size:17px}
-  .g span{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.3}
-  .g em{position:absolute;top:12px;right:12px;font-style:normal;font-size:11px;color:var(--gold);font-weight:700}
-  .g::after{content:"";position:absolute;inset:auto -30px -40px auto;width:90px;height:90px;border-radius:50%;background:var(--c);opacity:.18;filter:blur(18px)}
-  .tip{margin:28px 4px 0;padding:14px 16px;border-radius:16px;background:rgba(124,247,255,.07);color:var(--muted);font-size:13.5px;line-height:1.45}
+  .g.w{grid-column:span 2;min-height:160px}
+  .g.t{min-height:236px}
+  .g .ic{width:46px;height:46px}
+  .g.w .ic{width:54px;height:54px}
+  .g .rec{position:absolute;top:16px;right:16px;font-size:14px;font-weight:650;font-variant-numeric:tabular-nums}
+  .g b{display:block;font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;font-size:38px;line-height:.92;letter-spacing:-.015em;margin-top:18px}
+  .g.w b{font-size:46px}
+  .g span{display:block;font-size:15.5px;line-height:1.3;margin-top:6px;max-width:19em}
+  @keyframes in{to{opacity:1;transform:none}}
+
+  .tip{margin-top:40px;background:var(--paper-2);padding:18px;font-size:16.5px;line-height:1.45}
+  .tip h2{font-size:28px;margin:0 0 6px}
+  .tip ol{margin:0;padding-left:20px}
+  footer{margin-top:44px}
+  footer .display{font-size:clamp(60px,19vw,118px)}
+  footer p{margin:10px 0 0;color:var(--ink-2);font-size:15px}
 </style>
 </head>
 <body>
-<header>
-  <div><h1>Joguinhos</h1><p>Funciona offline ✦</p></div>
-  <button id="mute" aria-label="Som">🔊</button>
-</header>
-<main id="list"></main>
+<div class="wrap">
+  <header class="mast">
+    <h1 class="display">Jogui&shy;nhos</h1>
+    <button id="mute"></button>
+  </header>
+  <p class="lede">Passatempos de bolso pra fila, pro ônibus e pro intervalo. Funciona sem internet.</p>
+
+  <div class="dia" id="dia" aria-live="polite"></div>
+
+  <main id="list"></main>
+
+  <div class="tip" id="tip">
+    <h2 class="display">Instale no iPhone</h2>
+    <ol><li>Abra este endereço no Safari</li><li>Toque em Compartilhar</li><li>Escolha “Adicionar à Tela de Início”</li></ol>
+    <p style="margin:8px 0 0">Depois disso, ele abre como app e funciona offline.</p>
+  </div>
+  <footer><div class="display">Joguinhos</div><p>Os recordes ficam guardados só neste aparelho.</p></footer>
+</div>
 <script src="common.js"></script>
+<script src="dados.js"></script>
 <script>
 const JOGOS = [
   {sec:'Ação', items:[
-    {id:'orbita', n:'Órbita', d:'Troque de órbita e pegue estrelas', ic:'🪐', c:'#7cf7ff'},
-    {id:'torre',  n:'Torre',  d:'Empilhe blocos sem errar a borda', ic:'🧱', c:'#ff7ad9'},
-    {id:'pulso',  n:'Pulso',  d:'Toque no tempo certo', ic:'💫', c:'#c58bff'},
+    {id:'orbita', n:'Órbita', d:'Troque de órbita, pegue estrelas, fuja dos meteoros.', cor:'azul', f:'w'},
+    {id:'torre',  n:'Torre',  d:'Empilhe blocos sem errar a borda.', cor:'amarelo', f:'t'},
+    {id:'pulso',  n:'Pulso',  d:'Toque na hora certa.', cor:'vermelho', f:'t'},
   ]},
   {sec:'Pensar', items:[
-    {id:'eco',    n:'Eco',    d:'Repita a sequência de cores', ic:'🧠', c:'#5dffa8'},
-    {id:'fusao',  n:'Fusão',  d:'Junte números iguais até 2048', ic:'🔢', c:'#ffe27a'},
-    {id:'conta',  n:'Conta Rápida', d:'Matemática de cabeça contra o relógio', ic:'➗', c:'#7cf7ff'},
-    {id:'palavra',n:'Palavra', d:'Descubra a palavra em 6 tentativas', ic:'🔤', c:'#ff7ad9'},
+    {id:'palavra',n:'Palavra', d:'Descubra a palavra de 5 letras em 6 tentativas.', cor:'amarelo', f:'w'},
+    {id:'eco',    n:'Eco',    d:'Repita a sequência de cores.', cor:'vermelho', f:''},
+    {id:'fusao',  n:'Fusão',  d:'Junte números iguais até chegar em 2048.', cor:'azul', f:''},
+    {id:'conta',  n:'Conta Rápida', d:'Um minuto de conta de cabeça.', cor:'tinta', f:'w'},
   ]},
   {sec:'Saber', items:[
-    {id:'quiz',   n:'Quiz',   d:'Bíblia, filmes, ciência, Brasil e mais', ic:'❓', c:'#c58bff'},
-    {id:'linha',  n:'Linha do Tempo', d:'Coloque os acontecimentos em ordem', ic:'⏳', c:'#ffe27a'},
+    {id:'quiz',   n:'Quiz do Milhão', d:'16 perguntas até R$ 1 milhão, com plateia, cartas e universitários. Bíblia, filmes, ciência, geografia e Brasil.', cor:'vermelho', f:'w t'},
+    {id:'linha',  n:'Linha do Tempo', d:'Coloque os acontecimentos em ordem: Bíblia, História e Cinema.', cor:'verde', f:'w'},
   ]},
 ];
-const list = J.$('list');
-list.innerHTML = JOGOS.map(s => `<h2>${s.sec}</h2><div class="grid">` + s.items.map(g => {
-  const b = J.best(g.id);
-  return `<a class="g" href="jogos/${g.id}.html" style="--c:${g.c}">${b ? `<em>🏆 ${b}</em>` : ''}<div class="ic">${g.ic}</div><b>${g.n}</b><span>${g.d}</span></a>`;
-}).join('') + '</div>').join('') +
-`<div class="tip" id="tip">📲 <b>Pra instalar no iPhone:</b> abra no Safari, toque em Compartilhar e depois em <b>“Adicionar à Tela de Início”</b>. Depois disso funciona sem internet.</div>`;
+let k=0;
+J.$('list').innerHTML = JOGOS.map(s => `<section><h2 class="display">${s.sec}</h2><div class="mosaic">` + s.items.map(g => {
+  const b0 = J.best(g.id), b = g.id==='quiz' && b0 ? (b0>=1e6?'R$ 1 milhão':'R$ '+(b0/1e3).toLocaleString('pt-BR')+' mil') : b0;
+  return `<a class="g ${g.cor} ${g.f}" href="jogos/${g.id}.html" style="animation-delay:${(k++)*45}ms">
+    ${b ? `<span class="rec" style="margin:0">Recorde ${b}</span>` : ''}
+    <div class="ic">${J.ICON[g.id]}</div><div><b>${g.n}</b><span>${g.d}</span></div></a>`;
+}).join('') + '</div></section>').join('');
 if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) J.$('tip').remove();
+
+// som
 const mb = J.$('mute');
-const paint = () => mb.textContent = J.muted() ? '🔇' : '🔊';
+const paint = () => { mb.innerHTML = J.muted() ? J.ICON.mudo : J.ICON.som; mb.setAttribute('aria-label', J.muted() ? 'Ligar som' : 'Desligar som'); };
 paint(); mb.onclick = () => { J.set('mute', !J.muted()); paint(); J.beep(600); };
+
+// desafio do dia: uma pergunta do quiz por dia, igual pra o dia todo
+(function(){
+  const all = Object.values(QUIZ).flatMap(c => c.q.map(q => ({q, tema:c.nome})));
+  const d = new Date(), day = Math.floor((d - new Date(2026,0,1)) / 864e5);
+  const it = all[(day * 37) % all.length], [pergunta, certa, ...resto] = it.q;
+  const h = s => [...(s+day)].reduce((n,c)=>(n*31+c.charCodeAt(0))>>>0, 7); // ordem fixa no dia
+  const ops = [certa, ...resto.slice(0,3)].map(t=>({t})).sort((a,b)=>h(a.t)-h(b.t));
+  const salvo = J.get('dia', {});
+  const box = J.$('dia');
+  box.innerHTML = `<h2 class="display">Desafio do dia</h2><p class="tema">${it.tema} · uma pergunta nova por dia</p><p class="q">${pergunta}</p><div id="dops"></div><p class="fact" id="dfact" hidden></p>`;
+  const show = (pick) => {
+    [...J.$('dops').children].forEach(b => { b.disabled = true; if (b.dataset.t === certa) b.classList.add('ok'); else if (b.dataset.t === pick) b.classList.add('no'); });
+    const f = J.$('dfact'); f.hidden = false;
+    f.innerHTML = `<b>${pick === certa ? 'Acertou!' : 'Era: ' + certa + '.'}</b> ${it.q[5] || ''}`;
+  };
+  ops.forEach(o => { const b = document.createElement('button'); b.className = 'opt'; b.textContent = o.t; b.dataset.t = o.t;
+    b.onclick = () => { if (b.disabled) return; J.set('dia', {day, pick:o.t}); o.t === certa ? J.good() : J.bad(); show(o.t); };
+    J.$('dops').appendChild(b); });
+  if (salvo.day === day) show(salvo.pick);
+})();
 </script>
 </body>
 </html>

@@ -2,14 +2,15 @@
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Órbita · Joguinhos</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#07060f">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#ECECE7">
 <link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
 </head><body>
 <canvas class="full" id="c"></canvas>
 <div class="bar"><a class="back" href="../index.html">←</a><div class="title">Órbita</div>
   <div class="stat"><small>Pontos</small><b id="score">0</b></div><div class="stat"><small>Recorde</small><b id="best">0</b></div></div>
-<div class="overlay" id="overlay"><h1>ÓRBITA</h1><p class="big" id="big" style="display:none"></p>
-  <p id="msg">Toque pra trocar de órbita.<br>Pegue as ✦ estrelas e desvie dos meteoros vermelhos.</p>
+<div class="overlay azul" id="overlay"><h1>Órbita</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg"></p>
+  <ul class="rules"><li>Toque em qualquer lugar pra pular de órbita.</li><li>Pegue as estrelas amarelas.</li><li>Fuja dos meteoros vermelhos, que vêm na contramão.</li></ul>
   <button class="btn" id="play">Jogar</button></div>
 <script src="../common.js"></script>
 <script>
@@ -17,7 +18,7 @@ const ID='orbita', C=J.canvas(J.$('c')), ctx=C.ctx;
 let cx,cy,R;
 C.onresize=()=>{cx=C.W/2;cy=C.H/2+20;R=Math.min(C.W,C.H)*0.3;}; C.onresize();
 J.$('best').textContent=J.best(ID);
-const stars=[...Array(110)].map(()=>({x:Math.random(),y:Math.random(),s:Math.random()*1.4+.3,t:Math.random()*6}));
+const K=J.C;
 let state='menu',P,items=[],parts=[],score,combo,spawnT,time=0,shake=0,pulse=0;
 const lr=l=>R*(l?1.18:0.72);
 function reset(){P={a:-Math.PI/2,lane:1,r:lr(1),spd:1.7,trail:[]};items=[];parts=[];score=0;combo=0;spawnT=.6;time=0;shake=0;J.$('score').textContent=0;}
@@ -33,8 +34,8 @@ function spawn(){
 function burst(x,y,col,n=16,sp=160){for(let i=0;i<n;i++){const a=Math.random()*6.28,s=Math.random()*sp+40;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,col})}}
 function die(){
   state='over';shake=18;
-  const x=cx+Math.cos(P.a)*P.r,y=cy+Math.sin(P.a)*P.r;burst(x,y,'#ff5577',40,260);burst(x,y,'#fff',20,180);J.bad();
-  setTimeout(()=>J.over(ID,score,score<10?'Aquece que vai. Tenta de novo!':score<40?'Mandou bem! Dá pra ir mais longe.':'Que reflexo, hein? 👀'),700);
+  const x=cx+Math.cos(P.a)*P.r,y=cy+Math.sin(P.a)*P.r;burst(x,y,K.vermelho,40,260);burst(x,y,K.ink,20,180);J.bad();
+  setTimeout(()=>J.over(ID,score,score<10?'Aquece que vai. Tenta de novo!':score<40?'Mandou bem! Dá pra ir mais longe.':'Que reflexo, hein?'),700);
 }
 function update(dt){
   time+=dt;pulse+=dt;
@@ -49,7 +50,7 @@ function update(dt){
       if(Math.hypot(px-x,py-y)<(it.type==='rock'?17:20)){
         if(it.type==='rock'){die();return;}
         combo++;score+=1+Math.floor(combo/5);J.$('score').textContent=score;
-        burst(x,y,'#7cf7ff',14);burst(x,y,'#ffe27a',6,90);J.beep(660+Math.min(combo,12)*40,.09,'triangle',.06);
+        burst(x,y,K.amarelo,14);burst(x,y,K.ink,6,90);J.beep(660+Math.min(combo,12)*40,.09,'triangle',.06);
         items.splice(i,1);continue;
       }
       if(angDiff(it.a,P.a)<-2.2){if(it.type==='star')combo=0;items.splice(i,1);}
@@ -62,27 +63,22 @@ function drawStar(x,y,r,rot){ctx.beginPath();for(let i=0;i<8;i++){const a=rot+i*
 function draw(){
   const W=C.W,H=C.H;ctx.save();
   if(shake>.5)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
-  ctx.clearRect(-20,-20,W+40,H+40);
-  for(const s of stars){ctx.globalAlpha=.3+.4*Math.sin(pulse*1.5+s.t);ctx.fillStyle='#fff';ctx.fillRect(s.x*W,s.y*H,s.s,s.s);}
-  ctx.globalAlpha=1;
-  const pg=ctx.createRadialGradient(cx-R*.12,cy-R*.12,R*.05,cx,cy,R*.45);pg.addColorStop(0,'#c58bff');pg.addColorStop(1,'#3a1d6e');
-  ctx.shadowColor='#c58bff';ctx.shadowBlur=40;ctx.fillStyle=pg;ctx.beginPath();ctx.arc(cx,cy,R*.42+Math.sin(pulse*2)*1.5,0,7);ctx.fill();ctx.shadowBlur=0;
-  ctx.setLineDash([4,10]);ctx.lineWidth=2;
-  for(const l of [0,1]){ctx.strokeStyle=state==='play'&&P.lane===l?'rgba(124,247,255,.35)':'rgba(255,255,255,.1)';ctx.beginPath();ctx.arc(cx,cy,lr(l),0,7);ctx.stroke();}
-  ctx.setLineDash([]);
+  ctx.fillStyle=K.paper;ctx.fillRect(-20,-20,W+40,H+40);
+  ctx.fillStyle=K.azul;ctx.beginPath();ctx.arc(cx,cy,R*.42,0,7);ctx.fill();
+  ctx.fillStyle=K.paper;ctx.beginPath();ctx.arc(cx-R*.13,cy-R*.13,R*.09,0,7);ctx.fill();
+  for(const l of [0,1]){ctx.strokeStyle=state==='play'&&P.lane===l?K.ink:K.paper3;ctx.lineWidth=state==='play'&&P.lane===l?3:3;ctx.beginPath();ctx.arc(cx,cy,lr(l),0,7);ctx.stroke();}
   for(const it of items){
     const r=lr(it.lane),x=cx+Math.cos(it.a)*r,y=cy+Math.sin(it.a)*r,s=Math.min(1,it.life*4);
-    if(it.type==='star'){ctx.fillStyle='#ffe27a';ctx.shadowColor='#ffe27a';ctx.shadowBlur=18;drawStar(x,y,10*s,it.rot);}
-    else{ctx.fillStyle='#ff5577';ctx.shadowColor='#ff3366';ctx.shadowBlur=22;ctx.beginPath();for(let i=0;i<7;i++){const a=it.rot+i*.9,rr=(i%2?9:12)*s;ctx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);}ctx.closePath();ctx.fill();}
+    if(it.type==='star'){ctx.fillStyle=K.amarelo;drawStar(x,y,13*s,it.rot);ctx.strokeStyle=K.ink;ctx.lineWidth=2;ctx.stroke();}
+    else{ctx.fillStyle=K.vermelho;ctx.beginPath();for(let i=0;i<7;i++){const a=it.rot+i*.9,rr=(i%2?10:13)*s;ctx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);}ctx.closePath();ctx.fill();}
   }
-  ctx.shadowBlur=0;
   if(P&&state==='play'){
-    P.trail.forEach((t,i)=>{const k=i/P.trail.length;ctx.globalAlpha=k*.6;ctx.fillStyle='#7cf7ff';ctx.beginPath();ctx.arc(cx+Math.cos(t.a)*t.r,cy+Math.sin(t.a)*t.r,7*k,0,7);ctx.fill();});
+    P.trail.forEach((t,i)=>{const k=i/P.trail.length;ctx.globalAlpha=k*.35;ctx.fillStyle=K.ink;ctx.beginPath();ctx.arc(cx+Math.cos(t.a)*t.r,cy+Math.sin(t.a)*t.r,6*k,0,7);ctx.fill();});
     ctx.globalAlpha=1;const x=cx+Math.cos(P.a)*P.r,y=cy+Math.sin(P.a)*P.r;
-    ctx.shadowColor='#7cf7ff';ctx.shadowBlur=24;ctx.fillStyle='#e9feff';ctx.beginPath();ctx.arc(x,y,9,0,7);ctx.fill();ctx.shadowBlur=0;
-    if(combo>=5){ctx.font='800 15px system-ui';ctx.textAlign='center';ctx.fillStyle='#ffe27a';ctx.fillText('x'+(1+Math.floor(combo/5)),cx,cy+5);}
+    ctx.fillStyle=K.ink;ctx.beginPath();ctx.arc(x,y,10,0,7);ctx.fill();
+    if(combo>=5){ctx.font='800 condensed 22px '+J.FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=K.paper;ctx.fillText('x'+(1+Math.floor(combo/5)),cx,cy);}
   }
-  for(const p of parts){ctx.globalAlpha=Math.max(p.life,0);ctx.fillStyle=p.col;ctx.fillRect(p.x-2,p.y-2,4,4);}
+  for(const p of parts){ctx.globalAlpha=Math.max(p.life,0);ctx.fillStyle=p.col;ctx.fillRect(p.x-3,p.y-3,6,6);}
   ctx.globalAlpha=1;ctx.restore();
 }
 let last=performance.now();

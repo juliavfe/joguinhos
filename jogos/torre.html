@@ -2,29 +2,30 @@
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Torre · Joguinhos</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#07060f">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#ECECE7">
 <link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
 </head><body>
 <canvas class="full" id="c"></canvas>
 <div class="bar"><a class="back" href="../index.html">←</a><div class="title">Torre</div>
   <div class="stat"><small>Andares</small><b id="score">0</b></div><div class="stat"><small>Recorde</small><b id="best">0</b></div></div>
-<div class="overlay" id="overlay"><h1>TORRE</h1><p class="big" id="big" style="display:none"></p>
-  <p id="msg">Toque pra soltar o bloco.<br>O que sobrar pra fora da torre é cortado. Acerte em cheio pra ganhar ✨ bônus.</p>
+<div class="overlay amarelo" id="overlay"><h1>Torre</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg"></p>
+  <ul class="rules"><li>Toque pra soltar o bloco que está passando.</li><li>O que ficar pra fora da torre é cortado.</li><li>Acerte em cheio três vezes seguidas e o bloco volta a crescer.</li></ul>
   <button class="btn" id="play">Jogar</button></div>
 <script src="../common.js"></script>
 <script>
-const ID='torre', C=J.canvas(J.$('c')), ctx=C.ctx, BH=30;
+const ID='torre', C=J.canvas(J.$('c')), ctx=C.ctx, BH=30, K=J.C, CORES=[K.amarelo,K.vermelho,K.azul,K.verde];
 J.$('best').textContent=J.best(ID);
 let state='menu',stack,mov,cam,falling,parts,score,perfect,flash,hue0;
 function reset(){
-  const w=Math.min(C.W*.6,260);hue0=Math.random()*360;
+  const w=Math.min(C.W*.6,260);hue0=0;
   stack=[{x:(C.W-w)/2,w,h:hue0}];falling=[];parts=[];score=0;perfect=0;cam=0;flash=0;
   newMov();J.$('score').textContent=0;
 }
 function newMov(){
   const top=stack[stack.length-1],fromLeft=stack.length%2===0;
   const spd=170+Math.min(stack.length*7,260);
-  mov={x:fromLeft?-top.w:C.W,w:top.w,dir:fromLeft?1:-1,spd,h:hue0+stack.length*9};
+  mov={x:fromLeft?-top.w:C.W,w:top.w,dir:fromLeft?1:-1,spd,h:stack.length};
 }
 function start(){reset();state='play';J.$('overlay').classList.add('hide');}
 function drop(){
@@ -46,7 +47,7 @@ function drop(){
   stack.push({x:nx,w:nw,h:mov.h});J.$('score').textContent=stack.length-1;
   newMov();
 }
-function over(){state='over';J.bad();setTimeout(()=>{const n=stack.length-1;J.over(ID,n,n<10?'Respira e tenta de novo 🙂':n<25?'Torre bonita!':'Arranha-céu! 🏙️');},800);}
+function over(){state='over';J.bad();setTimeout(()=>{const n=stack.length-1;J.over(ID,n,n<10?'Respira e tenta de novo 🙂':n<25?'Torre bonita!':'Isso já é um arranha-céu!');},800);}
 function baseY(){return C.H-110;}
 function update(dt){
   if(state==='play'&&mov){mov.x+=mov.dir*mov.spd*dt;
@@ -56,20 +57,18 @@ function update(dt){
   falling=falling.filter(f=>f.dy<C.H+200);flash*=.9;
 }
 function block(x,y,w,h,alpha=1){
-  ctx.globalAlpha=alpha;
-  ctx.fillStyle=`hsl(${h%360} 90% 65%)`;ctx.fillRect(x,y,w,BH-2);
-  ctx.fillStyle=`hsl(${h%360} 90% 80%)`;ctx.fillRect(x,y,w,5);ctx.globalAlpha=1;
+  ctx.globalAlpha=alpha;ctx.fillStyle=CORES[h%4];ctx.fillRect(x,y,w,BH-3);ctx.globalAlpha=1;
 }
 function draw(){
-  ctx.clearRect(0,0,C.W,C.H);
+  ctx.fillStyle=K.paper;ctx.fillRect(0,0,C.W,C.H);
   const by=baseY()+cam;
-  ctx.fillStyle='rgba(255,255,255,.06)';ctx.fillRect(0,by+BH,C.W,C.H);
+  ctx.fillStyle=K.ink;ctx.fillRect(0,by+BH,C.W,C.H);
   if(!stack)return;
   stack.forEach((b,i)=>block(b.x,by-i*BH,b.w,b.h));
-  if(flash>.05){const t=stack[stack.length-1];ctx.strokeStyle=`rgba(255,255,255,${flash})`;ctx.lineWidth=3;ctx.strokeRect(t.x-4,by-(stack.length-1)*BH-4,t.w+8,BH+6);}
+  if(flash>.05){const t=stack[stack.length-1];ctx.strokeStyle=`rgba(22,19,15,${flash})`;ctx.lineWidth=3;ctx.strokeRect(t.x-4,by-(stack.length-1)*BH-4,t.w+8,BH+6);}
   if(mov&&state==='play')block(mov.x,by-stack.length*BH,mov.w,mov.h);
   for(const f of falling)block(f.x,by-f.y*BH+f.dy,f.w,f.h,.8);
-  if(perfect>=2&&state==='play'){ctx.font='800 16px system-ui';ctx.textAlign='center';ctx.fillStyle='#ffe27a';ctx.fillText('em cheio x'+perfect,C.W/2,by-stack.length*BH-24);}
+  if(perfect>=2&&state==='play'){ctx.font='800 condensed 20px '+J.FONT;ctx.textAlign='center';ctx.fillStyle=K.ink;ctx.fillText('Em cheio ×'+perfect,C.W/2,by-stack.length*BH-24);}
 }
 let last=performance.now();
 function loop(t){const dt=Math.min((t-last)/1000,.05);last=t;update(dt);draw();requestAnimationFrame(loop);}

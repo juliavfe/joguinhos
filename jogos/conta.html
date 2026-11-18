@@ -2,23 +2,24 @@
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Conta Rápida · Joguinhos</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#07060f">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#ECECE7">
 <link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
 <style>
-  #q{font-size:clamp(44px,14vw,68px);font-weight:800;text-align:center;margin:40px 0 30px;letter-spacing:.02em}
-  .opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .opts .opt{text-align:center;font-size:28px;font-weight:800;margin:0;padding:22px 0}
-  #t{text-align:center;color:var(--muted);font-weight:700}
+  #q{font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;font-size:clamp(80px,25vw,128px);line-height:1;letter-spacing:-.02em;margin:34px 0 30px;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .opts .opt{text-align:center;font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;font-size:40px;margin:0;padding:22px 0;font-variant-numeric:tabular-nums}
+  #t{font-weight:700;font-variant-numeric:tabular-nums}
 </style>
 </head><body>
 <div class="bar"><a class="back" href="../index.html">←</a><div class="title">Conta Rápida</div>
   <div class="stat"><small>Acertos</small><b id="score">0</b></div><div class="stat"><small>Recorde</small><b id="best">0</b></div></div>
 <div class="page">
-  <div id="t">60s</div><div class="timer"><i id="bar"></i></div>
+  <div id="t">60 s</div><div class="timer"><i id="bar"></i></div>
   <div id="q">?</div><div class="opts" id="opts"></div>
 </div>
-<div class="overlay" id="overlay"><h1>CONTA<br>RÁPIDA</h1><p class="big" id="big" style="display:none"></p>
-  <p id="msg">Você tem 60 segundos pra acertar o máximo de contas.<br>Errou? Perde 3 segundos. Fica mais difícil conforme você acerta.</p>
+<div class="overlay tinta" id="overlay"><h1>Conta Rápida</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg"></p>
+  <ul class="rules"><li>Um minuto pra acertar o máximo de contas.</li><li>Cada erro tira 3 segundos.</li><li>Quanto mais você acerta, mais difícil fica.</li></ul>
   <button class="btn" id="play">Jogar</button></div>
 <script src="../common.js"></script>
 <script>
@@ -48,8 +49,8 @@ function pick(b,v){
   else{b.classList.add('no');J.bad();left-=3;J.$('q').classList.add('shake');setTimeout(()=>{J.$('q').classList.remove('shake');make();},350);}
 }
 function tick(){
-  left-=.1;J.$('bar').style.width=Math.max(0,left/TOTAL*100)+'%';J.$('t').textContent=Math.max(0,Math.ceil(left))+'s';
-  if(left<=0){clearInterval(timer);lock=true;J.over(ID,score,score<10?'Aquecimento feito, bora de novo!':score<25?'Cabeça boa pra conta!':'Calculadora humana 🧮');}
+  left-=.1;J.$('bar').style.width=Math.max(0,left/TOTAL*100)+'%';J.$('t').textContent=Math.max(0,Math.ceil(left))+' s';
+  if(left<=0){clearInterval(timer);lock=true;J.over(ID,score,score<10?'Aquecimento feito, bora de novo!':score<25?'Cabeça boa pra conta!':'Calculadora humana.');}
 }
 function start(){score=0;left=TOTAL;J.$('score').textContent=0;J.$('overlay').classList.add('hide');make();clearInterval(timer);timer=setInterval(tick,100);}
 J.$('play').onclick=start;
