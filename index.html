@@ -29,22 +29,32 @@
   #mute svg{width:24px;height:24px}
   .lede{font-size:18.5px;line-height:1.4;max-width:22em;margin:12px 0 8px;color:var(--ink-2)}
 
-  section.grupo{margin-top:34px}
-  section.grupo>h2{font-size:40px;margin:0 0 12px}
-  .mosaic{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .g{border-radius:var(--r);position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:184px;padding:16px;
-     background:var(--c);color:var(--on-c);transition:transform .14s var(--ease)}
-  @media (prefers-reduced-motion:no-preference){.view.on .g{animation:in .6s var(--ease) backwards}}
-  .g:active{transform:scale(.97)}
-  .g.w{grid-column:span 2;min-height:160px}
-  .g.t{min-height:236px}
-  .g .ic{width:46px;height:46px}
-  .g.w .ic{width:54px;height:54px}
-  .g .rec{position:absolute;top:16px;right:16px;font-size:14px;font-weight:650;font-variant-numeric:tabular-nums}
-  .g b{display:block;font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:34px;line-height:.95;letter-spacing:-.02em;margin-top:18px}
-  .g.w b{font-size:40px}
-  .g span{display:block;font-size:15.5px;line-height:1.3;margin-top:6px;max-width:19em}
-  @keyframes in{from{opacity:0;transform:translateY(18px)}}
+  .data{color:var(--ink-2);font-size:15.5px;margin:2px 0 0}
+  .hero{display:block;margin:20px 0 4px;border-radius:24px;overflow:hidden;background:var(--paper-2);transition:transform .16s var(--ease)}
+  .hero:active{transform:scale(.98)}
+  .hero .art{display:block;aspect-ratio:16/10;overflow:hidden}
+  .hero .art svg{display:block;width:100%;height:100%}
+  .hero .info{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px 16px}
+  .hero .info small{display:block;color:var(--ink-2);font-size:14px;margin-bottom:3px}
+  .hero .info b{display:block;font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:30px;line-height:1;letter-spacing:-.015em}
+  .hero .info p{margin:6px 0 0;color:var(--ink-2);font-size:15px;line-height:1.35}
+  .pill{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:76px;min-height:34px;padding:0 16px;border-radius:999px;
+    background:var(--paper-3);color:var(--ink);font-weight:700;font-size:15px;letter-spacing:.01em}
+  .hero .pill{background:var(--ink);color:var(--pinho);min-height:40px;min-width:92px;font-size:16px}
+  section.grupo{margin-top:30px}
+  section.grupo>h2{font-size:30px;margin:0 0 4px}
+  .item{display:flex;align-items:center;gap:14px;min-height:88px;transition:opacity .15s}
+  .item:active{opacity:.6}
+  .item .ico{width:64px;height:64px;border-radius:15px;overflow:hidden;flex:none}
+  .item .ico svg{display:block;width:100%;height:100%}
+  .item .txt{flex:1;min-width:0;align-self:stretch;display:flex;align-items:center;gap:12px;box-shadow:0 1px 0 rgba(241,234,219,.09)}
+  .item:last-child .txt{box-shadow:none}
+  .item .t2{flex:1;min-width:0;padding:12px 0}
+  .item b{display:block;font-weight:600;font-size:17.5px;line-height:1.2}
+  .item .t2>span{display:block;color:var(--ink-2);font-size:14.5px;line-height:1.3;margin-top:2px}
+  .item em{display:block;font-style:normal;color:var(--amarelo);font-size:13.5px;font-weight:600;margin-top:3px}
+  @media (prefers-reduced-motion:no-preference){.view.on .hero,.view.on .grupo{animation:in .5s var(--ease) backwards}.view.on .grupo{animation-delay:.08s}}
+  @keyframes in{from{opacity:0;transform:translateY(14px)}}
 
   .tip{margin-top:22px;background:var(--paper-2);border-radius:var(--r);padding:18px;font-size:16.5px;line-height:1.45}
   .tip h2{font-size:28px;margin:0 0 6px}
@@ -110,13 +120,13 @@
     <h1 class="display">Joguinhos</h1>
     <button id="mute"></button>
   </header>
-  <p class="lede">Passatempos de bolso pra fila, pro ônibus e pro intervalo. Funciona sem internet.</p>
+  <p class="data" id="data"></p>
+  <div id="list"></div>
   <div class="tip" id="tip">
     <h2 class="display">Instale no iPhone</h2>
     <ol><li>Abra este endereço no Safari</li><li>Toque em Compartilhar</li><li>Escolha “Adicionar à Tela de Início”</li></ol>
     <p style="margin:8px 0 0">Depois disso, ele abre como app e funciona offline.</p>
   </div>
-  <div id="list"></div>
 </div>
 
 <!-- Desafio -->
@@ -151,22 +161,23 @@
 
 <script src="common.js"></script>
 <script src="dados.js"></script>
+<script src="arte.js"></script>
 <script>
 const JOGOS = [
   {sec:'Ação', items:[
-    {id:'orbita', n:'Órbita', d:'Troque de órbita, pegue estrelas, fuja dos meteoros.', cor:'azul', f:'w'},
-    {id:'torre',  n:'Torre',  d:'Empilhe blocos sem errar a borda.', cor:'amarelo', f:'t'},
-    {id:'pulso',  n:'Pulso',  d:'Toque na hora certa.', cor:'vermelho', f:'t'},
+    {id:'orbita', n:'Órbita', d:'Pule entre duas órbitas, pegue estrelas e fuja dos meteoros que vêm na contramão.', curta:'Pegue estrelas, fuja dos meteoros', cor:'azul', f:'w'},
+    {id:'torre',  n:'Torre',  d:'Solte cada bloco na hora certa. O que sobrar pra fora é cortado.', curta:'Empilhe sem errar a borda', cor:'amarelo', f:'t'},
+    {id:'pulso',  n:'Pulso',  d:'O ponteiro gira cada vez mais rápido. Toque quando ele passar pelo alvo.', curta:'Toque no tempo certo', cor:'vermelho', f:'t'},
   ]},
   {sec:'Pensar', items:[
-    {id:'palavra',n:'Palavra', d:'Descubra a palavra de 5 letras em 6 tentativas.', cor:'amarelo', f:'w'},
-    {id:'eco',    n:'Eco',    d:'Repita a sequência de cores.', cor:'vermelho', f:''},
-    {id:'fusao',  n:'Fusão',  d:'Junte números iguais até chegar em 2048.', cor:'azul', f:''},
-    {id:'conta',  n:'Conta Rápida', d:'Um minuto de conta de cabeça.', cor:'tinta', f:'w'},
+    {id:'palavra',n:'Palavra', d:'Descubra a palavra de 5 letras em 6 tentativas. As cores vão dando as pistas.', curta:'5 letras, 6 tentativas', cor:'amarelo', f:'w'},
+    {id:'eco',    n:'Eco',    d:'As cores acendem numa sequência que cresce a cada rodada. Repita sem errar.', curta:'Repita a sequência de cores', cor:'vermelho', f:''},
+    {id:'fusao',  n:'Fusão',  d:'Deslize pra juntar números iguais. Chegue no 2048 se conseguir.', curta:'Junte números até o 2048', cor:'azul', f:''},
+    {id:'conta',  n:'Conta Rápida', d:'Um minuto pra acertar o máximo de contas de cabeça. Cada erro custa 3 segundos.', curta:'Um minuto de conta de cabeça', cor:'tinta', f:'w'},
   ]},
   {sec:'Saber', items:[
-    {id:'quiz',   n:'Quiz do Milhão', d:'16 perguntas até R$ 1 milhão, com plateia, cartas e universitários. Bíblia, filmes, ciência, geografia e Brasil.', cor:'vermelho', f:'w t'},
-    {id:'linha',  n:'Linha do Tempo', d:'Coloque os acontecimentos em ordem: Bíblia, História e Cinema.', cor:'verde', f:'w'},
+    {id:'quiz',   n:'Quiz do Milhão', d:'16 perguntas até R$ 1 milhão, com plateia, cartas e universitários.', curta:'Bíblia, filmes, ciência e mais', cor:'vermelho', f:'w t'},
+    {id:'linha',  n:'Linha do Tempo', d:'Coloque os acontecimentos na ordem certa: Bíblia, História e Cinema.', curta:'Bíblia, História e Cinema em ordem', cor:'verde', f:'w'},
   ]},
 ];
 const UNID={orbita:'pontos',torre:'andares',pulso:'pontos',palavra:'vitórias seguidas',eco:'níveis',fusao:'pontos',conta:'acertos em 1 minuto',quiz:'maior prêmio',linha:'pontos de 25'};
@@ -174,13 +185,15 @@ const reais=v=>v>=1e6?'R$ 1 milhão':'R$ '+(v/1e3).toLocaleString('pt-BR',{maxim
 const recTxt=(id,b)=>id==='quiz'&&b?reais(b):b;
 
 function desenhaLista(){
-  let k=0;
-  J.$('list').innerHTML = JOGOS.map(s => `<section class="grupo"><h2 class="display">${s.sec}</h2><div class="mosaic">` + s.items.map(g => {
-    const b = J.best(g.id);
-    return `<a class="g ${g.cor} ${g.f}" href="jogos/${g.id}.html" style="animation-delay:${(k++)*45}ms">
-      ${b ? `<span class="rec" style="margin:0">Recorde ${recTxt(g.id,b)}</span>` : ''}
-      <div class="ic">${J.ICON[g.id]}</div><div><b>${g.n}</b><span>${g.d}</span></div></a>`;
-  }).join('') + '</div></section>').join('');
+  const todos=JOGOS.flatMap(s=>s.items), hojeN=Math.floor((new Date(new Date().toDateString())-new Date(2026,0,1))/864e5);
+  const dest=todos[((hojeN%todos.length)+todos.length)%todos.length];
+  const rec=g=>{const b=J.best(g.id);return b?`<em>Recorde: ${recTxt(g.id,b)}</em>`:'';};
+  J.$('list').innerHTML=
+    `<a class="g hero" href="jogos/${dest.id}.html"><span class="art">${ARTE[dest.id]().replace('xMidYMid slice','xMidYMid meet')}</span>
+      <span class="info"><span><small>Jogo do dia</small><b>${dest.n}</b><p>${dest.d}</p></span><span class="pill">Jogar</span></span></a>`+
+    JOGOS.map(s=>`<section class="grupo"><h2 class="display">${s.sec}</h2>`+s.items.map(g=>
+      `<a class="g item" href="jogos/${g.id}.html"><span class="ico">${ARTE[g.id]()}</span>
+        <span class="txt"><span class="t2"><b>${g.n}</b><span>${g.curta||g.d}</span>${rec(g)}</span><span class="pill">Jogar</span></span></a>`).join('')+`</section>`).join('');
 }
 function desenhaRecordes(){
   J.$('recs').innerHTML = JOGOS.flatMap(s=>s.items).map(g=>{
@@ -189,6 +202,7 @@ function desenhaRecordes(){
   }).join('');
 }
 desenhaLista(); desenhaRecordes();
+J.$('data').textContent=(d=>{const t=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});return t[0].toUpperCase()+t.slice(1);})(new Date());
 if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) J.$('tip').remove();
 
 // abas
