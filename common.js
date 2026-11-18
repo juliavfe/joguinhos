@@ -27,9 +27,9 @@ const J = {
   $(id) { return document.getElementById(id); },
   canvas(el) {
     const ctx = el.getContext('2d'); const s = { ctx, W: 0, H: 0 };
-    const fit = () => { const d = Math.min(devicePixelRatio || 1, 2); s.W = innerWidth; s.H = innerHeight;
+    const fit = () => { const d = Math.min(devicePixelRatio || 1, 2); s.W = el.clientWidth || innerWidth; s.H = el.clientHeight || innerHeight;
       el.width = s.W * d; el.height = s.H * d; ctx.setTransform(d, 0, 0, d, 0, 0); s.onresize && s.onresize(); };
-    addEventListener('resize', fit); fit(); return s;
+    addEventListener('resize', fit); addEventListener('orientationchange', () => setTimeout(fit, 300)); fit(); return s;
   },
   // tela final padrão
   over(id, score, extra = '') {

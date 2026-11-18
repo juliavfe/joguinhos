@@ -1,6 +1,6 @@
 // Guarda tudo no celular pra funcionar sem internet.
 // Quando mudar algum arquivo, aumente a versão pra o app baixar a atualização.
-const VERSAO = 'joguinhos-v3';
+const VERSAO = 'joguinhos-v4';
 const ARQUIVOS = [
   "./",
   "common.js",
@@ -28,12 +28,17 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSAO).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
-// Usa o que está guardado; se tiver internet, atualiza em segundo plano.
+// Páginas: tenta a internet primeiro (pra pegar a versão nova) e cai no guardado se estiver offline.
+// Resto (css, js, fonte, ícones): usa o guardado e atualiza em segundo plano.
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
+  const req = e.request;
+  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  const isPage = req.mode === 'navigate' || req.destination === 'document';
   e.respondWith(caches.open(VERSAO).then(async c => {
-    const hit = await c.match(e.request, { ignoreSearch: true });
-    const net = fetch(e.request).then(r => { if (r.ok && new URL(e.request.url).origin === location.origin) c.put(e.request, r.clone()); return r; }).catch(() => hit);
+    const hit = await c.match(req, { ignoreSearch: true });
+    const net = fetch(req).then(r => { if (r.ok) c.put(req, r.clone()); return r; });
+    if (isPage) return net.catch(() => hit || c.match('./index.html'));
+    net.catch(() => {});
     return hit || net;
   }));
 });
