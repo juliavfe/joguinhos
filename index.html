@@ -99,8 +99,39 @@
   .recs .v.zero{color:var(--ink-2)}
   .fim{margin-top:28px;color:var(--ink-2);font-size:15px}
 
+  /* bíblia */
+  .bib .lede{font-size:18px;color:var(--ink-2);margin:0 0 18px;max-width:24em}
+  .prog{display:flex;justify-content:space-between;font-size:15px;color:var(--ink-2);margin-bottom:8px}
+  .prog b{color:var(--ink);font-weight:650}
+  .barra{height:8px;border-radius:8px;background:var(--paper-2);overflow:hidden}
+  .barra i{display:block;height:100%;background:var(--amarelo);border-radius:8px}
+  .quem{display:flex;align-items:center;gap:16px;margin:22px 0 0;padding:18px;border-radius:var(--r);background:var(--vermelho);color:var(--pinho);transition:transform .15s var(--ease)}
+  .quem:active{transform:scale(.98)}
+  .quem .qi{flex:none;width:58px;height:58px;border-radius:50%;background:var(--pinho);color:var(--vermelho);display:grid;place-items:center;font-family:var(--serif);font-weight:600;font-size:34px;line-height:1}
+  .quem b{display:block;font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:28px;line-height:1;white-space:nowrap}
+  .quem .qt{flex:1;min-width:0}
+  .quem .qt>span{display:block;font-size:15px;margin-top:5px;line-height:1.3}
+  .quem .pill{background:var(--pinho);color:var(--ink)}
+  .bib h2.sec{font-size:30px;margin:30px 0 6px}
+  .jornada{margin:0;padding:0;list-style:none}
+  .passo{position:relative;display:flex;align-items:center;gap:16px;min-height:80px}
+  .jornada li:not(:last-child) .passo::before{content:"";position:absolute;left:25px;top:52px;bottom:-28px;width:3px;border-radius:3px;background:var(--paper-3)}
+  .jornada li:not(:last-child) .passo.feita::before{background:var(--amarelo)}
+  .passo .bola{position:relative;flex:none;width:53px;height:53px;border-radius:50%;display:grid;place-items:center;background:var(--paper-2);color:var(--ink-2);
+    font-family:var(--serif);font-weight:600;font-size:22px;font-variant-numeric:lining-nums}
+  .passo.aberta .bola{background:var(--c);color:var(--pinho);box-shadow:0 0 0 5px rgba(216,178,74,.0)}
+  .passo.atual .bola{box-shadow:0 0 0 4px var(--paper),0 0 0 7px var(--amarelo)}
+  .passo .bola svg{width:22px;height:22px}
+  .passo .tx{flex:1;min-width:0}
+  .passo .tx b{display:block;font-weight:600;font-size:17.5px;line-height:1.2}
+  .passo .tx span{display:block;color:var(--ink-2);font-size:14.5px;margin-top:2px}
+  .passo .st{display:flex;gap:2px;flex:none}
+  .passo .st svg{width:17px;height:17px}
+  .passo.trancada{opacity:.45;pointer-events:none}
+  .passo:active .bola{transform:scale(.94)}
+
   /* barra de abas */
-  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;display:grid;grid-template-columns:repeat(4,1fr);
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;display:grid;grid-template-columns:repeat(5,1fr);
     background:#18221D;padding-bottom:var(--bot)}
   .tab{min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#87928A;font-size:12.5px;font-weight:650}
   .tab svg{width:25px;height:25px}
@@ -129,6 +160,17 @@
   </div>
 </div>
 
+<!-- Bíblia -->
+<div class="view off bib" id="v-biblia" role="tabpanel" aria-label="Bíblia" inert>
+  <h1 class="display pt">Bíblia</h1>
+  <p class="lede">A história da Bíblia do começo ao fim, uma lição curtinha de cada vez.</p>
+  <div class="prog"><span id="progT"></span><span id="progE"></span></div>
+  <div class="barra"><i id="progB"></i></div>
+  <a class="g quem" href="jogos/quemsou.html"><span class="qi">?</span><span class="qt"><b>Quem sou eu?</b><span id="quemRec">Adivinhe o personagem pelas pistas</span></span><span class="pill">Jogar</span></a>
+  <h2 class="display sec">Jornada</h2>
+  <ol class="jornada" id="jornada"></ol>
+</div>
+
 <!-- Desafio -->
 <div class="view off" id="v-desafio" role="tabpanel" aria-label="Desafio do dia" inert>
   <h1 class="display pt">Desafio do dia</h1>
@@ -152,6 +194,7 @@
 
 <nav class="tabs" role="tablist" aria-label="Seções">
   <button class="tab" role="tab" data-v="jogos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" fill="currentColor"/><rect x="13" y="3" width="8" height="8" fill="currentColor"/><rect x="3" y="13" width="8" height="8" fill="currentColor"/><rect x="13" y="13" width="8" height="8" fill="currentColor"/></svg>Jogos</button>
+  <button class="tab" role="tab" data-v="biblia"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5C4 3.7 4.7 3 5.5 3H19v15H6a2 2 0 0 0-2 2z" fill="currentColor"/><path d="M4 20a2 2 0 0 0 2 2h13v-2.6H6.2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="10.6" y="6" width="2.4" height="8.5" fill="#18221D"/><rect x="8.3" y="8.2" width="7" height="2.3" fill="#18221D"/></svg>Bíblia</button>
   <button class="tab" role="tab" data-v="desafio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="3" y="5" width="18" height="5" fill="currentColor"/><rect x="7" y="2" width="2.6" height="5" fill="currentColor"/><rect x="14.4" y="2" width="2.6" height="5" fill="currentColor"/><rect x="11" y="13" width="5" height="5" fill="currentColor"/></svg>Desafio</button>
   <button class="tab" role="tab" data-v="trilha"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h11v11.5a3.5 3.5 0 1 1-2-3.15V8h-7v9.5a3.5 3.5 0 1 1-2-3.15z" fill="currentColor"/></svg>Trilha</button>
   <button class="tab" role="tab" data-v="recordes"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="12" width="6" height="9" fill="currentColor"/><rect x="9" y="5" width="6" height="16" fill="currentColor"/><rect x="16" y="9" width="6" height="12" fill="currentColor"/></svg>Recordes</button>
@@ -162,6 +205,7 @@
 <script src="common.js"></script>
 <script src="dados.js"></script>
 <script src="arte.js"></script>
+<script src="biblia.js"></script>
 <script>
 const JOGOS = [
   {sec:'Ação', items:[
@@ -180,7 +224,7 @@ const JOGOS = [
     {id:'linha',  n:'Linha do Tempo', d:'Coloque os acontecimentos na ordem certa: Bíblia, História e Cinema.', curta:'Bíblia, História e Cinema em ordem', cor:'verde', f:'w'},
   ]},
 ];
-const UNID={orbita:'pontos',torre:'andares',pulso:'pontos',palavra:'vitórias seguidas',eco:'níveis',fusao:'pontos',conta:'acertos em 1 minuto',quiz:'maior prêmio',linha:'pontos de 25'};
+const UNID={quemsou:'pontos de 32',orbita:'pontos',torre:'andares',pulso:'pontos',palavra:'vitórias seguidas',eco:'níveis',fusao:'pontos',conta:'acertos em 1 minuto',quiz:'maior prêmio',linha:'pontos de 25'};
 const reais=v=>v>=1e6?'R$ 1 milhão':'R$ '+(v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil';
 const recTxt=(id,b)=>id==='quiz'&&b?reais(b):b;
 
@@ -195,13 +239,31 @@ function desenhaLista(){
       `<a class="g item" href="jogos/${g.id}.html"><span class="ico">${ARTE[g.id]()}</span>
         <span class="txt"><span class="t2"><b>${g.n}</b><span>${g.curta||g.d}</span>${rec(g)}</span><span class="pill">Jogar</span></span></a>`).join('')+`</section>`).join('');
 }
+function desenhaBiblia(){
+  const est=LICOES.map((_,i)=>J.get('licao-'+i,0)), feitas=est.filter(x=>x>0).length, tot=est.reduce((a,b)=>a+b,0);
+  J.$('progT').innerHTML=`<b>${feitas} de ${LICOES.length}</b> lições`;
+  J.$('progE').textContent=`${tot} de ${LICOES.length*3} estrelas`;
+  J.$('progB').style.width=(feitas/LICOES.length*100)+'%';
+  const qb=J.best('quemsou'); J.$('quemRec').textContent=qb?`Recorde: ${qb} pontos`:'Adivinhe o personagem pelas pistas';
+  const atual=est.findIndex(x=>!x);
+  const star=on=>`<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" fill="${on?'#D8B24A':'#384840'}"/></svg>`;
+  const cadeado='<svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>';
+  const check='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  J.$('jornada').innerHTML=LICOES.map((l,i)=>{
+    const aberta=i===0||est[i-1]>0, feita=est[i]>0;
+    const cls=['passo',l.cor,aberta?'aberta':'trancada',feita?'feita':'',i===atual?'atual':''].join(' ');
+    const bola=feita?check:aberta?(i+1):cadeado;
+    const inner=`<span class="bola">${bola}</span><span class="tx"><b>${l.t}</b><span>${l.ref}</span></span>${feita?`<span class="st">${[0,1,2].map(k=>star(k<est[i])).join('')}</span>`:''}`;
+    return `<li>${aberta?`<a class="g ${cls}" href="jogos/licao.html?n=${i}">${inner}</a>`:`<div class="${cls}" aria-disabled="true">${inner}</div>`}</li>`;
+  }).join('');
+}
 function desenhaRecordes(){
-  J.$('recs').innerHTML = JOGOS.flatMap(s=>s.items).map(g=>{
+  J.$('recs').innerHTML = JOGOS.flatMap(s=>s.items).concat([{id:'quemsou',n:'Quem sou eu?',cor:'vermelho'}]).map(g=>{
     const b=J.best(g.id);
     return `<li class="${g.cor}"><span class="sq"></span><span class="n">${g.n}<small>${UNID[g.id]}</small></span><span class="v ${b?'':'zero'}">${b?recTxt(g.id,b):'–'}</span></li>`;
   }).join('');
 }
-desenhaLista(); desenhaRecordes();
+desenhaLista(); desenhaRecordes(); desenhaBiblia();
 J.$('data').textContent=(d=>{const t=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});return t[0].toUpperCase()+t.slice(1);})(new Date());
 if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) J.$('tip').remove();
 
@@ -229,7 +291,7 @@ document.addEventListener('click',e=>{
 addEventListener('message',e=>{
   if(e.origin!==location.origin||e.data!=='jg-fechar') return;
   J.$('layer').hidden=true; J.$('gf').src='about:blank'; document.body.style.overflow='';
-  desenhaLista(); desenhaRecordes();
+  desenhaLista(); desenhaRecordes(); desenhaBiblia();
 });
 
 // trilha: playlist do Spotify ou Apple Music que continua tocando enquanto joga

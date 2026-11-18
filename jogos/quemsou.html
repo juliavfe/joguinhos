@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Quem sou eu? · Joguinhos</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#1F2B25">
+<link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
+<style>
+  .topo{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+  .topo b{font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:30px}
+  .topo span{color:var(--ink-2);font-size:15px}
+  .pistas{margin:0 0 14px;padding:0;list-style:none}
+  .pistas li{position:relative;padding:16px 18px 16px 54px;margin-bottom:8px;border-radius:var(--r-s);background:var(--paper-2);font-size:18.5px;line-height:1.38}
+  .pistas li i{position:absolute;left:16px;top:15px;width:26px;height:26px;border-radius:50%;background:var(--vermelho);color:var(--pinho);display:grid;place-items:center;font-style:normal;font-weight:700;font-size:14px}
+  .pistas li.nova{animation:entra .35s var(--ease) backwards}
+  @keyframes entra{from{opacity:0;transform:translateY(10px)}}
+  .ops{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .ops .opt{margin:0;text-align:center;font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 72,"SOFT" 100;font-size:22px;padding:18px 8px}
+  #mais{width:100%;margin-top:10px;min-height:52px;font-size:16.5px}
+  #mais:disabled{opacity:.3}
+  .valor{color:var(--amarelo);font-weight:700}
+  .res{margin-top:12px;padding:14px 16px;border-radius:var(--r-s);background:var(--paper-2);font-size:17px}
+  .res b{color:var(--amarelo)}
+  #next{width:100%;margin-top:10px}
+</style>
+</head><body>
+<div class="bar"><a class="back" href="../index.html">←</a><div class="title">Quem sou eu?</div>
+  <div class="stat"><small>Pontos</small><b id="score">0</b></div><div class="stat"><small>Recorde</small><b id="best">0</b></div></div>
+
+<div class="page">
+  <div class="topo"><b id="rodada">Personagem 1 de 8</b><span>vale <span class="valor" id="vale">4 pontos</span></span></div>
+  <ul class="pistas" id="pistas" aria-live="polite"></ul>
+  <div class="ops" id="ops"></div>
+  <button class="btn ghost" id="mais">Mais uma pista (vale 1 ponto a menos)</button>
+  <div id="res"></div>
+  <button class="btn" id="next" style="display:none">Próximo personagem</button>
+</div>
+
+<div class="overlay vermelho" id="overlay"><h1>Quem sou eu?</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg"></p>
+  <ul class="rules"><li>Um personagem da Bíblia dá pistas sobre si mesmo.</li><li>Acertou com 1 pista, ganha 4 pontos. Cada pista a mais vale 1 ponto a menos.</li><li>São 8 personagens por partida.</li></ul>
+  <button class="btn" id="play">Jogar</button></div>
+
+<script src="../common.js"></script>
+<script src="../biblia.js"></script>
+<script>
+const ID='quemsou',R=8;
+J.$('best').textContent=J.best(ID);
+let fila,r,cur,pistas,score,done;
+function start(){fila=J.shuffle(QUEM).slice(0,R);r=0;score=0;J.$('score').textContent=0;J.$('overlay').classList.add('hide');ronda();}
+function ronda(){
+  cur=fila[r];pistas=1;done=false;
+  J.$('rodada').textContent=`Personagem ${r+1} de ${R}`;
+  J.$('pistas').innerHTML='';J.$('res').innerHTML='';J.$('next').style.display='none';J.$('mais').style.display='';
+  addPista();
+  const outros=J.shuffle(QUEM.filter(p=>p!==cur)).slice(0,3).map(p=>p[0]);
+  J.$('ops').innerHTML='';
+  J.shuffle([cur[0],...outros]).forEach(nome=>{const b=document.createElement('button');b.className='opt';b.textContent=nome;b.onclick=()=>pick(b,nome);J.$('ops').appendChild(b);});
+  vale();
+}
+function addPista(){const li=document.createElement('li');li.className='nova';li.innerHTML=`<i>${pistas}</i>`;li.append(cur[pistas]);J.$('pistas').appendChild(li);}
+function vale(){const v=5-pistas;J.$('vale').textContent=v+(v===1?' ponto':' pontos');J.$('mais').disabled=pistas>=4||done;}
+J.$('mais').onclick=()=>{if(done||pistas>=4)return;pistas++;addPista();vale();J.beep(420,.05,'triangle',.04);};
+function pick(b,nome){
+  if(done)return;done=true;
+  [...J.$('ops').children].forEach(x=>{x.disabled=true;if(x.textContent===cur[0])x.classList.add('ok');});
+  let txt;
+  if(nome===cur[0]){const v=5-pistas;score+=v;J.$('score').textContent=score;J.good();txt=`<b>Isso!</b> Era ${cur[0]}. Você ganhou ${v} ${v===1?'ponto':'pontos'}.`;}
+  else{b.classList.add('no');J.bad();txt=`<b>Era ${cur[0]}.</b> Não foi dessa vez.`;}
+  // mostra as pistas que faltaram
+  while(pistas<4){pistas++;addPista();}
+  J.$('mais').style.display='none';
+  J.$('res').innerHTML=`<div class="res">${txt}</div>`;
+  J.$('next').textContent=r<R-1?'Próximo personagem':'Ver resultado';J.$('next').style.display='';
+}
+J.$('next').onclick=()=>{r++;if(r<R){ronda();scrollTo(0,0);}else J.over(ID,score,`De ${R*4} pontos possíveis. `+(score>=26?'Você conhece muito bem esse povo!':score>=16?'Mandou bem!':'Cada partida você conhece mais gente da Bíblia.'));};
+J.$('play').onclick=start;
+</script></body></html>

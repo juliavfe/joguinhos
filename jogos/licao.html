@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Lição · Joguinhos</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#1F2B25">
+<link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
+<style>
+  .page{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;padding-top:calc(var(--top) + 70px)}
+  .passos{display:flex;gap:5px;margin-bottom:18px}
+  .passos i{flex:1;height:6px;border-radius:6px;background:var(--paper-3)}
+  .passos i.feito{background:var(--amarelo)}
+  .cartao{flex:1;display:flex;flex-direction:column;justify-content:flex-end;min-height:56vh;padding:24px 22px 26px;border-radius:26px;background:var(--c);color:var(--pinho)}
+  @media (prefers-reduced-motion:no-preference){.cartao,.pergunta{animation:entra .4s var(--ease) backwards}}
+  @keyframes entra{from{opacity:0;transform:translateX(26px)}}
+  .cartao small{font-size:15px;font-weight:600;opacity:.75}
+  .cartao h2{font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100,"WONK" 1;font-size:clamp(40px,12vw,56px);line-height:.95;letter-spacing:-.025em;margin:8px 0 16px}
+  .cartao p{font-size:19.5px;line-height:1.45;margin:0}
+  .pergunta{flex:1}
+  .pergunta small{display:block;color:var(--ink-2);font-size:15px;margin-bottom:8px}
+  .pergunta h2{font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 72,"SOFT" 100;font-size:29px;line-height:1.15;letter-spacing:-.01em;margin:0 0 16px}
+  #go{width:100%;margin-top:16px}
+  #go:disabled{opacity:.35}
+  .estrelas{display:flex;gap:10px;margin:0 0 18px}
+  .estrelas svg{width:58px;height:58px}
+  @media (prefers-reduced-motion:no-preference){.estrelas svg{animation:pop .5s var(--ease) backwards}.estrelas svg:nth-child(2){animation-delay:.15s}.estrelas svg:nth-child(3){animation-delay:.3s}}
+</style>
+</head><body>
+<div class="bar"><a class="back" href="../index.html">←</a><div class="title" id="titulo">Lição</div>
+  <div class="stat"><small>Acertos</small><b id="score">0</b></div><b id="best" hidden></b></div>
+
+<div class="page" id="app">
+  <div class="passos" id="passos" aria-hidden="true"></div>
+  <div id="palco" style="flex:1;display:flex;flex-direction:column" aria-live="polite"></div>
+  <button class="btn" id="go">Continuar</button>
+</div>
+
+<div class="overlay hide" id="overlay"><div class="estrelas" id="estrelas"></div><h1 id="fimT">Lição concluída</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg"></p><div class="row"><button class="btn" id="play">Próxima lição</button><button class="btn ghost" id="voltar">Voltar pra Bíblia</button></div></div>
+
+<script src="../common.js"></script>
+<script src="../biblia.js"></script>
+<script>
+const n=Math.max(0,Math.min(LICOES.length-1,parseInt(new URLSearchParams(location.search).get('n')||'0',10)||0));
+const L=LICOES[n], PASSOS=L.cards.length+L.q.length;
+let passo=0,acertos=0,respondida=false;
+J.$('titulo').textContent=`Lição ${n+1} de ${LICOES.length}`;
+document.title=L.t+' · Joguinhos';
+J.$('passos').innerHTML='<i></i>'.repeat(PASSOS);
+const estrela=on=>`<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" fill="${on?'#1F2B25':'none'}" stroke="#1F2B25" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+
+function mostra(){
+  [...J.$('passos').children].forEach((e,i)=>e.className=i<passo?'feito':'');
+  const palco=J.$('palco'), go=J.$('go');
+  if(passo<L.cards.length){
+    const [t,txt]=L.cards[passo];
+    palco.innerHTML=`<div class="cartao ${L.cor}"><small>${L.t} · ${L.ref}</small><h2></h2><p></p></div>`;
+    palco.querySelector('h2').textContent=t; palco.querySelector('p').textContent=txt;
+    palco.firstChild.onclick=avanca;
+    go.disabled=false; go.textContent=passo===L.cards.length-1?'Hora do quiz':'Continuar';
+    return;
+  }
+  const [q,ok,...err]=L.q[passo-L.cards.length]; respondida=false;
+  palco.innerHTML=`<div class="pergunta"><small>Pergunta ${passo-L.cards.length+1} de ${L.q.length}</small><h2></h2><div id="ops"></div></div>`;
+  palco.querySelector('h2').textContent=q;
+  J.shuffle([ok,...err]).forEach(t=>{const b=document.createElement('button');b.className='opt';b.textContent=t;
+    b.onclick=()=>{ if(respondida)return; respondida=true;
+      [...J.$('ops').children].forEach(x=>{x.disabled=true;if(x.textContent===ok)x.classList.add('ok');});
+      if(t===ok){acertos++;J.$('score').textContent=acertos;J.good();}else{b.classList.add('no');J.bad();}
+      go.disabled=false; };
+    J.$('ops').appendChild(b);});
+  go.disabled=true; go.textContent=passo===PASSOS-1?'Ver resultado':'Continuar';
+}
+function avanca(){
+  if(J.$('go').disabled)return;
+  passo++; J.beep(480,.04,'sine',.04);
+  if(passo<PASSOS){mostra();scrollTo(0,0);return;}
+  // fim: 1 estrela por acerto (mínimo 1 por ter estudado)
+  const est=Math.max(1,acertos), antes=J.get('licao-'+n,0);
+  if(est>antes)J.set('licao-'+n,est);
+  const o=J.$('overlay'); o.className='overlay '+L.cor;
+  J.$('estrelas').innerHTML=[0,1,2].map(i=>estrela(i<est)).join('');
+  J.$('fimT').textContent=acertos===3?'Perfeito!':'Lição concluída';
+  J.$('msg').textContent=acertos===3?`Você acertou as 3 perguntas sobre ${L.t.toLowerCase()}.`:`Você acertou ${acertos} de 3. Pode refazer quando quiser pra ganhar todas as estrelas.`;
+  const prox=n+1<LICOES.length;
+  J.$('play').textContent=prox?'Próxima lição: '+LICOES[n+1].t:'Refazer esta lição';
+  J.$('play').onclick=()=>{location.search='?n='+(prox?n+1:n);};
+  J.good();
+}
+J.$('go').onclick=avanca;
+J.$('voltar').onclick=()=>{ if(J.EMB) window.parent.postMessage('jg-fechar',location.origin); else location.href='../index.html'; };
+mostra();
+</script></body></html>
