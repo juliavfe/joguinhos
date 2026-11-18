@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Torre · Joguinhos</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#07060f">
+<link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
+</head><body>
+<canvas class="full" id="c"></canvas>
+<div class="bar"><a class="back" href="../index.html">←</a><div class="title">Torre</div>
+  <div class="stat"><small>Andares</small><b id="score">0</b></div><div class="stat"><small>Recorde</small><b id="best">0</b></div></div>
+<div class="overlay" id="overlay"><h1>TORRE</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg">Toque pra soltar o bloco.<br>O que sobrar pra fora da torre é cortado. Acerte em cheio pra ganhar ✨ bônus.</p>
+  <button class="btn" id="play">Jogar</button></div>
+<script src="../common.js"></script>
+<script>
+const ID='torre', C=J.canvas(J.$('c')), ctx=C.ctx, BH=30;
+J.$('best').textContent=J.best(ID);
+let state='menu',stack,mov,cam,falling,parts,score,perfect,flash,hue0;
+function reset(){
+  const w=Math.min(C.W*.6,260);hue0=Math.random()*360;
+  stack=[{x:(C.W-w)/2,w,h:hue0}];falling=[];parts=[];score=0;perfect=0;cam=0;flash=0;
+  newMov();J.$('score').textContent=0;
+}
+function newMov(){
+  const top=stack[stack.length-1],fromLeft=stack.length%2===0;
+  const spd=170+Math.min(stack.length*7,260);
+  mov={x:fromLeft?-top.w:C.W,w:top.w,dir:fromLeft?1:-1,spd,h:hue0+stack.length*9};
+}
+function start(){reset();state='play';J.$('overlay').classList.add('hide');}
+function drop(){
+  if(state!=='play')return;
+  const top=stack[stack.length-1];
+  const l=Math.max(mov.x,top.x),r=Math.min(mov.x+mov.w,top.x+top.w),ov=r-l;
+  if(ov<=0){falling.push({x:mov.x,y:stack.length,w:mov.w,h:mov.h,vy:0,dy:0});mov=null;over();return;}
+  let nx=l,nw=ov;
+  if(Math.abs(mov.x-top.x)<5){ // em cheio
+    nx=top.x;nw=top.w;perfect++;flash=1;J.beep(520+perfect*60,.12,'triangle');
+    if(perfect>=3){nw=Math.min(nw+10,Math.min(C.W*.6,260));nx=top.x-5;} // recompensa: cresce
+    score+=2;
+  }else{
+    perfect=0;J.beep(330,.06);score+=1;
+    // pedaço cortado cai
+    const cutX=mov.x<top.x?mov.x:r,cutW=mov.w-ov;
+    falling.push({x:cutX,y:stack.length,w:cutW,h:mov.h,vy:0,dy:0});
+  }
+  stack.push({x:nx,w:nw,h:mov.h});J.$('score').textContent=stack.length-1;
+  newMov();
+}
+function over(){state='over';J.bad();setTimeout(()=>{const n=stack.length-1;J.over(ID,n,n<10?'Respira e tenta de novo 🙂':n<25?'Torre bonita!':'Arranha-céu! 🏙️');},800);}
+function baseY(){return C.H-110;}
+function update(dt){
+  if(state==='play'&&mov){mov.x+=mov.dir*mov.spd*dt;
+    if(mov.x+mov.w>C.W+20&&mov.dir>0)mov.dir=-1;if(mov.x<-20&&mov.dir<0)mov.dir=1;}
+  const target=Math.max(0,stack.length*BH-(C.H*.42));cam+=(target-cam)*Math.min(1,dt*6);
+  for(const f of falling){f.vy+=1400*dt;f.dy+=f.vy*dt;}
+  falling=falling.filter(f=>f.dy<C.H+200);flash*=.9;
+}
+function block(x,y,w,h,alpha=1){
+  ctx.globalAlpha=alpha;
+  ctx.fillStyle=`hsl(${h%360} 90% 65%)`;ctx.fillRect(x,y,w,BH-2);
+  ctx.fillStyle=`hsl(${h%360} 90% 80%)`;ctx.fillRect(x,y,w,5);ctx.globalAlpha=1;
+}
+function draw(){
+  ctx.clearRect(0,0,C.W,C.H);
+  const by=baseY()+cam;
+  ctx.fillStyle='rgba(255,255,255,.06)';ctx.fillRect(0,by+BH,C.W,C.H);
+  if(!stack)return;
+  stack.forEach((b,i)=>block(b.x,by-i*BH,b.w,b.h));
+  if(flash>.05){const t=stack[stack.length-1];ctx.strokeStyle=`rgba(255,255,255,${flash})`;ctx.lineWidth=3;ctx.strokeRect(t.x-4,by-(stack.length-1)*BH-4,t.w+8,BH+6);}
+  if(mov&&state==='play')block(mov.x,by-stack.length*BH,mov.w,mov.h);
+  for(const f of falling)block(f.x,by-f.y*BH+f.dy,f.w,f.h,.8);
+  if(perfect>=2&&state==='play'){ctx.font='800 16px system-ui';ctx.textAlign='center';ctx.fillStyle='#ffe27a';ctx.fillText('em cheio x'+perfect,C.W/2,by-stack.length*BH-24);}
+}
+let last=performance.now();
+function loop(t){const dt=Math.min((t-last)/1000,.05);last=t;update(dt);draw();requestAnimationFrame(loop);}
+reset();requestAnimationFrame(loop);
+J.$('play').onclick=start;
+J.$('c').addEventListener('pointerdown',e=>{e.preventDefault();drop();});
+addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();state==='play'?drop():start();}});
+</script></body></html>

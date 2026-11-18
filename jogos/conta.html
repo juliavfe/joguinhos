@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Conta Rápida · Joguinhos</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#07060f">
+<link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
+<style>
+  #q{font-size:clamp(44px,14vw,68px);font-weight:800;text-align:center;margin:40px 0 30px;letter-spacing:.02em}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .opts .opt{text-align:center;font-size:28px;font-weight:800;margin:0;padding:22px 0}
+  #t{text-align:center;color:var(--muted);font-weight:700}
+</style>
+</head><body>
+<div class="bar"><a class="back" href="../index.html">←</a><div class="title">Conta Rápida</div>
+  <div class="stat"><small>Acertos</small><b id="score">0</b></div><div class="stat"><small>Recorde</small><b id="best">0</b></div></div>
+<div class="page">
+  <div id="t">60s</div><div class="timer"><i id="bar"></i></div>
+  <div id="q">?</div><div class="opts" id="opts"></div>
+</div>
+<div class="overlay" id="overlay"><h1>CONTA<br>RÁPIDA</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg">Você tem 60 segundos pra acertar o máximo de contas.<br>Errou? Perde 3 segundos. Fica mais difícil conforme você acerta.</p>
+  <button class="btn" id="play">Jogar</button></div>
+<script src="../common.js"></script>
+<script>
+const ID='conta',TOTAL=60;
+J.$('best').textContent=J.best(ID);
+let score,left,ans,timer,lock;
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+function make(){
+  const lv=score, ops=lv<4?['+','−']:lv<9?['+','−','×']:['+','−','×','÷'];
+  const op=ops[R(0,ops.length-1)];let a,b,r;
+  const m=Math.min(10+lv*4,99);
+  if(op==='+'){a=R(2,m);b=R(2,m);r=a+b;}
+  else if(op==='−'){a=R(5,m);b=R(1,a);r=a-b;}
+  else if(op==='×'){a=R(2,Math.min(5+lv/2|0,15));b=R(2,10);r=a*b;}
+  else{b=R(2,Math.min(4+lv/3|0,12));r=R(2,12);a=b*r;}
+  ans=r;J.$('q').textContent=`${a} ${op} ${b}`;
+  const set=new Set([r]);
+  while(set.size<4){const d=r+R(-Math.max(3,r*.2|0),Math.max(3,r*.2|0));if(d>=0&&d!==r)set.add(d);}
+  J.$('opts').innerHTML='';
+  J.shuffle([...set]).forEach(v=>{const b=document.createElement('button');b.className='opt';b.textContent=v;
+    b.addEventListener('pointerdown',e=>{e.preventDefault();pick(b,v);});J.$('opts').appendChild(b);});
+  lock=false;
+}
+function pick(b,v){
+  if(lock)return;lock=true;
+  if(v===ans){b.classList.add('ok');score++;J.$('score').textContent=score;J.beep(700,.07,'triangle');setTimeout(make,160);}
+  else{b.classList.add('no');J.bad();left-=3;J.$('q').classList.add('shake');setTimeout(()=>{J.$('q').classList.remove('shake');make();},350);}
+}
+function tick(){
+  left-=.1;J.$('bar').style.width=Math.max(0,left/TOTAL*100)+'%';J.$('t').textContent=Math.max(0,Math.ceil(left))+'s';
+  if(left<=0){clearInterval(timer);lock=true;J.over(ID,score,score<10?'Aquecimento feito, bora de novo!':score<25?'Cabeça boa pra conta!':'Calculadora humana 🧮');}
+}
+function start(){score=0;left=TOTAL;J.$('score').textContent=0;J.$('overlay').classList.add('hide');make();clearInterval(timer);timer=setInterval(tick,100);}
+J.$('play').onclick=start;
+</script></body></html>

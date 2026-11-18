@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Palavra · Joguinhos</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#07060f">
+<link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
+<style>
+  .wrap{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(var(--top) + 72px) 8px calc(var(--bot) + 12px)}
+  .grid{display:grid;grid-template-rows:repeat(6,1fr);gap:7px;width:min(80vw,320px)}
+  .r{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+  .t{aspect-ratio:1;border-radius:10px;border:2px solid var(--line);display:grid;place-items:center;font-size:clamp(22px,7vw,30px);font-weight:800;text-transform:uppercase}
+  .t.f{border-color:#5a5288}
+  .t.g{background:#2fbf77;border-color:#2fbf77}
+  .t.y{background:#d6a92b;border-color:#d6a92b}
+  .t.x{background:#2a2540;border-color:#2a2540;color:#8d86ad}
+  .kb{width:100%;max-width:500px;display:flex;flex-direction:column;gap:7px}
+  .kr{display:flex;gap:5px;justify-content:center}
+  .k{flex:1;max-width:44px;height:52px;border-radius:8px;background:#3a3360;font-weight:700;font-size:16px;text-transform:uppercase}
+  .k.w{max-width:68px;flex:1.5;font-size:13px}
+  .k.g{background:#2fbf77}.k.y{background:#d6a92b}.k.x{background:#1c1830;color:#5f5880}
+  #toast{position:fixed;top:calc(var(--top) + 70px);left:50%;transform:translateX(-50%);background:#fff;color:#07060f;font-weight:700;padding:8px 14px;border-radius:10px;opacity:0;transition:opacity .2s;z-index:40}
+</style>
+</head><body>
+<div class="bar"><a class="back" href="../index.html">←</a><div class="title">Palavra</div>
+  <div class="stat"><small>Sequência</small><b id="score">0</b></div><div class="stat"><small>Recorde</small><b id="best">0</b></div></div>
+<div class="wrap"><div class="grid" id="grid"></div><div class="kb" id="kb"></div></div>
+<div id="toast"></div>
+<div class="overlay" id="overlay"><h1>PALAVRA</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg">Descubra a palavra de 5 letras em 6 tentativas.<br>🟩 letra certa no lugar certo<br>🟨 a letra existe, mas em outro lugar<br>⬛ não tem essa letra<br>Acentos não contam.</p>
+  <button class="btn" id="play">Jogar</button></div>
+<script src="../common.js"></script>
+<script>
+const ID='palavra';
+const WORDS=`amigo arroz banco barco bolsa bravo cacau caixa calmo campo canto carta casal causa cerca chave chuva cinco circo coisa conta copos corpo couro creme custo dente dores doces drama exato extra falta farol feira festa fiapo filho final fogao folha fonte força forno fraco frase fruta fugir fumar gaita ganho garfo gente gesto girar globo golpe gordo gosto grama grato grupo gruta haver hotel ideia igual janta jeito jogar jovem juizo justo lapis larga leite lento letra limao linha lindo livro louco lugar manto massa medio meiga melao menta metro mexer milho mundo museu nadar natal navio nobre norte nuvem olhar ombro ordem ouvir ovelha padre palco papel parte passo pausa pedra peixe perto piano pilha placa plano pobre poema ponte porta posse prato prova pular quase queda radio raiva ramos rapaz regra reino resto risco ritmo rosto roupa sabor salto samba santo saude selva senso sinal sobre sonho sorte sushi tarde teste tigre tempo terra texto tomar torre trigo turma unica vacas valor velho venda verde vidro vinho viola visao vital vivos zebra arvore anjos fe pao`
+  .split(/\s+/).filter(w=>w.length===5);
+const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+J.$('best').textContent=J.best(ID);
+let ans,row,col,board,done,streak=J.get('palavra-streak',0);
+J.$('score').textContent=streak;
+const tiles=[];
+for(let r=0;r<6;r++){const rr=document.createElement('div');rr.className='r';tiles.push([]);
+  for(let c=0;c<5;c++){const t=document.createElement('div');t.className='t';rr.appendChild(t);tiles[r].push(t);}J.$('grid').appendChild(rr);}
+const keys={};
+['qwertyuiop','asdfghjkl','⌫zxcvbnm↵'].forEach(line=>{const kr=document.createElement('div');kr.className='kr';
+  [...line].forEach(ch=>{const b=document.createElement('button');b.className='k'+('⌫↵'.includes(ch)?' w':'');b.textContent=ch==='↵'?'ENTER':ch;
+    b.addEventListener('pointerdown',e=>{e.preventDefault();key(ch);});kr.appendChild(b);if(!'⌫↵'.includes(ch))keys[ch]=b;});
+  J.$('kb').appendChild(kr);});
+function toast(t){const e=J.$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.opacity=0,1400);}
+function start(){
+  ans=norm(WORDS[Math.random()*WORDS.length|0]);row=0;col=0;done=false;board=[...Array(6)].map(()=>Array(5).fill(''));
+  tiles.flat().forEach(t=>{t.className='t';t.textContent='';});Object.values(keys).forEach(k=>k.className='k');
+  J.$('overlay').classList.add('hide');
+}
+function key(ch){
+  if(done)return;
+  if(ch==='⌫'){if(col>0){col--;board[row][col]='';tiles[row][col].textContent='';tiles[row][col].classList.remove('f');}return;}
+  if(ch==='↵'){submit();return;}
+  if(col<5){board[row][col]=ch;tiles[row][col].textContent=ch;tiles[row][col].classList.add('f');col++;J.beep(500,.03,'sine',.03);}
+}
+function submit(){
+  if(col<5){toast('Faltam letras');tiles[row][0].parentNode.classList.add('shake');setTimeout(()=>tiles[row][0].parentNode.classList.remove('shake'),300);return;}
+  const g=board[row].join(''),res=Array(5).fill('x'),pool={};
+  for(let i=0;i<5;i++){if(g[i]===ans[i])res[i]='g';else pool[ans[i]]=(pool[ans[i]]||0)+1;}
+  for(let i=0;i<5;i++){if(res[i]!=='g'&&pool[g[i]]){res[i]='y';pool[g[i]]--;}}
+  const rank={x:1,y:2,g:3};
+  const R=row;
+  res.forEach((r,i)=>setTimeout(()=>{tiles[R][i].classList.add(r);J.beep(r==='g'?660:r==='y'?520:300,.05,'triangle',.04);
+    const k=keys[g[i]];const cur=k.classList.contains('g')?'g':k.classList.contains('y')?'y':k.classList.contains('x')?'x':'';
+    if(!cur||rank[r]>rank[cur]){k.classList.remove('g','y','x');k.classList.add(r);}},i*140));
+  row++;col=0;
+  if(g===ans){done=true;streak++;J.set('palavra-streak',streak);J.$('score').textContent=streak;
+    setTimeout(()=>{J.good();J.over(ID,streak,`Acertou em ${R+1} ${R?'tentativas':'tentativa'}! 🎉<br>Sequência de vitórias: ${streak}`);J.$('big').textContent=ans.toUpperCase();J.$('play').textContent='Próxima';},900);}
+  else if(row===6){done=true;const s=streak;streak=0;J.set('palavra-streak',0);J.$('score').textContent=0;
+    setTimeout(()=>{J.bad();J.over(ID,s,'Não foi dessa vez.');J.$('big').textContent='Era: '+ans.toUpperCase();},900);}
+}
+addEventListener('keydown',e=>{if(!J.$('overlay').classList.contains('hide'))return;e.preventDefault();if(e.key==='Backspace')key('⌫');else if(e.key==='Enter')key('↵');else if(/^[a-z]$/i.test(e.key))key(e.key.toLowerCase());});
+J.$('play').onclick=start;
+</script></body></html>

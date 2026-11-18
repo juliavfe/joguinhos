@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Pulso · Joguinhos</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#07060f">
+<link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
+</head><body>
+<canvas class="full" id="c"></canvas>
+<div class="bar"><a class="back" href="../index.html">←</a><div class="title">Pulso</div>
+  <div class="stat"><small>Pontos</small><b id="score">0</b></div><div class="stat"><small>Recorde</small><b id="best">0</b></div></div>
+<div class="overlay" id="overlay"><h1>PULSO</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg">O ponteiro gira sem parar.<br>Toque quando ele estiver em cima do alvo brilhante. Se deixar passar, perdeu!</p>
+  <button class="btn" id="play">Jogar</button></div>
+<script src="../common.js"></script>
+<script>
+const ID='pulso', C=J.canvas(J.$('c')), ctx=C.ctx, TAU=Math.PI*2;
+J.$('best').textContent=J.best(ID);
+let state='menu',a,dir,spd,tA,tw,inside,score,ring,shake,hits;
+const ad=(x,y)=>{let d=(x-y)%TAU;if(d>Math.PI)d-=TAU;if(d<-Math.PI)d+=TAU;return d;};
+function place(){tA=a+dir*(1.0+Math.random()*1.9);inside=false;}
+function reset(){a=-Math.PI/2;dir=1;spd=2.2;tw=.62;score=0;ring=[];shake=0;hits=0;place();J.$('score').textContent=0;}
+function start(){reset();state='play';J.$('overlay').classList.add('hide');}
+function tap(){
+  if(state!=='play')return;
+  if(Math.abs(ad(a,tA))<tw/2+.05){
+    score++;hits++;J.$('score').textContent=score;J.beep(500+(score%8)*70,.08,'triangle');
+    ring.push({r:0,l:1});dir*=-1;spd=Math.min(2.2+score*.09,5.6);tw=Math.max(.3,.62-score*.008);place();
+  }else fail();
+}
+function fail(){state='over';shake=16;J.bad();setTimeout(()=>J.over(ID,score,score<10?'Sente o ritmo e vai de novo!':score<30?'Tá pegando o jeito!':'Ritmo de maestro 🎵'),600);}
+function update(dt){
+  if(state==='play'){
+    a+=dir*spd*dt;
+    const d=ad(a,tA)*dir; // >0 = já passou
+    if(Math.abs(ad(a,tA))<tw/2)inside=true;
+    if(inside&&d>tw/2+.08)fail();
+    if(!inside&&d>tw/2+.08)fail();
+  }
+  ring.forEach(r=>{r.r+=dt*260;r.l-=dt*1.6;});ring=ring.filter(r=>r.l>0);shake*=.86;
+}
+function draw(){
+  const W=C.W,H=C.H,cx=W/2,cy=H/2+20,R=Math.min(W,H)*.32;
+  ctx.save();ctx.clearRect(0,0,W,H);
+  if(shake>.5)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
+  ctx.lineCap='round';
+  ctx.strokeStyle='rgba(255,255,255,.08)';ctx.lineWidth=26;ctx.beginPath();ctx.arc(cx,cy,R,0,TAU);ctx.stroke();
+  if(state!=='menu'||true){
+    ctx.shadowColor='#ffe27a';ctx.shadowBlur=24;ctx.strokeStyle='#ffe27a';ctx.lineWidth=26;
+    ctx.beginPath();ctx.arc(cx,cy,R,tA-tw/2,tA+tw/2);ctx.stroke();ctx.shadowBlur=0;
+    ctx.shadowColor='#7cf7ff';ctx.shadowBlur=20;ctx.strokeStyle='#e9feff';ctx.lineWidth=8;
+    ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*(R-30),cy+Math.sin(a)*(R-30));ctx.lineTo(cx+Math.cos(a)*(R+30),cy+Math.sin(a)*(R+30));ctx.stroke();ctx.shadowBlur=0;
+  }
+  for(const r of ring){ctx.globalAlpha=r.l;ctx.strokeStyle='#c58bff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,R*.55+r.r*.3,0,TAU);ctx.stroke();}
+  ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.font='800 '+Math.round(R*.42)+'px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(state==='menu'?'♪':score,cx,cy);
+  ctx.restore();
+}
+let last=performance.now();
+function loop(t){const dt=Math.min((t-last)/1000,.05);last=t;update(dt);draw();requestAnimationFrame(loop);}
+reset();requestAnimationFrame(loop);
+J.$('play').onclick=start;
+J.$('c').addEventListener('pointerdown',e=>{e.preventDefault();tap();});
+addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();state==='play'?tap():start();}});
+</script></body></html>

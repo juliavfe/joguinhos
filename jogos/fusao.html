@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Fusão · Joguinhos</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#07060f">
+<link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
+<style>
+  body{touch-action:none}
+  .wrap{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding-top:50px}
+  .board{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:10px;width:min(90vw,400px);aspect-ratio:1;border-radius:22px;background:var(--card);border:1px solid var(--line)}
+  .cell{border-radius:14px;background:rgba(255,255,255,.04);display:grid;place-items:center;font-weight:800;font-size:clamp(18px,6.5vw,30px);color:#07060f}
+  .cell.n{transition:background .1s}
+  .tip{color:var(--muted);font-size:14px}
+</style>
+</head><body>
+<div class="bar"><a class="back" href="../index.html">←</a><div class="title">Fusão</div>
+  <div class="stat"><small>Pontos</small><b id="score">0</b></div><div class="stat"><small>Recorde</small><b id="best">0</b></div></div>
+<div class="wrap"><div class="board" id="board"></div>
+  <div class="row"><span class="tip">Deslize o dedo pra mover</span><button class="btn ghost" id="restart" style="padding:8px 18px;font-size:14px">Recomeçar</button></div></div>
+<div class="overlay hide" id="overlay"><h1>FUSÃO</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg"></p><button class="btn" id="play">Jogar</button></div>
+<script src="../common.js"></script>
+<script>
+const ID='fusao';
+J.$('best').textContent=J.best(ID);
+const COLORS={2:'#7cf7ff',4:'#5dffa8',8:'#ffe27a',16:'#ffb36b',32:'#ff7ad9',64:'#ff5577',128:'#c58bff',256:'#9d8bff',512:'#6bb8ff',1024:'#ffffff',2048:'#ffe27a'};
+let g,score,won;
+const cells=[...Array(16)].map(()=>{const d=document.createElement('div');d.className='cell';J.$('board').appendChild(d);return d;});
+function add(){const e=[];g.forEach((v,i)=>!v&&e.push(i));if(!e.length)return -1;const i=e[Math.random()*e.length|0];g[i]=Math.random()<.9?2:4;return i;}
+function render(news=[],merged=[]){
+  g.forEach((v,i)=>{const c=cells[i];c.textContent=v||'';c.style.background=v?COLORS[v]||'#fff':'';
+    c.style.boxShadow=v>=128?`0 0 18px ${COLORS[v]||'#fff'}88`:'';c.classList.remove('pop');
+    if(news.includes(i)||merged.includes(i)){void c.offsetWidth;c.classList.add('pop');}});
+  J.$('score').textContent=score;J.set('fusao-save',{g,score,won});
+}
+function newGame(){g=Array(16).fill(0);score=0;won=false;render([add(),add()]);J.$('overlay').classList.add('hide');}
+// move: dir 0=esq 1=dir 2=cima 3=baixo
+function move(dir){
+  let moved=false;const merged=[];
+  for(let k=0;k<4;k++){
+    const idx=[0,1,2,3].map(j=>dir<2?k*4+(dir===0?j:3-j):(dir===2?j:3-j)*4+k);
+    const vals=idx.map(i=>g[i]).filter(v=>v),out=[];
+    for(let i=0;i<vals.length;i++){
+      if(vals[i]===vals[i+1]){const v=vals[i]*2;out.push(v);score+=v;merged.push(idx[out.length-1]);i++;if(v===2048&&!won){won=true;setTimeout(()=>{J.good();},100);}}
+      else out.push(vals[i]);
+    }
+    idx.forEach((i,j)=>{const v=out[j]||0;if(g[i]!==v)moved=true;g[i]=v;});
+  }
+  if(!moved)return;
+  const n=add();J.beep(merged.length?520:300,.05,'sine',.04);
+  J.record(ID,score);J.$('best').textContent=J.best(ID);
+  render([n],merged);
+  if(!canMove()){J.bad();J.set('fusao-save',null);setTimeout(()=>J.over(ID,score,'Sem movimentos! Maior bloco: '+Math.max(...g)),400);}
+}
+function canMove(){for(let i=0;i<16;i++){if(!g[i])return true;if(i%4<3&&g[i]===g[i+1])return true;if(i<12&&g[i]===g[i+4])return true;}return false;}
+let sx,sy;
+addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+addEventListener('touchend',e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;sx=null;
+  if(Math.max(Math.abs(dx),Math.abs(dy))<25)return;if(!J.$('overlay').classList.contains('hide'))return;
+  Math.abs(dx)>Math.abs(dy)?move(dx<0?0:1):move(dy<0?2:3);});
+addEventListener('keydown',e=>{const m={ArrowLeft:0,ArrowRight:1,ArrowUp:2,ArrowDown:3}[e.key];if(m!=null){e.preventDefault();move(m);}});
+J.$('play').onclick=newGame;J.$('restart').onclick=newGame;
+const s=J.get('fusao-save',null);
+if(s&&s.g){g=s.g;score=s.score;won=s.won;render();}else newGame();
+</script></body></html>

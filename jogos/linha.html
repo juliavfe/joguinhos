@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Linha do Tempo · Joguinhos</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#07060f">
+<link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
+<style>
+  .cats{display:grid;gap:12px;margin-top:10px}
+  .cat{padding:18px 16px;border-radius:18px;background:var(--card);border:1px solid var(--line);text-align:left;display:flex;gap:14px;align-items:center}
+  .cat .i{font-size:30px}.cat b{display:block;font-size:17px}.cat small{color:var(--muted);font-size:13px}.cat em{margin-left:auto;font-style:normal;color:var(--gold);font-size:13px}
+  h2{margin:4px 0 4px;font-size:24px}.sub{color:var(--muted);margin:0 0 14px}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  #hint{color:var(--muted);margin:12px 0 4px;font-size:15px}
+  .ev{position:relative;padding-left:58px;min-height:62px;display:flex;align-items:center}
+  .ev .n{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;border:2px dashed #4a4278;display:grid;place-items:center;font-weight:800}
+  .ev.sel .n{border:0;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#07060f}
+  .ev .y{margin-left:auto;padding-left:10px;font-weight:800;color:var(--gold);white-space:nowrap;font-size:14px}
+  #go{width:100%;margin-top:12px}
+</style>
+</head><body>
+<div class="bar"><a class="back" href="../index.html">←</a><div class="title">Linha do Tempo</div>
+  <div class="stat"><small>Pontos</small><b id="score">0</b></div><div class="stat"><small>Recorde</small><b id="best">0</b></div></div>
+
+<div class="page" id="menu">
+  <h2>Escolha um tema</h2><p class="sub">5 rodadas. Em cada uma, toque nos 4 acontecimentos na ordem certa, do primeiro pro último.</p>
+  <div class="cats" id="cats"></div>
+</div>
+<div class="page" id="game" style="display:none">
+  <div class="top"><span class="chip" id="cat"></span><span class="chip" id="count"></span></div>
+  <div id="hint"></div>
+  <div id="list"></div>
+  <button class="btn" id="go">Conferir</button>
+</div>
+<div class="overlay hide" id="overlay"><h1>LINHA DO<br>TEMPO</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg"></p><div class="row"><button class="btn" id="play">De novo</button><button class="btn ghost" id="other">Outro tema</button></div></div>
+<script src="../common.js"></script>
+<script src="../dados.js"></script>
+<script>
+const ID='linha',ROUNDS=5,K=4;
+J.$('best').textContent=J.best(ID);
+let key,round,score,evs,order,checked;
+function menu(){
+  J.$('menu').style.display='';J.$('game').style.display='none';J.$('overlay').classList.add('hide');
+  J.$('cats').innerHTML=Object.entries(LINHA).map(([k,c])=>`<button class="cat" data-k="${k}"><span class="i">${c.ic}</span><div><b>${c.nome}</b><small>${c.dica}</small></div>${J.best('linha-'+k)?`<em>🏆 ${J.best('linha-'+k)}</em>`:''}</button>`).join('');
+  J.$('cats').querySelectorAll('.cat').forEach(b=>b.onclick=()=>start(b.dataset.k));
+}
+function start(k){key=k;round=0;score=0;J.$('score').textContent=0;J.$('menu').style.display='none';J.$('game').style.display='';J.$('overlay').classList.add('hide');next();}
+function next(){
+  round++;checked=false;order=[];
+  evs=J.shuffle(LINHA[key].e).slice(0,K);
+  J.$('cat').textContent=LINHA[key].ic+' '+LINHA[key].nome;J.$('count').textContent=`Rodada ${round} / ${ROUNDS}`;
+  J.$('hint').textContent=LINHA[key].dica+'. Toque de novo pra desmarcar.';
+  J.$('go').textContent='Conferir';J.$('go').disabled=true;J.$('go').style.opacity=.4;render();
+}
+function render(){
+  J.$('list').innerHTML='';
+  evs.forEach((e,idx)=>{
+    const pos=order.indexOf(idx),b=document.createElement('button');
+    b.className='opt ev'+(pos>=0?' sel':'');
+    b.innerHTML=`<span class="n">${pos>=0?pos+1:''}</span><span>${e[0]}</span>${checked?`<span class="y">${e[2]}</span>`:''}`;
+    if(checked){const right=[...evs].sort((a,c)=>a[1]-c[1]).indexOf(e);b.classList.add(right===pos?'ok':'no');if(right!==pos)b.querySelector('.n').textContent=right+1;}
+    b.onclick=()=>tap(idx);J.$('list').appendChild(b);
+  });
+}
+function tap(idx){
+  if(checked)return;
+  const p=order.indexOf(idx);
+  if(p>=0)order=order.slice(0,p);else order.push(idx);
+  J.beep(400+order.length*80,.05,'triangle',.05);
+  const full=order.length===K;J.$('go').disabled=!full;J.$('go').style.opacity=full?1:.4;render();
+}
+J.$('go').onclick=()=>{
+  if(!checked){
+    if(order.length<K)return;checked=true;
+    const sorted=[...evs].sort((a,c)=>a[1]-c[1]);
+    let pts=order.filter((idx,p)=>sorted[p]===evs[idx]).length;
+    if(pts===K){pts++;J.good();}else J.bad();
+    score+=pts;J.$('score').textContent=score;render();
+    J.$('hint').textContent=pts>K?'Perfeito! +5 pontos 🎉':`Você acertou ${pts} de ${K} posições. O número no círculo mostra a posição certa.`;
+    J.$('go').textContent=round<ROUNDS?'Próxima rodada →':'Ver resultado';
+  }else if(round<ROUNDS)next();
+  else{J.record('linha-'+key,score);J.over(ID,score,`De ${ROUNDS*(K+1)} pontos possíveis.<br>`+(score>=22?'Você domina a linha do tempo! ⏳':score>=14?'Muito bom!':'Cada rodada você aprende um pouco mais 😉'));}
+};
+J.$('play').onclick=()=>start(key);J.$('other').onclick=menu;
+menu();
+</script></body></html>

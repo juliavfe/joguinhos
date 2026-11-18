@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Joguinhos</title>
+<meta name="theme-color" content="#07060f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Joguinhos">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+<style>
+  header{padding:calc(var(--top) + 26px) 20px 6px;max-width:560px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between}
+  header h1{margin:0;font-size:38px;letter-spacing:.03em;background:linear-gradient(90deg,var(--cyan),var(--violet),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+  header p{margin:2px 0 0;color:var(--muted);font-size:14px}
+  #mute{width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.07);font-size:19px}
+  main{max-width:560px;margin:0 auto;padding:0 16px calc(var(--bot) + 30px)}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:26px 4px 10px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .g{position:relative;display:block;padding:16px 14px 14px;border-radius:20px;background:var(--card);border:1px solid var(--line);overflow:hidden;min-height:118px}
+  .g:active{transform:scale(.97)}
+  .g .ic{font-size:30px;line-height:1}
+  .g b{display:block;margin-top:10px;font-size:17px}
+  .g span{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.3}
+  .g em{position:absolute;top:12px;right:12px;font-style:normal;font-size:11px;color:var(--gold);font-weight:700}
+  .g::after{content:"";position:absolute;inset:auto -30px -40px auto;width:90px;height:90px;border-radius:50%;background:var(--c);opacity:.18;filter:blur(18px)}
+  .tip{margin:28px 4px 0;padding:14px 16px;border-radius:16px;background:rgba(124,247,255,.07);color:var(--muted);font-size:13.5px;line-height:1.45}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Joguinhos</h1><p>Funciona offline ✦</p></div>
+  <button id="mute" aria-label="Som">🔊</button>
+</header>
+<main id="list"></main>
+<script src="common.js"></script>
+<script>
+const JOGOS = [
+  {sec:'Ação', items:[
+    {id:'orbita', n:'Órbita', d:'Troque de órbita e pegue estrelas', ic:'🪐', c:'#7cf7ff'},
+    {id:'torre',  n:'Torre',  d:'Empilhe blocos sem errar a borda', ic:'🧱', c:'#ff7ad9'},
+    {id:'pulso',  n:'Pulso',  d:'Toque no tempo certo', ic:'💫', c:'#c58bff'},
+  ]},
+  {sec:'Pensar', items:[
+    {id:'eco',    n:'Eco',    d:'Repita a sequência de cores', ic:'🧠', c:'#5dffa8'},
+    {id:'fusao',  n:'Fusão',  d:'Junte números iguais até 2048', ic:'🔢', c:'#ffe27a'},
+    {id:'conta',  n:'Conta Rápida', d:'Matemática de cabeça contra o relógio', ic:'➗', c:'#7cf7ff'},
+    {id:'palavra',n:'Palavra', d:'Descubra a palavra em 6 tentativas', ic:'🔤', c:'#ff7ad9'},
+  ]},
+  {sec:'Saber', items:[
+    {id:'quiz',   n:'Quiz',   d:'Bíblia, filmes, ciência, Brasil e mais', ic:'❓', c:'#c58bff'},
+    {id:'linha',  n:'Linha do Tempo', d:'Coloque os acontecimentos em ordem', ic:'⏳', c:'#ffe27a'},
+  ]},
+];
+const list = J.$('list');
+list.innerHTML = JOGOS.map(s => `<h2>${s.sec}</h2><div class="grid">` + s.items.map(g => {
+  const b = J.best(g.id);
+  return `<a class="g" href="jogos/${g.id}.html" style="--c:${g.c}">${b ? `<em>🏆 ${b}</em>` : ''}<div class="ic">${g.ic}</div><b>${g.n}</b><span>${g.d}</span></a>`;
+}).join('') + '</div>').join('') +
+`<div class="tip" id="tip">📲 <b>Pra instalar no iPhone:</b> abra no Safari, toque em Compartilhar e depois em <b>“Adicionar à Tela de Início”</b>. Depois disso funciona sem internet.</div>`;
+if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) J.$('tip').remove();
+const mb = J.$('mute');
+const paint = () => mb.textContent = J.muted() ? '🔇' : '🔊';
+paint(); mb.onclick = () => { J.set('mute', !J.muted()); paint(); J.beep(600); };
+</script>
+</body>
+</html>
