@@ -55,18 +55,24 @@ const J = {
     conta: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M13 4v18M4 13h18" stroke="currentColor" stroke-width="5"/><path d="m29 6 13 13m0-13L29 19" stroke="currentColor" stroke-width="5"/><path d="M4 35h18" stroke="currentColor" stroke-width="5"/><circle cx="13" cy="28" r="3" fill="currentColor"/><circle cx="13" cy="42" r="3" fill="currentColor"/><path d="M27 31h17M27 40h17" stroke="currentColor" stroke-width="5"/></svg>',
     palavra: '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="2" y="15" width="13" height="18" fill="currentColor"/><rect x="17.5" y="15" width="13" height="18" fill="none" stroke="currentColor" stroke-width="3"/><rect x="33" y="15" width="13" height="18" fill="currentColor"/></svg>',
     quiz: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M15 16a9 9 0 1 1 13 8c-3 1.6-4 3.4-4 6.5V33" fill="none" stroke="currentColor" stroke-width="6"/><rect x="21" y="38" width="6" height="6" fill="currentColor"/></svg>',
+    musica: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h11v11.5a3.5 3.5 0 1 1-2-3.15V8h-7v9.5a3.5 3.5 0 1 1-2-3.15z" fill="currentColor"/></svg>',
     linha: '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M2 24h44" stroke="currentColor" stroke-width="3.5"/><rect x="5" y="17" width="10" height="14" fill="currentColor"/><rect x="19" y="10" width="10" height="28" fill="currentColor"/><rect x="33" y="17" width="10" height="14" fill="currentColor"/></svg>',
   },
 };
 
+// o jogo está aberto por cima da tela inicial (pra música não parar)?
+J.EMB = (() => { try { return window.parent !== window && window.parent.location.origin === location.origin; } catch (e) { return false; } })();
+
 // troca a seta de texto pelo ícone e coloca um "voltar" também na tela de início/fim
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('a.back').forEach(a => { a.innerHTML = J.ICON.back; a.setAttribute('aria-label', 'Voltar pros jogos'); });
   const o = J.$('overlay');
   if (o && !o.querySelector('.back')) {
-    const a = document.createElement('a'); a.className = 'back'; a.href = '../index.html';
-    a.innerHTML = J.ICON.back; a.setAttribute('aria-label', 'Voltar pros jogos'); o.prepend(a);
+    const a = document.createElement('a'); a.className = 'back'; a.href = '../index.html'; o.prepend(a);
   }
+  document.querySelectorAll('a.back').forEach(a => {
+    a.innerHTML = J.ICON.back; a.setAttribute('aria-label', 'Voltar pros jogos');
+    if (J.EMB) a.addEventListener('click', e => { e.preventDefault(); window.parent.postMessage('jg-fechar', location.origin); });
+  });
 });
 
 // tira o foco dos botões das telas de início/fim (senão Enter/Espaço reiniciam o jogo no teclado)

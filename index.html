@@ -15,30 +15,26 @@
 <link rel="preload" href="fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 <style>
-  .wrap{max-width:620px;margin:0 auto;padding:calc(var(--top) + 18px) var(--m) calc(var(--bot) + 32px)}
+  body{overflow-x:hidden}
+  .view{max-width:620px;margin:0 auto;padding:calc(var(--top) + 18px) var(--m) calc(var(--bot) + 104px)}
+  /* abas fora de vista continuam vivas (o player não para) */
+  .view.off{position:fixed;top:0;left:-300vw;width:100%;height:100%;overflow:hidden;pointer-events:none}
+  @media (prefers-reduced-motion:no-preference){.view.on{animation:fade .28s var(--ease) backwards}}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}}
+  .pt{font-size:clamp(64px,19vw,112px);margin:0 0 14px -2px}
+
   .mast{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
   .mast h1{font-size:clamp(78px,24.5vw,148px);margin:0 0 0 -3px}
   #mute{width:46px;height:46px;display:grid;place-items:center;background:var(--paper-2);flex:none;margin-top:6px}
   #mute svg{width:24px;height:24px}
-  .lede{font-size:19px;line-height:1.35;max-width:22em;margin:14px 0 26px}
+  .lede{font-size:19px;line-height:1.35;max-width:22em;margin:14px 0 8px}
 
-  /* desafio do dia */
-  .dia{background:var(--ink);color:var(--paper);padding:22px 18px 18px;margin:0 calc(var(--m) * -1) 0}
-  .dia h2{font-size:40px;margin:0 0 4px;color:var(--amarelo)}
-  .dia .tema{font-size:15px;color:#BDB6A6;margin:0 0 14px}
-  .dia .q{font-size:22px;line-height:1.3;font-weight:650;margin:0 0 14px}
-  .dia .opt{background:#2A2620;color:var(--paper);margin:6px 0}
-  .dia .opt:active{background:#3A352D}
-  .dia .opt.ok{background:var(--verde)}.dia .opt.no{background:var(--vermelho)}
-  .dia .fact{margin:14px 0 2px;font-size:17px;line-height:1.45;color:#E9E3D5}
-  .dia .fact b{color:var(--amarelo)}
-
-  section{margin-top:40px}
-  section>h2{font-size:52px;margin:0 0 12px}
+  section.grupo{margin-top:34px}
+  section.grupo>h2{font-size:52px;margin:0 0 12px}
   .mosaic{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .g{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:184px;padding:16px;
      background:var(--c);color:var(--on-c);transition:transform .14s var(--ease)}
-  @media (prefers-reduced-motion:no-preference){.g{animation:in .6s var(--ease) backwards}}
+  @media (prefers-reduced-motion:no-preference){.view.on .g{animation:in .6s var(--ease) backwards}}
   .g:active{transform:scale(.97)}
   .g.w{grid-column:span 2;min-height:160px}
   .g.t{min-height:236px}
@@ -50,33 +46,108 @@
   .g span{display:block;font-size:15.5px;line-height:1.3;margin-top:6px;max-width:19em}
   @keyframes in{from{opacity:0;transform:translateY(18px)}}
 
-  .tip{margin-top:40px;background:var(--paper-2);padding:18px;font-size:16.5px;line-height:1.45}
+  .tip{margin-top:22px;background:var(--paper-2);padding:18px;font-size:16.5px;line-height:1.45}
   .tip h2{font-size:28px;margin:0 0 6px}
   .tip ol{margin:0;padding-left:20px}
-  footer{margin-top:44px}
-  footer .display{font-size:clamp(60px,19vw,118px)}
-  footer p{margin:10px 0 0;color:var(--ink-2);font-size:15px}
+
+  /* desafio */
+  .dia{background:var(--ink);color:var(--paper);padding:20px 18px 18px;margin:0 calc(var(--m) * -1)}
+  .dia .tema{font-size:15px;color:#BDB6A6;margin:0 0 10px}
+  .dia .q{font-size:24px;line-height:1.28;font-weight:650;margin:0 0 14px}
+  .dia .opt{background:#2A2620;color:var(--paper);margin:6px 0}
+  .dia .opt:active{background:#3A352D}
+  .dia .opt.ok{background:var(--verde)}.dia .opt.no{background:var(--vermelho)}
+  .dia .fact{margin:14px 0 2px;font-size:17px;line-height:1.45;color:#E9E3D5}
+  .dia .fact b{color:var(--amarelo)}
+  .sub{color:var(--ink-2);margin:16px 0 0;font-size:16px}
+  .sequencia{display:flex;gap:6px;margin-top:22px}
+  .sequencia i{flex:1;height:44px;background:var(--paper-2);display:grid;place-items:center;font-style:normal;font-size:13px;font-weight:650;color:var(--ink-2)}
+  .sequencia i.ok{background:var(--verde);color:#FBF7EE}.sequencia i.no{background:var(--vermelho);color:#FBF7EE}
+  .sequencia i.hoje{box-shadow:inset 0 0 0 3px var(--ink)}
+
+  /* trilha */
+  .trilha p{margin:0 0 12px;max-width:26em}
+  .trilha form{display:flex;gap:6px}
+  .trilha input{flex:1;min-width:0;min-height:54px;padding:0 14px;border:0;border-radius:0;background:var(--paper-2);color:var(--ink);font:inherit;font-size:17px;-webkit-user-select:text;user-select:text}
+  .trilha input:focus-visible{outline:3px solid var(--ink);outline-offset:0}
+  .trilha .btn{min-height:54px;padding:0 20px}
+  .trilha .erro{color:var(--vermelho);font-weight:650;margin:10px 0 0}
+  .trilha iframe{display:block;width:100%;border:0;background:var(--paper-2)}
+  .trilha .acoes{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;font-size:15px;color:var(--ink-2)}
+  .trilha .acoes button{font-weight:650;color:var(--ink);text-decoration:underline;text-underline-offset:3px;min-height:44px;flex:none}
+  .trilha .nota{margin-top:20px;font-size:15px;color:var(--ink-2)}
+
+  /* recordes */
+  .recs{margin:0;padding:0;list-style:none}
+  .recs li{display:flex;align-items:center;gap:14px;min-height:64px;padding:0 4px}
+  .recs li+li{box-shadow:0 -1px 0 var(--paper-3)}
+  .recs .sq{width:16px;height:16px;background:var(--c);flex:none}
+  .recs .n{flex:1;font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;font-size:28px;line-height:1}
+  .recs .n small{display:block;font-family:inherit;font-weight:450;font-variation-settings:"opsz" 14;font-size:14px;color:var(--ink-2);margin-top:4px}
+  .recs .v{font-weight:800;font-variation-settings:"opsz" 96,"wdth" 75;font-size:30px;font-variant-numeric:tabular-nums}
+  .recs .v.zero{color:var(--paper-3)}
+  .fim{margin-top:28px;color:var(--ink-2);font-size:15px}
+
+  /* barra de abas */
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;display:grid;grid-template-columns:repeat(4,1fr);
+    background:var(--ink);padding-bottom:var(--bot)}
+  .tab{min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#A39D90;font-size:12.5px;font-weight:650}
+  .tab svg{width:25px;height:25px}
+  .tab[aria-selected="true"]{color:var(--amarelo)}
+  .tab:active svg{transform:scale(.9)}
+
+  /* jogo aberto por cima */
+  #layer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:100;background:var(--paper);padding-top:var(--top);padding-bottom:var(--bot)}
+  #layer iframe{display:block;width:100%;height:100%;border:0}
 </style>
 </head>
 <body>
-<div class="wrap">
+
+<!-- Jogos -->
+<div class="view" id="v-jogos" role="tabpanel" aria-label="Jogos">
   <header class="mast">
     <h1 class="display">Jogui&shy;nhos</h1>
     <button id="mute"></button>
   </header>
   <p class="lede">Passatempos de bolso pra fila, pro ônibus e pro intervalo. Funciona sem internet.</p>
-
-  <div class="dia" id="dia" aria-live="polite"></div>
-
-  <main id="list"></main>
-
   <div class="tip" id="tip">
     <h2 class="display">Instale no iPhone</h2>
     <ol><li>Abra este endereço no Safari</li><li>Toque em Compartilhar</li><li>Escolha “Adicionar à Tela de Início”</li></ol>
     <p style="margin:8px 0 0">Depois disso, ele abre como app e funciona offline.</p>
   </div>
-  <footer><div class="display">Joguinhos</div><p>Os recordes ficam guardados só neste aparelho.</p></footer>
+  <div id="list"></div>
 </div>
+
+<!-- Desafio -->
+<div class="view off" id="v-desafio" role="tabpanel" aria-label="Desafio do dia" inert>
+  <h1 class="display pt">Desafio do dia</h1>
+  <div class="dia" id="dia" aria-live="polite"></div>
+  <p class="sub">Uma pergunta nova por dia, igual pra todo mundo. Seus últimos 7 dias:</p>
+  <div class="sequencia" id="seq"></div>
+</div>
+
+<!-- Trilha -->
+<div class="view off" id="v-trilha" role="tabpanel" aria-label="Trilha" inert>
+  <h1 class="display pt">Trilha</h1>
+  <div class="trilha" id="trilha"></div>
+</div>
+
+<!-- Recordes -->
+<div class="view off" id="v-recordes" role="tabpanel" aria-label="Recordes" inert>
+  <h1 class="display pt">Recordes</h1>
+  <ul class="recs" id="recs"></ul>
+  <p class="fim">Os recordes ficam guardados só neste aparelho.</p>
+</div>
+
+<nav class="tabs" role="tablist" aria-label="Seções">
+  <button class="tab" role="tab" data-v="jogos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" fill="currentColor"/><rect x="13" y="3" width="8" height="8" fill="currentColor"/><rect x="3" y="13" width="8" height="8" fill="currentColor"/><rect x="13" y="13" width="8" height="8" fill="currentColor"/></svg>Jogos</button>
+  <button class="tab" role="tab" data-v="desafio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="3" y="5" width="18" height="5" fill="currentColor"/><rect x="7" y="2" width="2.6" height="5" fill="currentColor"/><rect x="14.4" y="2" width="2.6" height="5" fill="currentColor"/><rect x="11" y="13" width="5" height="5" fill="currentColor"/></svg>Desafio</button>
+  <button class="tab" role="tab" data-v="trilha"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h11v11.5a3.5 3.5 0 1 1-2-3.15V8h-7v9.5a3.5 3.5 0 1 1-2-3.15z" fill="currentColor"/></svg>Trilha</button>
+  <button class="tab" role="tab" data-v="recordes"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="12" width="6" height="9" fill="currentColor"/><rect x="9" y="5" width="6" height="16" fill="currentColor"/><rect x="16" y="9" width="6" height="12" fill="currentColor"/></svg>Recordes</button>
+</nav>
+
+<div id="layer" hidden><iframe id="gf" title="Jogo" allow="autoplay"></iframe></div>
+
 <script src="common.js"></script>
 <script src="dados.js"></script>
 <script>
@@ -97,40 +168,118 @@ const JOGOS = [
     {id:'linha',  n:'Linha do Tempo', d:'Coloque os acontecimentos em ordem: Bíblia, História e Cinema.', cor:'verde', f:'w'},
   ]},
 ];
-let k=0;
-J.$('list').innerHTML = JOGOS.map(s => `<section><h2 class="display">${s.sec}</h2><div class="mosaic">` + s.items.map(g => {
-  const b0 = J.best(g.id), b = g.id==='quiz' && b0 ? (b0>=1e6?'R$ 1 milhão':'R$ '+(b0/1e3).toLocaleString('pt-BR')+' mil') : b0;
-  return `<a class="g ${g.cor} ${g.f}" href="jogos/${g.id}.html" style="animation-delay:${(k++)*45}ms">
-    ${b ? `<span class="rec" style="margin:0">Recorde ${b}</span>` : ''}
-    <div class="ic">${J.ICON[g.id]}</div><div><b>${g.n}</b><span>${g.d}</span></div></a>`;
-}).join('') + '</div></section>').join('');
+const UNID={orbita:'pontos',torre:'andares',pulso:'pontos',palavra:'vitórias seguidas',eco:'níveis',fusao:'pontos',conta:'acertos em 1 minuto',quiz:'maior prêmio',linha:'pontos de 25'};
+const reais=v=>v>=1e6?'R$ 1 milhão':'R$ '+(v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil';
+const recTxt=(id,b)=>id==='quiz'&&b?reais(b):b;
+
+function desenhaLista(){
+  let k=0;
+  J.$('list').innerHTML = JOGOS.map(s => `<section class="grupo"><h2 class="display">${s.sec}</h2><div class="mosaic">` + s.items.map(g => {
+    const b = J.best(g.id);
+    return `<a class="g ${g.cor} ${g.f}" href="jogos/${g.id}.html" style="animation-delay:${(k++)*45}ms">
+      ${b ? `<span class="rec" style="margin:0">Recorde ${recTxt(g.id,b)}</span>` : ''}
+      <div class="ic">${J.ICON[g.id]}</div><div><b>${g.n}</b><span>${g.d}</span></div></a>`;
+  }).join('') + '</div></section>').join('');
+}
+function desenhaRecordes(){
+  J.$('recs').innerHTML = JOGOS.flatMap(s=>s.items).map(g=>{
+    const b=J.best(g.id);
+    return `<li class="${g.cor}"><span class="sq"></span><span class="n">${g.n}<small>${UNID[g.id]}</small></span><span class="v ${b?'':'zero'}">${b?recTxt(g.id,b):'–'}</span></li>`;
+  }).join('');
+}
+desenhaLista(); desenhaRecordes();
 if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) J.$('tip').remove();
+
+// abas
+function aba(v, primeira){
+  document.querySelectorAll('.view').forEach(el=>{
+    const on = el.id==='v-'+v;
+    el.classList.toggle('off',!on); el.classList.toggle('on',on&&!primeira);
+    if(on) el.removeAttribute('inert'); else el.setAttribute('inert','');
+  });
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.v===v));
+  if(v==='recordes') desenhaRecordes();
+  if(!primeira) scrollTo(0,0);
+  J.set('aba',v);
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{ if(t.getAttribute('aria-selected')!=='true'){ aba(t.dataset.v); J.beep(520,.03,'sine',.03);} else scrollTo({top:0,behavior:'smooth'}); });
+aba(J.get('aba','jogos'), true);
+
+// jogos abrem por cima (sem trocar de página, então a música não para)
+document.addEventListener('click',e=>{
+  const a=e.target.closest('a.g'); if(!a) return;
+  e.preventDefault();
+  J.$('gf').src=a.getAttribute('href'); J.$('layer').hidden=false; document.body.style.overflow='hidden';
+});
+addEventListener('message',e=>{
+  if(e.origin!==location.origin||e.data!=='jg-fechar') return;
+  J.$('layer').hidden=true; J.$('gf').src='about:blank'; document.body.style.overflow='';
+  desenhaLista(); desenhaRecordes();
+});
+
+// trilha: playlist do Spotify ou Apple Music que continua tocando enquanto joga
+function embedDe(url){
+  url=(url||'').trim();
+  let m=url.match(/^spotify:(playlist|album|artist|track):([A-Za-z0-9]+)/);
+  if(!m) m=url.match(/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(playlist|album|artist|track)\/([A-Za-z0-9]+)/);
+  if(m) return {src:`https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=generator&theme=0`, h:m[1]==='track'?152:380, nome:'Spotify'};
+  m=url.match(/music\.apple\.com(\/[a-z]{2}\/(?:playlist|album|song|artist)\/[^?#\s]+)/);
+  if(m) return {src:'https://embed.music.apple.com'+m[1], h:/\/song\//.test(m[1])?175:450, nome:'Apple Music'};
+  return null;
+}
+function trilha(){
+  const box=J.$('trilha'), emb=embedDe(J.get('playlist',''));
+  if(!emb){
+    box.innerHTML=`<p>Cole o link de uma playlist, álbum ou música do Spotify ou do Apple Music. Ela continua tocando enquanto você joga.</p>
+      <form id="fpl"><input id="ipl" type="url" inputmode="url" autocomplete="off" placeholder="Link da playlist" aria-label="Link da playlist"><button class="btn" type="submit">Salvar</button></form>
+      <p class="erro" id="epl" hidden></p>
+      <p class="nota">Pra pegar o link: no Spotify ou no Apple Music, abra a playlist, toque nos três pontinhos, depois em Compartilhar e em Copiar link.</p>`;
+    J.$('fpl').onsubmit=e=>{e.preventDefault();const v=J.$('ipl').value;
+      if(embedDe(v)){J.set('playlist',v.trim());trilha();}
+      else{const er=J.$('epl');er.hidden=false;er.textContent='Esse link não parece ser do Spotify nem do Apple Music. Copie o link pelo botão Compartilhar do app.';}};
+    return;
+  }
+  box.innerHTML = navigator.onLine
+    ? `<iframe src="${emb.src}" height="${emb.h}" allow="autoplay *; encrypted-media *; clipboard-write" title="Player do ${emb.nome}"></iframe>
+       <div class="acoes"><span>Dê o play e vá jogar: a música continua.</span><button id="tpl">Trocar playlist</button></div>`
+    : `<p>Sem internet agora. A música volta quando você conectar, e os jogos funcionam normal.</p><div class="acoes"><span></span><button id="tpl">Trocar playlist</button></div>`;
+  J.$('tpl').onclick=()=>{J.set('playlist','');trilha();};
+}
+trilha();
+addEventListener('online',trilha);
 
 // som
 const mb = J.$('mute');
-const paint = () => { mb.innerHTML = J.muted() ? J.ICON.mudo : J.ICON.som; mb.setAttribute('aria-label', J.muted() ? 'Ligar som' : 'Desligar som'); };
+const paint = () => { mb.innerHTML = J.muted() ? J.ICON.mudo : J.ICON.som; mb.setAttribute('aria-label', J.muted() ? 'Ligar som dos jogos' : 'Desligar som dos jogos'); };
 paint(); mb.onclick = () => { J.set('mute', !J.muted()); paint(); J.beep(600); };
 
-// desafio do dia: uma pergunta do quiz por dia, igual pra o dia todo
-(function(){
-  const all = Object.values(QUIZ).flatMap(c => c.q.map(q => ({q, tema:c.nome})));
-  const d = new Date(), day = Math.floor((d - new Date(2026,0,1)) / 864e5);
-  const it = all[(day * 37) % all.length], [pergunta, certa, ...resto] = it.q;
-  const h = s => [...(s+day)].reduce((n,c)=>(n*31+c.charCodeAt(0))>>>0, 7); // ordem fixa no dia
-  const ops = [certa, ...resto.slice(0,3)].map(t=>({t})).sort((a,b)=>h(a.t)-h(b.t));
-  const salvo = J.get('dia', {});
-  const box = J.$('dia');
-  box.innerHTML = `<h2 class="display">Desafio do dia</h2><p class="tema">${it.tema} · uma pergunta nova por dia</p><p class="q">${pergunta}</p><div id="dops"></div><p class="fact" id="dfact" hidden></p>`;
-  const show = (pick) => {
+// desafio do dia: uma pergunta do quiz por dia, igual pro dia todo
+const all = Object.values(QUIZ).flatMap(c => c.q.map(q => ({q, tema:c.nome})));
+const diaN = d => Math.floor((new Date(d.getFullYear(),d.getMonth(),d.getDate()) - new Date(2026,0,1)) / 864e5);
+const hoje = diaN(new Date());
+function desafio(){
+  const it = all[(hoje * 37) % all.length], [pergunta, certa, ...resto] = it.q;
+  const h = s => [...(s+hoje)].reduce((n,c)=>(n*31+c.charCodeAt(0))>>>0, 7);
+  const ops = [certa, ...resto.slice(0,3)].sort((a,b)=>h(a)-h(b));
+  const hist = J.get('dias', {});
+  J.$('dia').innerHTML = `<p class="tema">${it.tema}</p><p class="q">${pergunta}</p><div id="dops"></div><p class="fact" id="dfact" hidden></p>`;
+  const show = pick => {
     [...J.$('dops').children].forEach(b => { b.disabled = true; if (b.dataset.t === certa) b.classList.add('ok'); else if (b.dataset.t === pick) b.classList.add('no'); });
     const f = J.$('dfact'); f.hidden = false;
-    f.innerHTML = `<b>${pick === certa ? 'Acertou!' : 'Era: ' + certa + '.'}</b> ${it.q[5] || ''}`;
+    f.innerHTML = `<b>${pick === certa ? 'Acertou!' : 'Era: ' + certa + '.'}</b> ${it.q[5] || ''}<br><br>Volte amanhã pra pergunta nova.`;
   };
-  ops.forEach(o => { const b = document.createElement('button'); b.className = 'opt'; b.textContent = o.t; b.dataset.t = o.t;
-    b.onclick = () => { if (b.disabled) return; J.set('dia', {day, pick:o.t}); o.t === certa ? J.good() : J.bad(); show(o.t); };
+  ops.forEach(t => { const b = document.createElement('button'); b.className = 'opt'; b.textContent = t; b.dataset.t = t;
+    b.onclick = () => { if (b.disabled) return; const h2=J.get('dias',{}); h2[hoje]=t===certa?1:0; J.set('dias',h2); J.set('dia-pick',{day:hoje,pick:t}); t === certa ? J.good() : J.bad(); show(t); seq(); };
     J.$('dops').appendChild(b); });
-  if (salvo.day === day) show(salvo.pick);
-})();
+  const p = J.get('dia-pick', {}); if (p.day === hoje) show(p.pick);
+  seq();
+}
+function seq(){
+  const hist=J.get('dias',{}), nomes=['dom','seg','ter','qua','qui','sex','sáb'];
+  J.$('seq').innerHTML=[6,5,4,3,2,1,0].map(k=>{const d=new Date(Date.now()-k*864e5),n=diaN(d),r=hist[n];
+    return `<i class="${r===1?'ok':r===0?'no':''} ${k===0?'hoje':''}" title="${d.toLocaleDateString('pt-BR')}">${k===0?'hoje':nomes[d.getDay()]}</i>`;}).join('');
+}
+desafio();
 </script>
 </body>
 </html>
