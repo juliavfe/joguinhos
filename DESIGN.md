@@ -1,26 +1,27 @@
 # Joguinhos — design
 
-**Mundo:** revistinha de passatempo de banca (tipo Coquetel). Papel de jornal, tinta preta e as cores de impressão chapadas: amarelo, vermelho, azul. Nada brilha, nada tem degradê, nada flutua. Parece impresso.
+**Mundo:** folk aconchegante. Clima de capa de disco folk/indie: verde-pinho escuro, creme e cores desbotadas de capa antiga. Títulos com serifa macia, cantos arredondados, nada de brilho nem degradê.
 
-**Substituiu:** o visual neon escuro com brilhos, degradês, vidro e emoji (descartado por parecer genérico).
+**Substituiu:** o neon escuro (genérico) e depois a revistinha de passatempo em cores primárias (a Julia achou as cores feias). A Julia escolheu este caminho entre três opções desenhadas.
 
 ## Cores (style.css)
-- `--paper` #ECECE7 fundo · `--paper-2` #DEDED7 superfícies e casas vazias
-- `--ink` #16130F texto e traço · `--ink-2` #4D483F texto secundário
-- `--amarelo` #FFC824 (texto em tinta) · `--vermelho` #D2311F · `--azul` #2350D2 · `--verde` #0E8A4F (texto em papel)
-- Cada jogo tem uma cor própria; a cor de destaque aparece no bloco do jogo e no botão de ação.
+- `--paper` #1F2B25 fundo verde-pinho · `--paper-2` #2A3830 superfícies · `--paper-3` #384840 controles
+- `--ink` #F1EADB creme (texto) · `--ink-2` #B7B9A8 texto secundário
+- Cores dos jogos (texto sempre em verde-pinho por cima): `--azul` névoa #9DB4C0 · `--amarelo` mostarda #D8B24A · `--vermelho` rosa queimado #C98F8A · `--verde` sálvia #A9BE97 · `tinta` creme
+- Respostas: `--certo` #A3C98C · `--errado` #E08577
+- Destaque (tempo, valor do prêmio, foco): mostarda.
 
 ## Tipo
-Uma família só: Bricolage Grotesque (variável, embutida em `fonts/`).
-- Título: peso 800, largura 75 (condensada), opsz 96, entrelinha 0.9, espaçamento -0.02em.
-- Texto: peso 450, 16–18px, entrelinha 1.45.
-- Números em `tabular-nums`.
+- Títulos e números: Fraunces (variável, `opsz` 144, `SOFT` 100, `WONK` 1, peso 600), algarismos alinhados.
+- Texto: Inter Tight 450, 16–18px, entrelinha 1.45.
+- As duas fontes estão em `fonts/`, embutidas pra funcionar offline.
 
 ## Forma
-- Cantos retos. Blocos de cor chapada em tamanhos diferentes (mosaico), nunca uma fileira de cards iguais.
-- Separação por troca de tom ou de cor, não por linha nem sombra. Grades de jogo (Palavra, Fusão) usam casas preenchidas.
-- Ícones desenhados em SVG, formas cheias em tinta. Sem emoji.
-- Botão principal: retângulo chapado em tinta, texto em papel.
+- Cantos: 20px nos cartões, 14px em botões e opções, 8–11px em casas de jogo.
+- Separação por troca de tom, não por linha nem sombra.
+- Ícones desenhados em SVG, formas cheias. Sem emoji.
+- Botão principal: creme com texto pinho. Nas telas coloridas, pinho com texto creme.
+- Barra de abas embaixo, fundo #18221D, aba ativa em creme.
 
 ## Movimento
-Curto e seco: apertar afunda o bloco (scale .97), cartas entram uma vez. `prefers-reduced-motion` desliga o deslocamento.
+Curto: apertar afunda (scale .97), cartões e abas entram uma vez. `prefers-reduced-motion` desliga deslocamentos, e o conteúdo nunca depende de animação pra aparecer.
