@@ -78,8 +78,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // tira o foco dos botões das telas de início/fim (senão Enter/Espaço reiniciam o jogo no teclado)
 document.addEventListener('click', e => { const b = e.target.closest('.overlay button'); if (b) setTimeout(() => b.blur(), 0); });
 
-// modo offline
-if ('serviceWorker' in navigator) {
+// dentro do app das lojas (Capacitor): tudo já vem no pacote, então não precisa do modo offline do site
+J.NATIVO = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+if (J.NATIVO && window.parent === window) {
+  try { const SB = window.Capacitor.Plugins.StatusBar; SB && SB.setStyle({ style: 'DARK' }); } catch (e) {}
+}
+// modo offline (site)
+if (!J.NATIVO && 'serviceWorker' in navigator) {
   const root = document.currentScript && document.currentScript.src.replace(/common\.js.*$/, '');
   addEventListener('load', () => navigator.serviceWorker.register(root + 'sw.js').catch(() => {}));
 }

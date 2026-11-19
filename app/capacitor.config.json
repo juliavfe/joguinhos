@@ -1,0 +1,12 @@
+{
+  "appId": "io.github.juliavfe.joguinhos",
+  "appName": "Joguinhos",
+  "webDir": "www",
+  "backgroundColor": "#1F2B25",
+  "ios": { "contentInset": "never", "backgroundColor": "#1F2B25", "scrollEnabled": true },
+  "android": { "backgroundColor": "#1F2B25" },
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 600, "backgroundColor": "#1F2B25", "showSpinner": false },
+    "StatusBar": { "style": "DARK", "backgroundColor": "#1F2B25", "overlaysWebView": true }
+  }
+}

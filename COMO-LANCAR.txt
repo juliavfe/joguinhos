@@ -1,0 +1,99 @@
+COMO LANÇAR O JOGUINHOS NA APP STORE E NO GOOGLE PLAY
+Tudo isso é feito no seu Mac. Os textos, o ícone e os prints estão na pasta loja/.
+
+
+PARTE 0 — PREPARAR O MAC (uma vez só)
+
+1. Instale o Xcode (pela App Store do Mac). Abra uma vez e aceite os termos.
+2. Instale o Android Studio (developer.android.com/studio). Abra uma vez e deixe ele baixar o SDK.
+3. Instale o Node.js versão LTS (nodejs.org).
+4. No Terminal:
+     git clone https://github.com/juliavfe/joguinhos
+     cd joguinhos/app
+     npm install
+
+Sempre que mexer nos jogos (arquivos da raiz do repositório), rode dentro de app/:
+     npm run sync
+Isso copia o app atualizado pra dentro dos projetos de iPhone e Android.
+
+
+PARTE 1 — APP STORE (iPhone)
+
+Conta
+1. Entre em developer.apple.com/programs e se inscreva no Apple Developer Program como pessoa física (US$ 99 por ano). A aprovação pode levar um ou dois dias.
+
+Criar o app na loja
+2. Em appstoreconnect.apple.com: Apps > botão + > Novo app.
+   - Plataforma: iOS
+   - Nome: Joguinhos: Passatempos
+   - Idioma principal: Português (Brasil)
+   - ID do pacote (Bundle ID): io.github.juliavfe.joguinhos
+     (se não aparecer na lista, crie em developer.apple.com > Certificates, IDs & Profiles > Identifiers, ou deixe o Xcode criar no passo 4)
+   - SKU: joguinhos-001
+
+Gerar o app no Xcode
+3. No Terminal, dentro de app/:  npm run ios   (abre o Xcode)
+4. No Xcode, clique em "App" na lateral > aba Signing & Capabilities > marque "Automatically manage signing" > em Team escolha a sua conta.
+5. Testar no seu iPhone (opcional, mas vale): ligue o iPhone no cabo, escolha ele lá em cima e aperte o play.
+   No iPhone, ative Ajustes > Privacidade e Segurança > Modo de Desenvolvedor, se ele pedir.
+6. Pra enviar: lá em cima escolha "Any iOS Device (arm64)" > menu Product > Archive.
+   Quando terminar: Distribute App > App Store Connect > Upload.
+
+Preencher a ficha e mandar pra revisão
+7. Em App Store Connect, abra o app. Em uns 15 a 30 minutos o build aparece (dá pra testar pelo TestFlight).
+8. Preencha com o que está em loja/textos-da-loja.txt:
+   - nome, subtítulo, descrição, palavras-chave, URL de suporte e de privacidade
+   - prints: loja/prints-iphone (tamanho de iPhone 6,9")
+   - Privacidade do app: "Não coletamos dados deste app"
+   - Classificação etária: responda "Nenhum" em tudo
+   - Preço: Grátis
+   - Nota pro revisor: está no fim do textos-da-loja.txt
+9. Escolha o build e clique em "Enviar para revisão". A Apple costuma responder em alguns dias.
+
+
+PARTE 2 — GOOGLE PLAY (Android)
+
+Conta
+1. Crie a conta em play.google.com/console (US$ 25, uma vez só). Ela pede verificação de identidade com documento.
+
+Gerar o app no Android Studio
+2. No Terminal, dentro de app/:  npm run android   (abre o Android Studio; espere o Gradle terminar)
+3. Testar (opcional): use um celular Android ou o emulador e aperte o play.
+4. Menu Build > Generate Signed App Bundle or APK > Android App Bundle > Next.
+   Em Key store path clique em "Create new..." e crie a chave de assinatura.
+   IMPORTANTE: guarde o arquivo .jks e as senhas em lugar seguro (ex.: gerenciador de senhas).
+   Sem eles você nunca mais consegue atualizar o app.
+   Escolha "release" e finalize. O arquivo sai em app/android/app/release/app-release.aab.
+
+Criar o app no Play Console
+5. Criar app > nome "Joguinhos: Passatempos", idioma Português (Brasil), Jogo, Gratuito.
+6. Preencha as seções do painel com o que está em loja/textos-da-loja.txt:
+   - Política de privacidade: https://juliavfe.github.io/joguinhos/privacidade.html
+   - Acesso ao app: todas as funções disponíveis sem restrição
+   - Anúncios: não tem
+   - Classificação do conteúdo: responda o questionário (não tem violência, compras nem chat)
+   - Público-alvo: escolher só "13 anos ou mais" evita as regras extras de apps pra crianças
+   - Segurança dos dados: não coleta e não compartilha dados
+   - Ficha da loja: descrições, ícone (icons/icon-512.png), destaque (loja/destaque-play-1024x500.png), prints (loja/prints-android)
+
+Teste fechado (obrigatório pra conta pessoal nova)
+7. Testar > Teste fechado > criar faixa > enviar o app-release.aab.
+8. Adicione pelo menos 12 testadores (e-mails de conta Google: amigos, família, turma).
+   Eles precisam aceitar o convite pelo link, instalar e ficar com o app por 14 dias seguidos.
+9. Depois dos 14 dias, peça acesso à produção no painel, crie a versão de produção com o mesmo .aab e envie pra revisão.
+
+
+PARTE 3 — ATUALIZAR DEPOIS
+
+O site (juliavfe.github.io/joguinhos) atualiza sozinho a cada push no GitHub.
+Os apps das lojas levam os jogos DENTRO do pacote. Então perguntas novas, jogos novos ou correções
+só chegam pra quem baixou da loja quando você manda uma versão nova:
+
+1. Mexa nos arquivos da raiz e rode, dentro de app/:  npm run sync
+2. Aumente a versão:
+   - iPhone: no Xcode, App > General > Version (ex.: 1.1) e Build (2, 3, 4...)
+   - Android: app/android/app/build.gradle > versionCode (2, 3, 4...) e versionName ("1.1")
+3. Gere e envie de novo (Archive no Xcode; Generate Signed App Bundle no Android Studio, com a MESMA chave).
+
+O desafio diário continua mudando todo dia nos apps das lojas, porque ele usa a data do celular.
+O que só chega com atualização são perguntas novas no banco.
