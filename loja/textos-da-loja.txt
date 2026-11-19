@@ -1,0 +1,69 @@
+JOGUINHOS — TEXTOS PRAS LOJAS
+(copiar e colar no App Store Connect e no Google Play Console)
+
+NOME DO APP (até 30 caracteres)
+Joguinhos: Passatempos
+
+SUBTÍTULO — App Store (até 30 caracteres)
+Jogos, quiz e Bíblia offline
+
+DESCRIÇÃO CURTA — Google Play (até 80 caracteres)
+Jogos rápidos, quiz, lições da Bíblia e desafio diário. Funciona sem internet.
+
+DESCRIÇÃO COMPLETA
+Passatempos de bolso pra fila, pro ônibus e pro intervalo. Tudo funciona sem internet.
+
+JOGOS
+• Grande Prêmio: corrida de F1 em 3 voltas. Você larga em último e precisa ultrapassar todo mundo.
+• Órbita, Torre e Pulso: jogos de reflexo de um toque.
+• Palavra: descubra a palavra de 5 letras em 6 tentativas.
+• Eco, Fusão e Conta Rápida: memória, números e conta de cabeça.
+• Escada do Saber: 16 degraus de perguntas até 1 milhão de pontos, com ajudas e a hora certa de parar. Temas: Bíblia, filmes e séries, ciência, geografia e Brasil.
+• Linha do Tempo: coloque acontecimentos da Bíblia, da História e do cinema em ordem.
+• Festa: minijogos pra 2, 3 ou 4 pessoas no mesmo celular.
+
+BÍBLIA
+• Jornada com 11 lições curtas, do Gênesis a Atos. Cada uma conta a história em poucos cartões e termina com um mini-quiz que vale estrelas.
+• Quem sou eu?: adivinhe o personagem bíblico pelas pistas.
+
+TODO DIA
+• Desafio do dia: uma pergunta nova por dia, com sequência de dias seguidos.
+
+E MAIS
+• Recordes de todos os jogos num lugar só.
+• Toque sua playlist do Spotify ou do Apple Music enquanto joga.
+• Sem cadastro, sem anúncios e sem coleta de dados.
+
+PALAVRAS-CHAVE — App Store (até 100 caracteres, separadas por vírgula, sem espaço)
+quiz,bíblia,passatempo,offline,palavra,corrida,trivia,memória,desafio,família,jogos,lições
+
+CATEGORIA
+App Store: Jogos > Trivia (secundária: Jogos > Casual)
+Google Play: Jogos > Trivia
+
+CLASSIFICAÇÃO INDICATIVA
+Livre (sem violência, sem compras, sem conteúdo gerado por usuários, sem anúncios)
+
+PREÇO
+Grátis
+
+POLÍTICA DE PRIVACIDADE (URL)
+https://juliavfe.github.io/joguinhos/privacidade.html
+
+SITE DE SUPORTE (URL)
+https://github.com/juliavfe/joguinhos/issues
+
+PRIVACIDADE NO APP STORE CONNECT ("Nutrition label")
+Responder: "Não coletamos dados deste app".
+
+SEGURANÇA DOS DADOS NO GOOGLE PLAY
+Coleta dados: Não. Compartilha dados: Não.
+
+NOTA PRO REVISOR DA APPLE (App Review Information > Notes)
+O Joguinhos é uma coleção de 11 jogos e lições que roda inteiramente no aparelho, sem internet e sem login. Todos os jogos, as lições da Bíblia e o desafio diário vêm embutidos no app. A única função online é opcional: a aba Trilha mostra o player oficial do Spotify ou do Apple Music se o usuário colar o link de uma playlist.
+
+ARQUIVOS NESTA PASTA
+icone-1024.png ............ ícone da App Store (1024x1024, sem transparência)
+destaque-play-1024x500.png  imagem de destaque do Google Play
+prints-iphone/ ............ 8 prints 1320x2868 (iPhone 6,9")
+prints-android/ ........... 8 prints 1080x2160

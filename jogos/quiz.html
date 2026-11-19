@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Quiz do Milhão · Joguinhos</title>
+<title>Escada do Saber · Joguinhos</title>
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#1F2B25">
 <link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
 <style>
@@ -52,27 +52,27 @@
   #next{width:100%;margin-top:10px}
 </style>
 </head><body>
-<div class="bar"><a class="back" href="../index.html">←</a><div class="title">Quiz do Milhão</div>
-  <div class="stat"><small>Garantido</small><b id="score">R$ 0</b></div><b id="best" hidden></b></div>
+<div class="bar"><a class="back" href="../index.html">←</a><div class="title">Escada do Saber</div>
+  <div class="stat"><small>Garantido</small><b id="score">0</b></div><b id="best" hidden></b></div>
 
 <div class="page" id="menu">
-  <h1 class="display">Quiz do Milhão</h1>
-  <p class="lede">16 perguntas até R$ 1 milhão. Use as ajudas com cuidado e saiba a hora de parar.</p>
+  <h1 class="display">Escada do Saber</h1>
+  <p class="lede">16 degraus até 1 milhão de pontos. Use as ajudas com cuidado e saiba a hora de parar.</p>
   <div class="cats" id="cats"></div>
   <div class="how">
     <h2 class="display">Como funciona</h2>
     <ul>
-      <li>Acertou, sobe um degrau. Errou, leva só metade do que já tinha.</li>
-      <li>Na pergunta do milhão, errar zera tudo.</li>
-      <li>Pode parar a qualquer momento e levar o que ganhou.</li>
+      <li>Acertou, sobe um degrau. Errou, fica só com metade dos pontos que já tinha.</li>
+      <li>No último degrau, errar zera tudo.</li>
+      <li>Pode parar a qualquer momento e ficar com os pontos.</li>
       <li>30 segundos por pergunta.</li>
-      <li>Ajudas: pular (3 vezes), cartas, plateia e universitários (uma vez cada).</li>
+      <li>Ajudas: pular (3 vezes), tirar duas erradas, enquete e amigos (uma vez cada).</li>
     </ul>
   </div>
 </div>
 
 <div class="page" id="game" style="display:none">
-  <div class="valendo"><div><small id="num">Pergunta 1 de 16</small><b id="valendo">R$ 1 mil</b></div>
+  <div class="valendo"><div><small id="num">Degrau 1 de 16</small><b id="valendo">1 mil</b></div>
     <div class="riscos" id="riscos"></div></div>
   <div class="escada" id="escada" aria-hidden="true"></div>
   <div class="timer"><i id="bar"></i></div>
@@ -82,11 +82,11 @@
   <div id="ctrl">
     <div class="ajudas">
       <button class="aj" id="aj-pular"><b id="np">3</b>Pular</button>
-      <button class="aj" id="aj-cartas"><b>4</b>Cartas</button>
-      <button class="aj" id="aj-plateia"><b>%</b>Plateia</button>
-      <button class="aj" id="aj-univ"><b>3</b>Universitários</button>
+      <button class="aj" id="aj-cartas"><b>−2</b>Tirar 2</button>
+      <button class="aj" id="aj-plateia"><b>%</b>Enquete</button>
+      <button class="aj" id="aj-univ"><b>3</b>Amigos</button>
     </div>
-    <button class="btn ghost" id="parar">Parar e levar R$ 0</button>
+    <button class="btn ghost" id="parar">Parar com 0 pontos</button>
   </div>
   <button class="btn" id="next" style="display:none">Próxima pergunta</button>
 </div>
@@ -99,7 +99,8 @@
 <script>
 const ID='quiz', T=30, MARCOS=[4,9,14,15];
 const PREMIOS=[1e3,2e3,3e3,4e3,5e3,1e4,2e4,3e4,4e4,5e4,1e5,2e5,3e5,4e5,5e5,1e6];
-const fmt=v=>v>=1e6?'R$ 1 milhão':v>=1e3?'R$ '+(v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil':'R$ '+Math.round(v).toLocaleString('pt-BR');
+const fmt=v=>v>=1e6?'1 milhão':v>=1e3?(v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil':Math.round(v).toLocaleString('pt-BR');
+const fmtP=v=>fmt(v)+(v>=1e6?' de pontos':' pontos');
 const CORES={mix:'tinta',biblia:'amarelo',filmes:'vermelho',ciencia:'azul',geo:'verde',brasil:'amarelo'};
 let pool,step,cur,left,timer,answered,ajudas,catKey,ganho;
 
@@ -107,7 +108,7 @@ function menu(){
   J.$('menu').style.display='';J.$('game').style.display='none';J.$('overlay').classList.add('hide');
   J.$('cats').innerHTML=[['mix','Todos os temas','Um pouco de tudo, misturado']].concat(Object.entries(QUIZ).map(([k,c])=>[k,c.nome,c.q.length+' perguntas'])).map(([k,n,d],i)=>{
     const r=J.best('quiz-'+k);
-    return `<button class="cat ${CORES[k]} ${i===0||i===5?'w':''}" data-k="${k}"><b>${n}</b><small>${r?'Maior prêmio: '+fmt(r):d}</small></button>`;}).join('');
+    return `<button class="cat ${CORES[k]} ${i===0||i===5?'w':''}" data-k="${k}"><b>${n}</b><small>${r?'Recorde: '+fmtP(r):d}</small></button>`;}).join('');
   J.$('cats').querySelectorAll('.cat').forEach(b=>b.onclick=()=>start(b.dataset.k));
 }
 function start(k){
@@ -129,7 +130,7 @@ function ask(){
   answered=false;
   J.set('quiz-seen-'+catKey,[q].concat(J.get('quiz-seen-'+catKey,[])).slice(0,80));
   const seErrar=step===15?0:Math.floor(ganho/2);
-  J.$('num').textContent=`Pergunta ${step+1} de 16 · ${cur.c}`;
+  J.$('num').textContent=`Degrau ${step+1} de 16 · ${cur.c}`;
   J.$('valendo').textContent=fmt(PREMIOS[step]);
   J.$('riscos').innerHTML=`Se parar: <strong>${fmt(ganho)}</strong><br>Se errar: <strong>${fmt(seErrar)}</strong>`;
   J.$('score').textContent=fmt(ganho);
@@ -140,7 +141,7 @@ function ask(){
     b.innerHTML=`<span class="barra"></span><span class="l">${'ABCD'[i]}</span><span class="tx"></span>`;b.querySelector('.tx').textContent=t;
     b.onclick=()=>pick(b);J.$('opts').appendChild(b);});
   J.$('ctrl').style.display='';J.$('next').style.display='none';
-  J.$('parar').textContent='Parar e levar '+fmt(ganho);
+  J.$('parar').textContent='Parar com '+fmtP(ganho);
   syncAjudas();
   left=T;clearInterval(timer);timer=setInterval(tick,100);tick();
 }
@@ -156,10 +157,9 @@ function aviso(html){J.$('extra').innerHTML=`<div class="aviso">${html}</div>`;}
 J.$('aj-pular').onclick=()=>{if(answered||!ajudas.pular||step===15)return;ajudas.pular--;clearInterval(timer);J.beep(500,.08);ask();};
 J.$('aj-cartas').onclick=()=>{
   if(answered||!ajudas.cartas)return;ajudas.cartas--;syncAjudas();
-  const cartas=[['o Rei',0],['o Ás',1],['o 2',2],['o 3',3]], [nome,n]=cartas[Math.random()*4|0];
-  J.shuffle(vivos().filter(b=>b.dataset.t!==cur.ok)).slice(0,n).forEach(b=>b.classList.add('fora'));
-  J.beep(n?700:200,.1,'triangle');
-  aviso(`Você tirou <b>${nome}</b>. `+(n?`${n===1?'Uma alternativa errada saiu':n+' alternativas erradas saíram'}.`:'Nenhuma alternativa saiu. Que azar!'));
+  J.shuffle(vivos().filter(b=>b.dataset.t!==cur.ok)).slice(0,2).forEach(b=>b.classList.add('fora'));
+  J.beep(700,.1,'triangle');
+  aviso('Duas alternativas erradas saíram. Agora é <b>50%</b>.');
 };
 J.$('aj-plateia').onclick=()=>{
   if(answered||!ajudas.plateia)return;ajudas.plateia--;syncAjudas();
@@ -168,15 +168,15 @@ J.$('aj-plateia').onclick=()=>{
   const w=vs.map(b=>b===fav?40+Math.random()*30:Math.random()*20+3), s=w.reduce((a,b)=>a+b,0);
   const pc=w.map(x=>Math.round(x/s*100)); pc[pc.indexOf(Math.max(...pc))]+=100-pc.reduce((a,b)=>a+b,0);
   vs.forEach((b,i)=>{b.querySelector('.barra').style.width=pc[i]+'%';const p=document.createElement('span');p.className='pct';p.textContent=pc[i]+'%';b.appendChild(p);});
-  J.beep(520,.1,'triangle');aviso('A plateia votou. A faixa amarela mostra quanto cada alternativa recebeu.');
+  J.beep(520,.1,'triangle');aviso('A enquete fechou. A faixa amarela mostra quanto cada alternativa recebeu. Ela às vezes erra!');
 };
 J.$('aj-univ').onclick=()=>{
   if(answered||!ajudas.univ)return;ajudas.univ--;syncAjudas();
   const todos=[...J.$('opts').children],vs=vivos(),letra=b=>'ABCD'[todos.indexOf(b)];
   const certa=vs.find(b=>b.dataset.t===cur.ok), outras=vs.filter(b=>b!==certa);
   const votos=[0,1,2].map(()=>Math.random()<.75||!outras.length?certa:outras[Math.random()*outras.length|0]);
-  const nomes=['Ana, de Letras','Caio, de Engenharia','Bia, de História'];
-  aviso('Os universitários acham que é:<br>'+votos.map((b,i)=>`${nomes[i]}: <b>${letra(b)}</b>`).join('<br>'));J.beep(600,.1,'triangle');
+  const nomes=['Ana','Caio','Bia'];
+  aviso('Seus amigos acham que é:<br>'+votos.map((b,i)=>`${nomes[i]}: <b>${letra(b)}</b>`).join('<br>'));J.beep(600,.1,'triangle');
 };
 J.$('parar').onclick=()=>{if(answered)return;clearInterval(timer);end('parou');};
 
@@ -188,8 +188,8 @@ function pick(b){
   if(certo){
     ganho=PREMIOS[step];step++;J.$('score').textContent=fmt(ganho);J.good();paintEscada();
     aviso(`<b>Certa resposta!</b> ${cur.fact||''}`);
-    if(step===16){J.$('next').textContent='Receber o prêmio';J.$('next').onclick=()=>end('milhao');}
-    else{J.$('next').textContent='Próxima, valendo '+fmt(PREMIOS[step]);J.$('next').onclick=ask;}
+    if(step===16){J.$('next').textContent='Ver o resultado';J.$('next').onclick=()=>end('milhao');}
+    else{J.$('next').textContent='Subir pra '+fmtP(PREMIOS[step]);J.$('next').onclick=ask;}
   }else{
     if(b)b.classList.add('no');J.bad();
     ganho=step===15?0:Math.floor(ganho/2);
@@ -201,11 +201,11 @@ function pick(b){
 function end(como){
   clearInterval(timer);
   J.record('quiz-'+catKey,ganho);
-  const msgs={parou:`Você parou na pergunta ${step+1} e saiu com o dinheiro no bolso. Prudência também ganha jogo.`,
-    errou:ganho?'Errou, mas ainda levou metade do que tinha.':'Dessa vez saiu sem nada. Bora de novo?',
-    milhao:'Acertou as 16 perguntas e levou o prêmio máximo!',acabou:'As perguntas desse tema acabaram. Você levou o que tinha.'};
+  const msgs={parou:`Você parou no degrau ${step+1} e garantiu seus pontos. Prudência também ganha jogo.`,
+    errou:ganho?'Errou, mas ainda ficou com metade do que tinha.':'Dessa vez ficou sem nada. Bora de novo?',
+    milhao:'Você subiu os 16 degraus. Chegou no topo da escada!',acabou:'As perguntas desse tema acabaram. Você ficou com o que tinha.'};
   J.over(ID,ganho,msgs[como]);
-  J.$('big').textContent=(como==='milhao'?'Ganhou ':'Levou ')+fmt(ganho);
+  J.$('big').textContent=fmtP(ganho);
 }
 J.$('play').onclick=()=>start(catKey);J.$('other').onclick=menu;
 menu();

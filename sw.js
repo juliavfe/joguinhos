@@ -1,6 +1,6 @@
 // Guarda tudo no celular pra funcionar sem internet.
 // Quando mudar algum arquivo, aumente a versão pra o app baixar a atualização.
-const VERSAO = 'joguinhos-v12';
+const VERSAO = 'joguinhos-v13';
 const ARQUIVOS = [
   "./",
   "arte.js",
@@ -27,6 +27,7 @@ const ARQUIVOS = [
   "jogos/quiz.html",
   "jogos/torre.html",
   "manifest.json",
+  "privacidade.html",
   "style.css",
 ];
 self.addEventListener('install', e => {
