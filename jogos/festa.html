@@ -2,11 +2,11 @@
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Festa · Joguinhos</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#1F2B25">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#F1EADB">
 <link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
 <style>
   body{overflow:hidden;touch-action:none}
-  #arena{position:fixed;top:0;left:0;width:100%;height:100%;display:grid;gap:6px;padding:calc(var(--top) + 6px) 6px calc(var(--bot) + 6px);background:#121A15}
+  #arena{position:fixed;top:0;left:0;width:100%;height:100%;display:grid;gap:6px;padding:calc(var(--top) + 6px) 6px calc(var(--bot) + 6px);background:var(--paper-3)}
   .zona{position:relative;border-radius:22px;background:var(--paper-2);color:var(--ink);display:flex;align-items:center;justify-content:center;overflow:hidden;
     touch-action:none;-webkit-user-select:none;user-select:none;transition:background .12s}
   .zona .in{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:12px;pointer-events:none}
@@ -18,15 +18,15 @@
   .zona .placar i{width:12px;height:12px;border-radius:50%;background:var(--paper-3)}
   .zona .placar i.on{background:var(--c)}
   .zona .fill{position:absolute;left:0;bottom:0;height:100%;width:0;background:var(--c);opacity:.25;top:auto;padding:0;z-index:0;transition:width .08s}
-  .zona.agora{background:var(--ink);color:var(--pinho)} .zona.agora .sub{color:var(--pinho)}
+  .zona.agora{background:var(--pinho);color:var(--creme)} .zona.agora .sub{color:var(--creme)}
   .zona.ganhou{background:var(--c);color:var(--pinho)} .zona.ganhou .nome,.zona.ganhou .sub{color:var(--pinho)}
-  .zona.queimou{background:#2A1F1D}
+  .zona.queimou{background:#E7C7C1}
   .zona:active{filter:brightness(1.08)}
-  .sair{position:fixed;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:#121A15;display:grid;place-items:center;box-shadow:0 0 0 5px #121A15}
+  .sair{position:fixed;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:var(--paper-3);display:grid;place-items:center;box-shadow:0 0 0 5px var(--paper-3)}
   .sair svg{width:20px;height:20px}
   .n{display:flex;gap:8px;margin:0 0 18px}
   .n button{flex:1;min-height:76px;border-radius:var(--r-s);background:rgba(31,43,37,.12);color:var(--pinho);font-family:var(--serif);font-weight:600;font-size:34px}
-  .n button[aria-pressed="true"]{background:var(--pinho);color:var(--ink)}
+  .n button[aria-pressed="true"]{background:var(--pinho);color:var(--creme)}
 </style>
 </head><body>
 <div id="arena"></div>

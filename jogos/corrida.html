@@ -2,19 +2,19 @@
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Grande Prêmio · Joguinhos</title>
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#1F2B25">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#F1EADB">
 <link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
 <style>
   .hud{position:fixed;left:0;right:0;top:calc(var(--top) + 64px);z-index:15;display:flex;justify-content:space-between;align-items:flex-start;padding:0 var(--m);pointer-events:none}
-  .pos{font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:64px;line-height:.9;color:var(--ink);font-variant-numeric:lining-nums}
-  .pos small{font-family:"Inter Tight",sans-serif;font-size:14px;font-weight:600;color:var(--ink-2);display:block;margin-top:4px}
-  .vel{text-align:right;font-family:var(--serif);font-weight:600;font-size:34px;line-height:1;font-variant-numeric:tabular-nums lining-nums}
-  .vel small{display:block;font-family:"Inter Tight",sans-serif;font-size:13px;color:var(--ink-2);font-weight:600}
+  .pos{font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:64px;line-height:.9;color:var(--creme);font-variant-numeric:lining-nums}
+  .pos small{font-family:"Inter Tight",sans-serif;font-size:14px;font-weight:600;color:#C9D3C4;display:block;margin-top:4px}
+  .vel{color:var(--creme);text-align:right;font-family:var(--serif);font-weight:600;font-size:34px;line-height:1;font-variant-numeric:tabular-nums lining-nums}
+  .vel small{display:block;font-family:"Inter Tight",sans-serif;font-size:13px;color:#C9D3C4;font-weight:600}
   .luzes{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:16;display:flex;gap:10px;padding:14px 16px;border-radius:18px;background:#121A15}
   .luzes i{width:34px;height:34px;border-radius:50%;background:#2A3830}
   .luzes i.on{background:#E2554A}
   .luzes.hide{display:none}
-  .dica{position:fixed;left:0;right:0;bottom:calc(var(--bot) + 22px);z-index:15;display:flex;justify-content:space-between;padding:0 var(--m);pointer-events:none;color:var(--ink);font-weight:650;font-size:14px;opacity:.75}
+  .dica{position:fixed;left:0;right:0;bottom:calc(var(--bot) + 22px);z-index:15;display:flex;justify-content:space-between;padding:0 var(--m);pointer-events:none;color:var(--creme);font-weight:650;font-size:14px;opacity:.75}
   .dica span{background:rgba(18,26,21,.75);padding:8px 14px;border-radius:999px}
 </style>
 </head><body>
@@ -36,7 +36,7 @@ const ID='corrida', C=J.canvas(J.$('c')), ctx=C.ctx, K=J.C;
 J.$('best').textContent=J.best(ID);
 const VOLTA=7000, VOLTAS=3, TOTAL=VOLTA*VOLTAS, PONTOS=[25,18,15,12,10,8,6,4];
 const GRAMA='#2F4A35', GRAMA2='#2B4431', ASFALTO='#3B423E', ASF2='#373E3A';
-const CORES=[K.azul,K.vermelho,K.verde,K.ink,'#E2554A','#8C9DD6','#B08A5A'];
+const CORES=[K.azul,K.vermelho,K.verde,K.creme,'#E2554A','#8C9DD6','#B08A5A'];
 let state='menu',P,ais,t,luz,shake,dirKeys={l:0,r:0},touch={l:0,r:0},finish;
 
 // traçado: curvas suaves que se repetem a cada volta
@@ -117,7 +117,7 @@ function draw(){
     const d=P?P.d+(cy-y):cy-y, c=W/2+centro(d), fx=Math.floor(d/60)%2;
     if(fx){ctx.fillStyle=GRAMA2;ctx.fillRect(0,y,W,passo);}
     ctx.fillStyle=Math.floor(d/120)%2?ASFALTO:ASF2;ctx.fillRect(c-TW/2,y,TW,passo+1);
-    ctx.fillStyle=Math.floor(d/30)%2?'#E2554A':K.ink;ctx.fillRect(c-TW/2-10,y,10,passo+1);ctx.fillRect(c+TW/2,y,10,passo+1);
+    ctx.fillStyle=Math.floor(d/30)%2?'#E2554A':K.creme;ctx.fillRect(c-TW/2-10,y,10,passo+1);ctx.fillRect(c+TW/2,y,10,passo+1);
     // linha de chegada / largada
     const md=((d%VOLTA)+VOLTA)%VOLTA;
     if(md<24){for(let i=0;i<TW;i+=12){ctx.fillStyle=((i/12|0)+(md/12|0))%2?'#111':'#F1EADB';ctx.fillRect(c-TW/2+i,y,12,passo+1);}}

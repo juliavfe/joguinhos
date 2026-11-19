@@ -1,12 +1,15 @@
 @font-face{font-family:"Fraunces";src:url("fonts/fraunces.woff2") format("woff2");font-weight:100 900;font-display:swap}
 @font-face{font-family:"Inter Tight";src:url("fonts/inter.woff2") format("woff2");font-weight:100 900;font-display:swap}
 :root{
-  /* folk aconchegante: verde-pinho, creme e cores de capa de disco desbotada */
-  --paper:#1F2B25;      /* fundo */
-  --paper-2:#2A3830;    /* superfícies */
-  --paper-3:#384840;    /* controles, casas vazias */
-  --ink:#F1EADB;        /* texto, creme */
-  --ink-2:#B7B9A8;      /* texto secundário */
+  /* folk aconchegante, versão clara: fundo creme, texto verde-pinho e cores de capa de disco desbotada */
+  --paper:#F1EADB;      /* fundo creme */
+  --paper-2:#E6DDCA;    /* superfícies */
+  --paper-3:#D8CDB6;    /* controles, casas vazias */
+  --ink:#1F2B25;        /* texto verde-pinho */
+  --ink-2:#5B6158;      /* texto secundário */
+  --creme:#F1EADB;
+  --ouro:#85620F;       /* mostarda escura, pra texto em destaque */
+  --errado-txt:#A8402F;
   --amarelo:#D8B24A;    /* mostarda */
   --vermelho:#C98F8A;   /* rosa queimado */
   --azul:#9DB4C0;       /* azul névoa */
@@ -27,7 +30,7 @@ html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);
 ::selection{background:var(--amarelo);color:var(--pinho)}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0;border-radius:0}
-:focus-visible{outline:3px solid var(--amarelo);outline-offset:3px}
+:focus-visible{outline:3px solid var(--pinho);outline-offset:3px}
 .num{font-variant-numeric:tabular-nums}
 
 /* títulos com serifa macia */
@@ -38,7 +41,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 .vermelho{--c:var(--vermelho)}
 .azul{--c:var(--azul)}
 .verde{--c:var(--verde)}
-.tinta{--c:var(--ink)}
+.tinta{--c:var(--pinho);--on-c:var(--creme)}
 
 /* barra do topo dos jogos */
 .bar{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:14px;
@@ -58,7 +61,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 .overlay.hide{opacity:0;transform:translateY(24px);pointer-events:none;visibility:hidden}
 .overlay>*{flex:none}
 .overlay>h1{margin-top:auto!important}
-.overlay .back{position:absolute;top:calc(var(--top) + 10px);left:var(--m);background:rgba(31,43,37,.12)}
+.overlay .back{position:absolute;top:calc(var(--top) + 10px);left:var(--m);background:rgba(31,43,37,.12);color:var(--on-c)}
 .overlay h1{font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100,"WONK" 1;line-height:.9;letter-spacing:-.03em;
   font-size:clamp(60px,min(21vw,12vh),140px);margin:0 0 18px;overflow-wrap:anywhere}
 .overlay .big{font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:42px;line-height:1;margin:0 0 10px;font-variant-numeric:tabular-nums lining-nums}
@@ -67,11 +70,11 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 .overlay .rules li{padding:10px 0;display:flex;gap:12px;align-items:baseline}
 .overlay .rules li+li{box-shadow:0 -1px 0 rgba(31,43,37,.16)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:58px;padding:0 28px;border-radius:var(--r-s);
-  background:var(--ink);color:var(--pinho);font-weight:650;font-size:18px;transition:transform .12s var(--ease)}
+  background:var(--pinho);color:var(--creme);font-weight:650;font-size:18px;transition:transform .12s var(--ease)}
 .btn:active{transform:scale(.97)}
-.overlay .btn{background:var(--pinho);color:var(--ink);width:100%}
+.overlay .btn{background:var(--on-c);color:var(--c);width:100%}
 .btn.ghost{background:transparent;color:inherit;box-shadow:inset 0 0 0 2px currentColor}
-.overlay .btn.ghost{background:transparent;color:var(--pinho)}
+.overlay .btn.ghost{background:transparent;color:var(--on-c)}
 .row{display:flex;gap:10px}
 .row>*{flex:1}
 .overlay .row{flex-direction:column;gap:8px}

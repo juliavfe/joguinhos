@@ -5,7 +5,7 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleLightContent</string>
+	<string>UIStatusBarStyleDarkContent</string>
   <key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>

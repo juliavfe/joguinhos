@@ -1,7 +1,7 @@
 // Coisas compartilhadas entre os jogos
 const J = {
   // cores de impressão (as mesmas do style.css)
-  C: { paper: '#1F2B25', paper2: '#2A3830', paper3: '#384840', ink: '#F1EADB', ink2: '#B7B9A8', pinho: '#1F2B25',
+  C: { paper: '#F1EADB', paper2: '#E6DDCA', paper3: '#D8CDB6', ink: '#1F2B25', ink2: '#5B6158', pinho: '#1F2B25', creme: '#F1EADB',
        amarelo: '#D8B24A', vermelho: '#C98F8A', azul: '#9DB4C0', verde: '#A9BE97', certo: '#A3C98C', errado: '#E08577' },
   FONT: '"Fraunces", Georgia, serif',
   get(k, d = 0) { try { const v = localStorage.getItem('jg-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -81,7 +81,7 @@ document.addEventListener('click', e => { const b = e.target.closest('.overlay b
 // dentro do app das lojas (Capacitor): tudo já vem no pacote, então não precisa do modo offline do site
 J.NATIVO = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 if (J.NATIVO && window.parent === window) {
-  try { const SB = window.Capacitor.Plugins.StatusBar; SB && SB.setStyle({ style: 'DARK' }); } catch (e) {}
+  try { const SB = window.Capacitor.Plugins.StatusBar; SB && SB.setStyle({ style: 'LIGHT' }); } catch (e) {}
 }
 // modo offline (site)
 if (!J.NATIVO && 'serviceWorker' in navigator) {

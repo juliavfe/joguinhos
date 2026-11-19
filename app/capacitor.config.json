@@ -2,11 +2,11 @@
   "appId": "io.github.juliavfe.joguinhos",
   "appName": "Joguinhos",
   "webDir": "www",
-  "backgroundColor": "#1F2B25",
-  "ios": { "contentInset": "never", "backgroundColor": "#1F2B25", "scrollEnabled": true },
-  "android": { "backgroundColor": "#1F2B25" },
+  "backgroundColor": "#F1EADB",
+  "ios": { "contentInset": "never", "backgroundColor": "#F1EADB", "scrollEnabled": true },
+  "android": { "backgroundColor": "#F1EADB" },
   "plugins": {
-    "SplashScreen": { "launchShowDuration": 600, "backgroundColor": "#1F2B25", "showSpinner": false },
-    "StatusBar": { "style": "DARK", "backgroundColor": "#1F2B25", "overlaysWebView": true }
+    "SplashScreen": { "launchShowDuration": 600, "backgroundColor": "#F1EADB", "showSpinner": false },
+    "StatusBar": { "style": "LIGHT", "backgroundColor": "#F1EADB", "overlaysWebView": true }
   }
 }
