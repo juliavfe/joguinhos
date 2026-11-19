@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Festa · Joguinhos</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#1F2B25">
+<link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
+<style>
+  body{overflow:hidden;touch-action:none}
+  #arena{position:fixed;top:0;left:0;width:100%;height:100%;display:grid;gap:6px;padding:calc(var(--top) + 6px) 6px calc(var(--bot) + 6px);background:#121A15}
+  .zona{position:relative;border-radius:22px;background:var(--paper-2);color:var(--ink);display:flex;align-items:center;justify-content:center;overflow:hidden;
+    touch-action:none;-webkit-user-select:none;user-select:none;transition:background .12s}
+  .zona .in{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:12px;pointer-events:none}
+  .zona.vira .in{transform:rotate(180deg)}
+  .zona .nome{font-weight:700;font-size:15px;color:var(--c)}
+  .zona .txt{font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:clamp(28px,8vw,46px);line-height:1;letter-spacing:-.01em}
+  .zona .sub{font-size:15px;color:var(--ink-2);max-width:16em;line-height:1.3}
+  .zona .placar{display:flex;gap:5px}
+  .zona .placar i{width:12px;height:12px;border-radius:50%;background:var(--paper-3)}
+  .zona .placar i.on{background:var(--c)}
+  .zona .fill{position:absolute;left:0;bottom:0;height:100%;width:0;background:var(--c);opacity:.25;top:auto;padding:0;z-index:0;transition:width .08s}
+  .zona.agora{background:var(--ink);color:var(--pinho)} .zona.agora .sub{color:var(--pinho)}
+  .zona.ganhou{background:var(--c);color:var(--pinho)} .zona.ganhou .nome,.zona.ganhou .sub{color:var(--pinho)}
+  .zona.queimou{background:#2A1F1D}
+  .zona:active{filter:brightness(1.08)}
+  .sair{position:fixed;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:#121A15;display:grid;place-items:center;box-shadow:0 0 0 5px #121A15}
+  .sair svg{width:20px;height:20px}
+  .n{display:flex;gap:8px;margin:0 0 18px}
+  .n button{flex:1;min-height:76px;border-radius:var(--r-s);background:rgba(31,43,37,.12);color:var(--pinho);font-family:var(--serif);font-weight:600;font-size:34px}
+  .n button[aria-pressed="true"]{background:var(--pinho);color:var(--ink)}
+</style>
+</head><body>
+<div id="arena"></div>
+<a class="back sair" href="../index.html" aria-label="Sair"></a>
+
+<div class="overlay verde" id="overlay"><h1>Festa</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg">Minijogos pra jogar junto no mesmo celular. Cada pessoa fica com um pedaço da tela.</p>
+  <ul class="rules" id="regras"><li>Reflexo: espere a tela acender e toque primeiro.</li><li>Toque rápido: quem tocar mais vezes em 5 segundos.</li><li>Cor certa: toque quando a palavra estiver escrita na própria cor.</li><li>Ganha quem fizer 5 pontos.</li></ul>
+  <p style="margin:0 0 8px;font-weight:650">Quantas pessoas?</p>
+  <div class="n" id="qtd"><button data-n="2" aria-pressed="true">2</button><button data-n="3" aria-pressed="false">3</button><button data-n="4" aria-pressed="false">4</button></div>
+  <button class="btn" id="play">Começar</button></div>
+
+<script src="../common.js"></script>
+<script>
+const META=5, K=J.C;
+const JOG=[{nome:'Amarelo',cor:K.amarelo},{nome:'Azul',cor:K.azul},{nome:'Rosa',cor:K.vermelho},{nome:'Verde',cor:K.verde}];
+const PALAVRAS=[['AMARELO',K.amarelo],['AZUL',K.azul],['ROSA',K.vermelho],['VERDE',K.verde]];
+let N=J.get('festa-n',2), pts, zonas, modo, rodada=0, timers=[], aberto=false, estado={};
+document.querySelectorAll('#qtd button').forEach(b=>{b.setAttribute('aria-pressed',+b.dataset.n===N);b.onclick=()=>{N=+b.dataset.n;J.set('festa-n',N);document.querySelectorAll('#qtd button').forEach(x=>x.setAttribute('aria-pressed',x===b));};});
+const later=(f,ms)=>timers.push(setTimeout(f,ms));
+const limpa=()=>{timers.forEach(clearTimeout);timers=[];};
+
+function monta(){
+  const a=J.$('arena');a.innerHTML='';
+  // 2: cima (virado) e baixo · 3: cima (virado) + duas embaixo · 4: quatro cantos, os de cima virados
+  const L={2:{cols:'1fr',rows:'1fr 1fr',area:[['1/1/2/2',1],['2/1/3/2',0]]},
+           3:{cols:'1fr 1fr',rows:'1fr 1fr',area:[['1/1/2/3',1],['2/1/3/2',0],['2/2/3/3',0]]},
+           4:{cols:'1fr 1fr',rows:'1fr 1fr',area:[['1/1/2/2',1],['1/2/2/3',1],['2/1/3/2',0],['2/2/3/3',0]]}}[N];
+  a.style.gridTemplateColumns=L.cols;a.style.gridTemplateRows=L.rows;
+  zonas=L.area.map(([ar,vira],i)=>{
+    const z=document.createElement('div');z.className='zona'+(vira?' vira':'');z.style.gridArea=ar;z.style.setProperty('--c',JOG[i].cor);
+    z.innerHTML=`<div class="fill"></div><div class="in" style="position:relative"><span class="nome">${JOG[i].nome}</span><span class="txt"></span><span class="sub"></span><span class="placar">${'<i></i>'.repeat(META)}</span></div>`;
+    z.addEventListener('pointerdown',e=>{e.preventDefault();toque(i);});
+    a.appendChild(z);return z;});
+}
+function mostra(i,txt,sub=''){const z=zonas[i];z.querySelector('.txt').textContent=txt;z.querySelector('.sub').textContent=sub;}
+function todos(txt,sub){zonas.forEach((_,i)=>mostra(i,txt,sub));}
+function classe(i,c){zonas[i].className='zona'+(zonas[i].classList.contains('vira')?' vira':'')+(c?' '+c:'');}
+function placar(){zonas.forEach((z,i)=>[...z.querySelectorAll('.placar i')].forEach((d,k)=>d.classList.toggle('on',k<pts[i])));}
+
+function start(){
+  N=J.get('festa-n',2);pts=Array(N).fill(0);rodada=0;monta();placar();J.$('overlay').classList.add('hide');proxima();
+}
+const MODOS=['reflexo','rapido','cor'];
+function proxima(){
+  limpa();rodada++;aberto=false;
+  modo=MODOS[(rodada-1)%3===0?Math.random()*3|0:Math.random()*3|0];
+  const nomes={reflexo:['Reflexo','Espere acender e toque primeiro'],rapido:['Toque rápido','Toque o mais rápido que puder'],cor:['Cor certa','Toque quando a palavra estiver na própria cor']};
+  zonas.forEach((_,i)=>{classe(i,'');zonas[i].querySelector(".fill").style.width='0';});
+  todos(nomes[modo][0],nomes[modo][1]);
+  later(()=>({reflexo,rapido,cor})[modo](),1900);
+}
+// --- reflexo
+function reflexo(){
+  estado={queimou:new Set(),livre:false};todos('Espera…','Não toque ainda');
+  later(()=>{estado.livre=true;aberto=true;zonas.forEach((_,i)=>{if(!estado.queimou.has(i)){classe(i,'agora');mostra(i,'Agora!','');}});J.beep(880,.15,'square',.06);},1500+Math.random()*2800);
+}
+// --- toque rápido
+function rapido(){
+  estado={n:Array(N).fill(0)};let c=3;todos('3','Prepare o dedo');
+  const conta=()=>{c--; if(c>0){todos(String(c),'Prepare o dedo');J.beep(500,.08);later(conta,700);}
+    else{aberto=true;todos('Vai!','');J.beep(900,.15,'square',.06);later(fimRapido,5000);}};
+  later(conta,700);
+}
+function fimRapido(){
+  aberto=false;const max=Math.max(...estado.n);const vencedores=estado.n.map((v,i)=>v===max?i:-1).filter(i=>i>=0);
+  zonas.forEach((_,i)=>mostra(i,estado.n[i]+' toques',''));
+  if(max===0){todos('Ninguém tocou','');return later(proxima,1800);}
+  ganha(vencedores.length===1?vencedores[0]:-1, vencedores.length>1?'Empate!':null);
+}
+// --- cor certa
+function cor(){
+  estado={fora:new Set(),certa:false,n:0};aberto=true;
+  const troca=()=>{
+    estado.n++;
+    // garante que a certa aparece de vez em quando (e não logo na primeira)
+    const certa=estado.n>2&&Math.random()<.33;
+    const [w,wc]=PALAVRAS[Math.random()*4|0];
+    let ink=wc; if(!certa){const outras=PALAVRAS.filter(p=>p[1]!==wc);ink=outras[Math.random()*outras.length|0][1];}
+    estado.certa=certa;
+    zonas.forEach((z,i)=>{if(estado.fora.has(i))return;mostra(i,w,'');z.querySelector('.txt').style.color=ink;});
+    later(troca,certa?1300:1000);
+  };
+  troca();
+}
+function toque(i){
+  if(modo==='reflexo'){
+    if(!estado.livre){ if(!estado.queimou.has(i)){estado.queimou.add(i);classe(i,'queimou');mostra(i,'Queimou!','Tocou antes da hora');J.bad();
+      if(estado.queimou.size===N){limpa();todos('Todo mundo queimou','');later(proxima,1700);}} return; }
+    if(!aberto||estado.queimou.has(i))return; aberto=false; ganha(i); return;
+  }
+  if(modo==='rapido'){ if(!aberto)return; estado.n[i]++; zonas[i].querySelector(".fill").style.width=Math.min(100,estado.n[i]*2.5)+'%'; mostra(i,String(estado.n[i]),''); return; }
+  if(modo==='cor'){
+    if(!aberto||estado.fora.has(i))return;
+    if(estado.certa){aberto=false;limpa();zonas.forEach(z=>z.querySelector('.txt').style.color='');ganha(i);}
+    else{estado.fora.add(i);classe(i,'queimou');const t=zonas[i].querySelector('.txt');t.style.color='';mostra(i,'Errou!','Fora desta rodada');J.bad();
+      if(estado.fora.size===N){aberto=false;limpa();zonas.forEach(z=>z.querySelector('.txt').style.color='');todos('Todo mundo errou','');later(proxima,1700);}}
+  }
+}
+function ganha(i,msg){
+  limpa();
+  if(i<0){todos(msg||'Empate!','Ninguém pontua');later(proxima,1800);return;}
+  pts[i]++;placar();J.good();
+  zonas.forEach((_,k)=>{classe(k,k===i?'ganhou':'');zonas[k].querySelector('.txt').style.color='';mostra(k,k===i?'Ponto!':JOG[i].nome+' pontuou',k===i?'':'');});
+  if(pts[i]>=META){later(()=>campeao(i),1300);return;}
+  later(proxima,1700);
+}
+function campeao(i){
+  limpa();J.good();
+  const o=J.$('overlay');o.style.setProperty('--c',JOG[i].cor);
+  J.$('big').style.display='block';J.$('big').textContent=JOG[i].nome+' venceu!';
+  J.$('msg').textContent='Placar: '+pts.map((p,k)=>`${JOG[k].nome} ${p}`).join(' · ');
+  J.$('regras').style.display='none';J.$('play').textContent='Jogar de novo';
+  o.classList.remove('hide');
+}
+J.$('play').onclick=start;
+</script></body></html>

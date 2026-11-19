@@ -1,6 +1,6 @@
 // Guarda tudo no celular pra funcionar sem internet.
 // Quando mudar algum arquivo, aumente a versão pra o app baixar a atualização.
-const VERSAO = 'joguinhos-v11';
+const VERSAO = 'joguinhos-v12';
 const ARQUIVOS = [
   "./",
   "arte.js",
@@ -14,7 +14,9 @@ const ARQUIVOS = [
   "icons/icon-512.png",
   "index.html",
   "jogos/conta.html",
+  "jogos/corrida.html",
   "jogos/eco.html",
+  "jogos/festa.html",
   "jogos/fusao.html",
   "jogos/licao.html",
   "jogos/linha.html",

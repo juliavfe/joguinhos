@@ -70,6 +70,10 @@
   .dia .fact{margin:14px 0 2px;font-size:17px;line-height:1.45}
   .dia .fact b{color:var(--amarelo)}
   .sub{color:var(--ink-2);margin:16px 0 0;font-size:16px}
+  .ofensiva{display:flex;align-items:center;gap:8px;margin:-6px 0 16px;color:var(--ink-2);font-size:16px}
+  .ofensiva svg{width:24px;height:24px}.ofensiva b{color:var(--ink);font-weight:650}
+  .tab{position:relative}
+  .tab.pendente::after{content:"";position:absolute;top:10px;left:calc(50% + 9px);width:9px;height:9px;border-radius:50%;background:var(--amarelo)}
   .sequencia{display:flex;gap:6px;margin-top:22px}
   .sequencia i{flex:1;height:44px;border-radius:12px;background:var(--paper-2);display:grid;place-items:center;font-style:normal;font-size:13px;font-weight:650;color:var(--ink-2)}
   .sequencia i.ok{background:var(--certo);color:var(--pinho)}.sequencia i.no{background:var(--errado);color:var(--pinho)}
@@ -174,8 +178,9 @@
 <!-- Desafio -->
 <div class="view off" id="v-desafio" role="tabpanel" aria-label="Desafio do dia" inert>
   <h1 class="display pt">Desafio do dia</h1>
+  <p class="ofensiva" id="ofensiva"></p>
   <div class="dia" id="dia" aria-live="polite"></div>
-  <p class="sub">Uma pergunta nova por dia, igual pra todo mundo. Seus últimos 7 dias:</p>
+  <p class="sub">Uma pergunta nova todo dia, igual pra todo mundo, sem repetir por meses. Seus últimos 7 dias:</p>
   <div class="sequencia" id="seq"></div>
 </div>
 
@@ -211,6 +216,7 @@ const JOGOS = [
   {sec:'Ação', items:[
     {id:'orbita', n:'Órbita', d:'Pule entre duas órbitas, pegue estrelas e fuja dos meteoros que vêm na contramão.', curta:'Pegue estrelas, fuja dos meteoros', cor:'azul', f:'w'},
     {id:'torre',  n:'Torre',  d:'Solte cada bloco na hora certa. O que sobrar pra fora é cortado.', curta:'Empilhe sem errar a borda', cor:'amarelo', f:'t'},
+    {id:'corrida', n:'Grande Prêmio', d:'Corrida de F1 em 3 voltas. Você larga em último e precisa ultrapassar todo mundo.', curta:'Corrida de F1, largue em último', cor:'amarelo', f:''},
     {id:'pulso',  n:'Pulso',  d:'O ponteiro gira cada vez mais rápido. Toque quando ele passar pelo alvo.', curta:'Toque no tempo certo', cor:'vermelho', f:'t'},
   ]},
   {sec:'Pensar', items:[
@@ -219,12 +225,15 @@ const JOGOS = [
     {id:'fusao',  n:'Fusão',  d:'Deslize pra juntar números iguais. Chegue no 2048 se conseguir.', curta:'Junte números até o 2048', cor:'azul', f:''},
     {id:'conta',  n:'Conta Rápida', d:'Um minuto pra acertar o máximo de contas de cabeça. Cada erro custa 3 segundos.', curta:'Um minuto de conta de cabeça', cor:'tinta', f:'w'},
   ]},
+  {sec:'Com amigos', items:[
+    {id:'festa', n:'Festa', d:'Minijogos pra 2, 3 ou 4 pessoas no mesmo celular: reflexo, toque rápido e cor certa.', curta:'2 a 4 pessoas no mesmo celular', cor:'verde', f:''},
+  ]},
   {sec:'Saber', items:[
     {id:'quiz',   n:'Quiz do Milhão', d:'16 perguntas até R$ 1 milhão, com plateia, cartas e universitários.', curta:'Bíblia, filmes, ciência e mais', cor:'vermelho', f:'w t'},
     {id:'linha',  n:'Linha do Tempo', d:'Coloque os acontecimentos na ordem certa: Bíblia, História e Cinema.', curta:'Bíblia, História e Cinema em ordem', cor:'verde', f:'w'},
   ]},
 ];
-const UNID={quemsou:'pontos de 32',orbita:'pontos',torre:'andares',pulso:'pontos',palavra:'vitórias seguidas',eco:'níveis',fusao:'pontos',conta:'acertos em 1 minuto',quiz:'maior prêmio',linha:'pontos de 25'};
+const UNID={corrida:'pontos de F1 (25 = vitória)',festa:'',quemsou:'pontos de 32',orbita:'pontos',torre:'andares',pulso:'pontos',palavra:'vitórias seguidas',eco:'níveis',fusao:'pontos',conta:'acertos em 1 minuto',quiz:'maior prêmio',linha:'pontos de 25'};
 const reais=v=>v>=1e6?'R$ 1 milhão':'R$ '+(v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil';
 const recTxt=(id,b)=>id==='quiz'&&b?reais(b):b;
 
@@ -258,7 +267,7 @@ function desenhaBiblia(){
   }).join('');
 }
 function desenhaRecordes(){
-  J.$('recs').innerHTML = JOGOS.flatMap(s=>s.items).concat([{id:'quemsou',n:'Quem sou eu?',cor:'vermelho'}]).map(g=>{
+  J.$('recs').innerHTML = JOGOS.flatMap(s=>s.items).filter(g=>g.id!=='festa').concat([{id:'quemsou',n:'Quem sou eu?',cor:'vermelho'}]).map(g=>{
     const b=J.best(g.id);
     return `<li class="${g.cor}"><span class="sq"></span><span class="n">${g.n}<small>${UNID[g.id]}</small></span><span class="v ${b?'':'zero'}">${b?recTxt(g.id,b):'–'}</span></li>`;
   }).join('');
@@ -331,13 +340,17 @@ const paint = () => { mb.innerHTML = J.muted() ? J.ICON.mudo : J.ICON.som; mb.se
 paint(); mb.onclick = () => { J.set('mute', !J.muted()); paint(); J.beep(600); };
 
 // desafio do dia: uma pergunta do quiz por dia, igual pro dia todo
-const all = Object.values(QUIZ).flatMap(c => c.q.map(q => ({q, tema:c.nome})));
+const all = Object.values(QUIZ).flatMap(c => c.q.map(q => ({q, tema:c.nome})))
+  .concat(LICOES.flatMap(l => l.q.map(q => ({q:[q[0],q[1],q[2],q[3],q[2],'Essa está em '+l.ref+', na lição “'+l.t+'” da aba Bíblia.'], tema:'Bíblia', tres:true}))));
+// ordem fixa (igual pra todo mundo) e sem repetir até passar por todas
+const ORDEM = (() => { let s = 20261118; const r = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const a = all.map((_, i) => i); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; })();
 const diaN = d => Math.floor((new Date(d.getFullYear(),d.getMonth(),d.getDate()) - new Date(2026,0,1)) / 864e5);
 const hoje = diaN(new Date());
 function desafio(){
-  const it = all[(hoje * 37) % all.length], [pergunta, certa, ...resto] = it.q;
+  const it = all[ORDEM[((hoje % all.length) + all.length) % all.length]], [pergunta, certa, ...resto] = it.q;
   const h = s => [...(s+hoje)].reduce((n,c)=>(n*31+c.charCodeAt(0))>>>0, 7);
-  const ops = [certa, ...resto.slice(0,3)].sort((a,b)=>h(a)-h(b));
+  const ops = [...new Set([certa, ...resto.slice(0, it.tres ? 2 : 3)])].sort((a,b)=>h(a)-h(b));
   const hist = J.get('dias', {});
   J.$('dia').innerHTML = `<p class="tema">${it.tema}</p><p class="q">${pergunta}</p><div id="dops"></div><p class="fact" id="dfact" hidden></p>`;
   const show = pick => {
@@ -346,17 +359,20 @@ function desafio(){
     f.innerHTML = `<b>${pick === certa ? 'Acertou!' : 'Era: ' + certa + '.'}</b> ${it.q[5] || ''}<br><br>Volte amanhã pra pergunta nova.`;
   };
   ops.forEach(t => { const b = document.createElement('button'); b.className = 'opt'; b.textContent = t; b.dataset.t = t;
-    b.onclick = () => { if (b.disabled) return; const h2=J.get('dias',{}); h2[hoje]=t===certa?1:0; J.set('dias',h2); J.set('dia-pick',{day:hoje,pick:t}); t === certa ? J.good() : J.bad(); show(t); seq(); };
+    b.onclick = () => { if (b.disabled) return; const h2=J.get('dias',{}); h2[hoje]=t===certa?1:0; J.set('dias',h2); J.set('dia-pick',{day:hoje,pick:t}); t === certa ? J.good() : J.bad(); show(t); seq(); marcaAba(); };
     J.$('dops').appendChild(b); });
   const p = J.get('dia-pick', {}); if (p.day === hoje) show(p.pick);
   seq();
 }
+function ofensiva(){ const h=J.get('dias',{}); let n=0, d=hoje; if(h[d]===undefined) d--; while(h[d]!==undefined){n++;d--;} return n; }
+function marcaAba(){ const t=document.querySelector('.tab[data-v=desafio]'); t.classList.toggle('pendente', J.get('dias',{})[hoje]===undefined); }
 function seq(){
+  const o=ofensiva(); J.$('ofensiva').innerHTML=o?`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 1.6-4.6 3-6 .3 2 1 3 2.4 3.6C10.6 8.6 11 5 12 2z" fill="#D8B24A"/></svg><b>${o} ${o===1?'dia':'dias'}</b> seguidos`:'Responda hoje pra começar uma sequência';
   const hist=J.get('dias',{}), nomes=['dom','seg','ter','qua','qui','sex','sáb'];
   J.$('seq').innerHTML=[6,5,4,3,2,1,0].map(k=>{const d=new Date(Date.now()-k*864e5),n=diaN(d),r=hist[n];
     return `<i class="${r===1?'ok':r===0?'no':''} ${k===0?'hoje':''}" title="${d.toLocaleDateString('pt-BR')}">${k===0?'hoje':nomes[d.getDay()]}</i>`;}).join('');
 }
-desafio();
+desafio(); marcaAba();
 </script>
 </body>
 </html>

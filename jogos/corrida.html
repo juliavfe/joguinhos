@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Grande Prêmio · Joguinhos</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#1F2B25">
+<link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
+<style>
+  .hud{position:fixed;left:0;right:0;top:calc(var(--top) + 64px);z-index:15;display:flex;justify-content:space-between;align-items:flex-start;padding:0 var(--m);pointer-events:none}
+  .pos{font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:64px;line-height:.9;color:var(--ink);font-variant-numeric:lining-nums}
+  .pos small{font-family:"Inter Tight",sans-serif;font-size:14px;font-weight:600;color:var(--ink-2);display:block;margin-top:4px}
+  .vel{text-align:right;font-family:var(--serif);font-weight:600;font-size:34px;line-height:1;font-variant-numeric:tabular-nums lining-nums}
+  .vel small{display:block;font-family:"Inter Tight",sans-serif;font-size:13px;color:var(--ink-2);font-weight:600}
+  .luzes{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:16;display:flex;gap:10px;padding:14px 16px;border-radius:18px;background:#121A15}
+  .luzes i{width:34px;height:34px;border-radius:50%;background:#2A3830}
+  .luzes i.on{background:#E2554A}
+  .luzes.hide{display:none}
+  .dica{position:fixed;left:0;right:0;bottom:calc(var(--bot) + 22px);z-index:15;display:flex;justify-content:space-between;padding:0 var(--m);pointer-events:none;color:var(--ink);font-weight:650;font-size:14px;opacity:.75}
+  .dica span{background:rgba(18,26,21,.75);padding:8px 14px;border-radius:999px}
+</style>
+</head><body>
+<canvas class="full" id="c"></canvas>
+<div class="bar"><a class="back" href="../index.html">←</a><div class="title">Grande Prêmio</div>
+  <div class="stat"><small>Volta</small><b id="volta">1/3</b></div><div class="stat"><small>Recorde</small><b id="best">0</b></div><b id="score" hidden></b></div>
+<div class="hud"><div class="pos" id="pos">P8<small>de 8</small></div><div class="vel"><span id="kmh">0</span><small>km/h</small></div></div>
+<div class="luzes hide" id="luzes"><i></i><i></i><i></i><i></i><i></i></div>
+<div class="dica" id="dica"><span>← segure aqui</span><span>segure aqui →</span></div>
+
+<div class="overlay amarelo" id="overlay"><h1>Grande Prêmio</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg"></p>
+  <ul class="rules"><li>Você larga em último. São 3 voltas.</li><li>Segure do lado esquerdo ou direito da tela pra virar. O carro acelera sozinho.</li><li>Fora da pista ou batendo, você perde velocidade.</li><li>Pontos como na F1: vencer vale 25.</li></ul>
+  <button class="btn" id="play">Largar</button></div>
+
+<script src="../common.js"></script>
+<script>
+const ID='corrida', C=J.canvas(J.$('c')), ctx=C.ctx, K=J.C;
+J.$('best').textContent=J.best(ID);
+const VOLTA=7000, VOLTAS=3, TOTAL=VOLTA*VOLTAS, PONTOS=[25,18,15,12,10,8,6,4];
+const GRAMA='#2F4A35', GRAMA2='#2B4431', ASFALTO='#3B423E', ASF2='#373E3A';
+const CORES=[K.azul,K.vermelho,K.verde,K.ink,'#E2554A','#8C9DD6','#B08A5A'];
+let state='menu',P,ais,t,luz,shake,dirKeys={l:0,r:0},touch={l:0,r:0},finish;
+
+// traçado: curvas suaves que se repetem a cada volta
+const tw=()=>Math.min(C.W*.62,330);
+function centro(d){const k=d%VOLTA/VOLTA*Math.PI*2;return Math.sin(k*2)*C.W*.17+Math.sin(k*5+1.3)*C.W*.07+Math.sin(k*9+.4)*C.W*.025;}
+function curva(d){return (centro(d+40)-centro(d-40))/80;}
+
+function reset(){
+  P={d:0,x:tw()*.18,v:0,vx:0};
+  ais=CORES.map((c,i)=>({d:70+i*52,x:(i%2?-1:1)*tw()*.18,v:0,vmax:455+i*9+Math.random()*25,cor:c,alvo:(Math.random()-.5)*tw()*.5,tAlvo:0}));
+  t=0;shake=0;finish=null;
+}
+function start(){
+  reset();state='luzes';luz=0;J.$('overlay').classList.add('hide');J.$('luzes').classList.remove('hide');
+  const ls=[...J.$('luzes').children];ls.forEach(l=>l.classList.remove('on'));
+  const acende=()=>{ if(luz<5){ls[luz].classList.add('on');J.beep(440,.12,'square',.05);luz++;setTimeout(acende,650);}
+    else setTimeout(()=>{ls.forEach(l=>l.classList.remove('on'));J.$('luzes').classList.add('hide');J.beep(880,.25,'square',.06);state='play';},500+Math.random()*900); };
+  setTimeout(acende,500);
+}
+function posicao(){return 1+ais.filter(a=>a.d>P.d).length;}
+
+function update(dt){
+  if(state!=='play'&&state!=='fim')return;
+  t+=dt;
+  const W=tw();
+  // jogador
+  if(state==='play'){
+    const steer=(dirKeys.r||touch.r?1:0)-(dirKeys.l||touch.l?1:0);
+    const fora=Math.abs(P.x)>W/2-14;
+    const vmax=fora?240:540;
+    P.v+=(vmax-P.v)*Math.min(1,dt*(P.v<vmax?.55:2.5));
+    P.vx+=(steer*360-P.vx)*Math.min(1,dt*7);
+    P.x+=P.vx*dt - curva(P.d)*P.v*dt*.55; // a curva puxa o carro pra fora
+    P.x=Math.max(-W/2-60,Math.min(W/2+60,P.x));
+    P.d+=P.v*dt;
+    if(P.d>=TOTAL){state='fim';finish=posicao();setTimeout(fim,900);}
+  } else { P.v*=Math.pow(.4,dt); P.d+=P.v*dt; }
+  // adversários
+  for(const a of ais){
+    if(a.d<TOTAL+400){a.v+=(a.vmax-a.v)*Math.min(1,dt*.6);a.d+=a.v*dt;}
+    a.tAlvo-=dt;if(a.tAlvo<=0){a.alvo=(Math.random()-.5)*W*.55;a.tAlvo=1.5+Math.random()*2;}
+    a.x+=(a.alvo-a.x)*Math.min(1,dt*1.2);
+    // batida com o jogador
+    if(state==='play'&&Math.abs(a.d-P.d)<46&&Math.abs(a.x-P.x)<24){
+      if(P.d<a.d){P.v*=.55;P.d=a.d-47;}else{a.v*=.6;}
+      P.vx=(P.x<a.x?-1:1)*260;shake=10;J.beep(120,.12,'sawtooth',.06);
+    }
+  }
+  shake*=.85;
+  if(state==='play'){
+    const p=posicao();J.$('pos').innerHTML=`P${p}<small>de 8</small>`;
+    J.$('volta').textContent=Math.min(VOLTAS,1+Math.floor(P.d/VOLTA))+'/'+VOLTAS;
+    J.$('kmh').textContent=Math.round(P.v*.6);
+  }
+}
+function fim(){
+  const pts=PONTOS[finish-1];
+  J.over(ID,pts,finish===1?'Vitória! Você ultrapassou todo mundo.':finish<=3?`Pódio! Você terminou em ${finish}º.`:`Você terminou em ${finish}º. Tente frear menos nas batidas.`);
+  J.$('big').textContent=`${finish}º lugar · ${pts} pontos`;J.$('play').textContent='Correr de novo';
+}
+
+function carro(x,y,cor,ang){
+  ctx.save();ctx.translate(x,y);ctx.rotate(ang);
+  ctx.fillStyle='#111';[[-11,-15],[11,-15],[-12,12],[12,12]].forEach(([a,b])=>{ctx.beginPath();ctx.roundRect?ctx.roundRect(a-4,b-6,8,12,2):ctx.rect(a-4,b-6,8,12);ctx.fill();});
+  ctx.fillStyle=cor;
+  ctx.fillRect(-13,-27,26,5);          // asa dianteira
+  ctx.beginPath();ctx.moveTo(-3,-25);ctx.lineTo(3,-25);ctx.lineTo(7,-6);ctx.lineTo(9,14);ctx.lineTo(-9,14);ctx.lineTo(-7,-6);ctx.closePath();ctx.fill(); // corpo
+  ctx.fillRect(-12,17,24,6);           // asa traseira
+  ctx.fillStyle='#16201B';ctx.beginPath();ctx.ellipse(0,-2,3.4,5,0,0,7);ctx.fill(); // cockpit
+  ctx.restore();
+}
+function draw(){
+  const W=C.W,H=C.H,TW=tw(),cy=H*.72;
+  ctx.save();if(shake>.5)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
+  ctx.fillStyle=GRAMA;ctx.fillRect(-20,-20,W+40,H+40);
+  const passo=8;
+  for(let y=-passo;y<H+passo;y+=passo){
+    const d=P?P.d+(cy-y):cy-y, c=W/2+centro(d), fx=Math.floor(d/60)%2;
+    if(fx){ctx.fillStyle=GRAMA2;ctx.fillRect(0,y,W,passo);}
+    ctx.fillStyle=Math.floor(d/120)%2?ASFALTO:ASF2;ctx.fillRect(c-TW/2,y,TW,passo+1);
+    ctx.fillStyle=Math.floor(d/30)%2?'#E2554A':K.ink;ctx.fillRect(c-TW/2-10,y,10,passo+1);ctx.fillRect(c+TW/2,y,10,passo+1);
+    // linha de chegada / largada
+    const md=((d%VOLTA)+VOLTA)%VOLTA;
+    if(md<24){for(let i=0;i<TW;i+=12){ctx.fillStyle=((i/12|0)+(md/12|0))%2?'#111':'#F1EADB';ctx.fillRect(c-TW/2+i,y,12,passo+1);}}
+  }
+  if(P){
+    for(const a of ais){const y=cy-(a.d-P.d);if(y<-60||y>H+60)continue;carro(W/2+centro(a.d)+a.x,y,a.cor,curva(a.d)*.9);}
+    carro(W/2+centro(P.d)+P.x,cy,K.amarelo,P.vx/900+curva(P.d)*.9);
+  }
+  ctx.restore();
+}
+let last=performance.now();
+function loop(now){const dt=Math.min((now-last)/1000,.05);last=now;update(dt);draw();requestAnimationFrame(loop);}
+reset();requestAnimationFrame(loop);
+J.$('play').onclick=start;
+const cv=J.$('c');
+const lado=e=>e.clientX<C.W/2?'l':'r';
+const toques=new Map();
+cv.addEventListener('pointerdown',e=>{e.preventDefault();toques.set(e.pointerId,lado(e));sync();});
+cv.addEventListener('pointermove',e=>{if(toques.has(e.pointerId)){toques.set(e.pointerId,lado(e));sync();}});
+['pointerup','pointercancel','pointerleave'].forEach(ev=>cv.addEventListener(ev,e=>{toques.delete(e.pointerId);sync();}));
+function sync(){touch.l=[...toques.values()].includes('l')?1:0;touch.r=[...toques.values()].includes('r')?1:0;}
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft')dirKeys.l=1;if(e.key==='ArrowRight')dirKeys.r=1;if(e.code==='Space'&&state==='menu'){e.preventDefault();start();}});
+addEventListener('keyup',e=>{if(e.key==='ArrowLeft')dirKeys.l=0;if(e.key==='ArrowRight')dirKeys.r=0;});
+</script></body></html>

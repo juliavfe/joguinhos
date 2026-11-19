@@ -56,6 +56,18 @@ const ARTE = (() => {
       [6, 10, 14, 19, 25, 32, 40, 50].map((h, i) => `<rect x="${10 + i * 10.2}" y="${86 - h}" width="7.6" height="${h}" rx="2" fill="${i === 7 ? MO : CR}" opacity="${i === 7 ? 1 : .18 + i * .09}"/>`).join('') +
       `
        <circle cx="89.4" cy="16" r="6" fill="${MO}" opacity=".25"/>`),
+    corrida: () => {
+      const car = (x, y, c, a) => `<g transform="translate(${x} ${y}) rotate(${a})"><rect x="-7" y="-11" width="4" height="6" rx="1" fill="#111"/><rect x="3" y="-11" width="4" height="6" rx="1" fill="#111"/><rect x="-7.5" y="5" width="4.5" height="6.5" rx="1" fill="#111"/><rect x="3" y="5" width="4.5" height="6.5" rx="1" fill="#111"/><rect x="-8" y="-16" width="16" height="3.2" fill="${c}"/><path d="M-2 -15 H2 L4.5 -3 L5.5 9 H-5.5 L-4.5 -3Z" fill="${c}"/><rect x="-7.5" y="10.5" width="15" height="4" fill="${c}"/><ellipse cx="0" cy="-1.5" rx="2" ry="3" fill="${P}"/></g>`;
+      return wrap('#2F4A35',
+        `<path d="M-10 118 C 20 70, 70 80, 62 40 S 70 -5, 110 -20" fill="none" stroke="${CR}" stroke-width="46" stroke-dasharray="7 7"/>
+         <path d="M-10 118 C 20 70, 70 80, 62 40 S 70 -5, 110 -20" fill="none" stroke="#E2554A" stroke-width="46" stroke-dasharray="7 7" stroke-dashoffset="7"/>
+         <path d="M-10 118 C 20 70, 70 80, 62 40 S 70 -5, 110 -20" fill="none" stroke="#3B423E" stroke-width="38"/>
+         ${car(66, 26, NE, 18)}${car(50, 66, MO, -8)}`);
+    },
+    festa: () => wrap(P2,
+      `<path d="M50 50 L50 10 A40 40 0 0 1 90 50Z" fill="${NE}"/><path d="M50 50 L90 50 A40 40 0 0 1 50 90Z" fill="${SA}"/>
+       <path d="M50 50 L50 90 A40 40 0 0 1 10 50Z" fill="${RO}"/><path d="M50 50 L10 50 A40 40 0 0 1 50 10Z" fill="${MO}"/>
+       <circle cx="50" cy="50" r="9" fill="${P2}"/><circle cx="30" cy="30" r="4.5" fill="${P}"/><circle cx="70" cy="30" r="4.5" fill="${P}"/><circle cx="30" cy="70" r="4.5" fill="${P}"/><circle cx="70" cy="70" r="4.5" fill="${P}"/>`),
     linha: () => wrap(RO,
       `<path d="M8 52 H92" stroke="${P}" stroke-width="2.4" stroke-linecap="round"/>
        ${[[16, '1500', 1], [38, '1822', 0], [62, '1889', 1], [84, '1969', 0]].map(([x, y, up]) =>
