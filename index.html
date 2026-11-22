@@ -231,9 +231,10 @@ const JOGOS = [
   {sec:'Saber', items:[
     {id:'quiz',   n:'Escada do Saber', d:'16 degraus de perguntas até 1 milhão de pontos, com ajudas e a hora certa de parar.', curta:'Bíblia, filmes, ciência e mais', cor:'vermelho', f:'w t'},
     {id:'linha',  n:'Linha do Tempo', d:'Coloque os acontecimentos na ordem certa: Bíblia, História e Cinema.', curta:'Bíblia, História e Cinema em ordem', cor:'verde', f:'w'},
+    {id:'stop',   n:'Stop', d:'Sorteia a letra e corre o tempo: nome, CEP, animal, cor e mais. Treine e monte repertório de A a Z.', curta:'Treino de adedonha, de A a Z', cor:'amarelo', f:'w'},
   ]},
 ];
-const UNID={corrida:'pontos de F1 (25 = vitória)',festa:'',quemsou:'pontos de 32',orbita:'pontos',torre:'andares',pulso:'pontos',palavra:'vitórias seguidas',eco:'níveis',fusao:'pontos',conta:'acertos em 1 minuto',quiz:'pontos (topo = 1 milhão)',linha:'pontos de 25'};
+const UNID={corrida:'pontos de F1 (25 = vitória)',festa:'',quemsou:'pontos de 32',orbita:'pontos',torre:'andares',pulso:'pontos',palavra:'vitórias seguidas',eco:'níveis',fusao:'pontos',conta:'acertos em 1 minuto',quiz:'pontos (topo = 1 milhão)',linha:'pontos de 25',stop:'pontos no relâmpago'};
 const reais=v=>v>=1e6?'1 milhão':(v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil';
 const recTxt=(id,b)=>id==='quiz'&&b?reais(b):b;
 

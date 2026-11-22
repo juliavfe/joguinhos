@@ -68,6 +68,13 @@ const ARTE = (() => {
       `<path d="M50 50 L50 10 A40 40 0 0 1 90 50Z" fill="${NE}"/><path d="M50 50 L90 50 A40 40 0 0 1 50 90Z" fill="${SA}"/>
        <path d="M50 50 L50 90 A40 40 0 0 1 10 50Z" fill="${RO}"/><path d="M50 50 L10 50 A40 40 0 0 1 50 10Z" fill="${MO}"/>
        <circle cx="50" cy="50" r="9" fill="${P2}"/><circle cx="30" cy="30" r="4.5" fill="${P}"/><circle cx="70" cy="30" r="4.5" fill="${P}"/><circle cx="30" cy="70" r="4.5" fill="${P}"/><circle cx="70" cy="70" r="4.5" fill="${P}"/>`),
+    stop: () => wrap(MO,
+      `<rect x="12" y="12" width="76" height="76" rx="8" fill="${CR}"/>
+       <rect x="18" y="31" width="30" height="13" rx="2" fill="${MO}" transform="rotate(-4 33 37)"/>
+       <text x="33" y="45" text-anchor="middle" ${F} font-size="38" fill="${P}">A</text>
+       <rect x="56" y="22" width="24" height="4" rx="2" fill="${P}" opacity=".85"/><rect x="56" y="31" width="17" height="4" rx="2" fill="${P}" opacity=".35"/>
+       <rect x="56" y="40" width="21" height="4" rx="2" fill="${P}" opacity=".35"/>
+       ${[58, 68, 78].map((y, i) => `<rect x="20" y="${y}" width="15" height="4" rx="2" fill="${P}" opacity=".35"/><rect x="40" y="${y}" width="${[30, 22, 36][i]}" height="4" rx="2" fill="${P}" opacity=".85"/>`).join('')}`),
     linha: () => wrap(RO,
       `<path d="M8 52 H92" stroke="${P}" stroke-width="2.4" stroke-linecap="round"/>
        ${[[16, '1500', 1], [38, '1822', 0], [62, '1889', 1], [84, '1969', 0]].map(([x, y, up]) =>

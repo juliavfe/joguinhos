@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Stop · Joguinhos</title>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#F1EADB">
+<link rel="manifest" href="../manifest.json"><link rel="apple-touch-icon" href="../icons/icon-180.png"><link rel="icon" href="../icons/icon-192.png"><link rel="stylesheet" href="../style.css">
+<style>
+  input,select{-webkit-user-select:text;user-select:text}
+  h2.display{font-size:30px;margin:30px 0 8px}
+  .lede{font-size:18.5px;margin:0 0 22px;max-width:24em;color:var(--ink-2)}
+  .lnk{font-weight:650;color:var(--ink);text-decoration:underline;text-underline-offset:3px;min-height:44px;text-align:left}
+  .mini{min-height:44px;padding:0 18px;font-size:16px}
+
+  /* letra sorteada com marcação mostarda */
+  .letra{font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100,"WONK" 1;line-height:.85;position:relative;display:inline-block;isolation:isolate;padding:0 .06em;font-variant-numeric:lining-nums;flex:none}
+  .letra::before{content:"";position:absolute;z-index:-1;left:-.05em;right:-.05em;top:48%;bottom:4%;background:var(--amarelo);border-radius:.08em;transform:rotate(-3deg)}
+  .letra.xl{font-size:clamp(130px,44vw,200px)}
+  .letra.lg{font-size:92px}
+  .letra.md{font-size:58px}
+  .letra.caiu{animation:pop .4s var(--ease)}
+
+  /* menu */
+  #app>h1.display{font-size:clamp(66px,20vw,120px);margin:4px 0 14px}
+  .dia{background:var(--paper-2);border-radius:var(--r);padding:18px 18px 8px}
+  .dia-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:6px}
+  .dia-top small{display:block;color:var(--ink-2);font-size:14px}
+  .dia-top b{display:block;font-weight:600;font-size:17.5px;margin-top:2px}
+  .kit{list-style:none;margin:0;padding:0}
+  .kit li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;min-height:40px;padding:6px 0}
+  .kit li+li{box-shadow:0 -1px 0 rgba(31,43,37,.08)}
+  .kit .c{color:var(--ink-2);font-size:15px;flex:none}
+  .kit .r{font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 72,"SOFT" 100;font-size:21px;text-align:right}
+  .kit .nada{color:var(--ink-2);font-size:14.5px;text-align:right}
+  .modos{display:grid;gap:8px;margin:22px 0 0}
+  .modo{border-radius:var(--r);display:flex;justify-content:space-between;align-items:flex-end;gap:12px;min-height:118px;padding:16px;text-align:left;background:var(--c);color:var(--on-c);transition:transform .12s var(--ease)}
+  .modo:active{transform:scale(.98)}
+  .modo b{display:block;font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:42px;line-height:.92}
+  .modo small{display:block;font-size:15px;margin-top:6px;max-width:20em;line-height:1.35}
+  .modo em{font-style:normal;font-size:14.5px;font-weight:650;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .fracos{margin-top:26px}
+  .fracos p{color:var(--ink-2);margin:0 0 10px}
+  .pares{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .par{display:inline-flex;gap:6px;align-items:baseline;padding:6px 12px;border-radius:999px;background:var(--errado);color:var(--pinho);font-size:15px;font-weight:600}
+  .par b{font-family:var(--serif);font-weight:600;font-size:18px}
+  .pe{margin-top:26px;color:var(--ink-2);font-size:15px}
+
+  /* rodada */
+  .sorteio{display:flex;flex-direction:column;align-items:center;gap:18px;padding:40px 0 10px;text-align:center}
+  .sorteio small{color:var(--ink-2);font-size:16px}
+  .placa{position:sticky;top:calc(var(--top) + 64px);z-index:10;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;margin:-12px calc(var(--m) * -1) 6px;padding:10px var(--m) 12px;background:var(--paper)}
+  .relogio{font-family:var(--serif);font-weight:600;font-size:24px;font-variant-numeric:tabular-nums lining-nums;line-height:1}
+  .relogio.acabando{color:var(--errado-txt)}
+  .placa .timer{margin:8px 0 0}
+  .timer i{transition:width .2s linear}
+  .timer i.acabando{background:var(--errado)}
+  #stopBtn{min-height:52px;padding:0 18px;font-family:var(--serif);font-size:22px;letter-spacing:.02em}
+  .campo{display:grid;grid-template-columns:92px 1fr;gap:12px;align-items:center;margin:8px 0}
+  .campo label{font-weight:600;font-size:16.5px;line-height:1.15}
+  .campo label small{display:block;font-weight:450;font-size:12.5px;color:var(--ink-2);margin-top:2px}
+  .campo input,.raio-in,.add input,.add select{min-width:0;width:100%;min-height:54px;padding:0 14px;border:0;border-radius:var(--r-s);background:var(--paper-2);color:var(--ink);font:inherit;font-size:19px;font-weight:550}
+  .campo input:focus-visible,.raio-in:focus-visible,.add input:focus-visible,.add select:focus-visible{outline:2px solid var(--amarelo);outline-offset:0}
+  .campo input::placeholder,.raio-in::placeholder,.add input::placeholder{color:#9C9A8C}
+  .acoes{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:18px}
+  .acoes .btn{flex:1 1 auto}
+
+  /* correção */
+  .corr{display:flex;align-items:center;gap:18px;margin:4px 0 8px}
+  .corr h2{font-size:30px;margin:0}
+  .corr p{color:var(--ink-2);margin:4px 0 0;font-size:15.5px}
+  .lc{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;padding:12px 14px;margin:8px 0;border-radius:var(--r-s);background:var(--paper-2)}
+  .lc .c{font-size:13.5px;color:var(--ink-2);font-weight:600}
+  .lc .r{grid-column:1;font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 72,"SOFT" 100;font-size:22px;line-height:1.15;overflow-wrap:anywhere}
+  .lc .r.vazio{color:var(--ink-2);font-family:inherit;font-weight:450;font-size:16px}
+  .lc .r.riscado{text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:var(--errado-txt)}
+  .lc .obs{grid-column:1;font-size:13.5px;color:var(--errado-txt);font-weight:600}
+  .lc .obs.ok{color:var(--ouro)}
+  .lc .pts{grid-column:2;grid-row:1 / 4;min-width:52px;min-height:38px;padding:0 10px;border-radius:999px;display:grid;place-items:center;font-family:var(--serif);font-weight:600;font-size:20px;font-variant-numeric:tabular-nums lining-nums;color:var(--pinho)}
+  .pts.ok{background:var(--certo)}.pts.zero{background:var(--errado)}.pts.duv{background:var(--paper-3)}
+  .lc .julga{grid-column:1 / 3;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
+  .lc .julga span{width:100%;font-size:14px;color:var(--ink-2)}
+  .lc .julga .btn{min-height:42px;padding:0 18px;font-size:16px;flex:1}
+  .lc .tb{grid-column:1 / 3;margin-top:6px;font-size:14.5px;color:var(--ink-2);line-height:1.45}
+  .lc .tb b{font-weight:550;color:var(--ink)}
+  .total{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;padding:4px 2px}
+  .total span{color:var(--ink-2);font-size:15.5px;max-width:14em}
+  .total b{font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:64px;line-height:.9;font-variant-numeric:tabular-nums lining-nums}
+
+  /* relâmpago */
+  .topo{display:flex;justify-content:space-between;align-items:baseline}
+  .topo b{font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:26px}
+  .topo span{color:var(--ink-2);font-size:15px}
+  .raio-q{display:flex;align-items:center;gap:20px;margin:22px 0 18px}
+  .raio-q .cat b{display:block;font-family:var(--serif);font-weight:600;font-variation-settings:"opsz" 144,"SOFT" 100;font-size:38px;line-height:.95}
+  .raio-q .cat small{display:block;color:var(--ink-2);font-size:15.5px;margin-top:6px}
+  .raio-in{min-height:62px;font-size:22px}
+  .fb{margin-top:4px;padding:14px 16px;border-radius:var(--r-s);font-size:17.5px;line-height:1.4;color:var(--pinho)}
+  .fb.ok{background:var(--certo)}.fb.erro{background:var(--errado)}.fb.duv{background:var(--paper-2);color:var(--ink)}
+  .fb b{font-family:var(--serif);font-weight:600}
+  .fb s{text-decoration-thickness:2px}
+  .guardar{margin-top:14px;font-size:16px;line-height:1.5}
+  .guardar small{display:block;color:var(--ink-2);font-size:14px;margin-bottom:2px}
+  .guardar mark{background:var(--amarelo);color:var(--pinho);border-radius:4px;padding:0 4px}
+  #overlay h1{font-size:clamp(54px,16vw,120px)}
+  #msg .decorar{display:block;margin-top:16px;font-size:16px}
+  #msg .decorar>span{display:block;padding:7px 0;box-shadow:0 -1px 0 rgba(31,43,37,.16)}
+  #msg .decorar i{font-style:normal;font-weight:700}
+
+  /* repertório */
+  .letras{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;margin:4px 0 20px}
+  @media (min-width:520px){.letras{grid-template-columns:repeat(13,1fr)}}
+  .lt{aspect-ratio:1;min-height:34px;border-radius:10px;background:var(--paper-2);font-family:var(--serif);font-weight:600;font-size:20px;font-variant-numeric:lining-nums}
+  .lt.dif{color:var(--ink-2)}
+  .lt[aria-pressed="true"]{background:var(--amarelo);color:var(--pinho)}
+  .rep-top{display:flex;align-items:center;gap:20px}
+  .rep-top p{color:var(--ink-2);margin:0 0 10px;font-size:15.5px}
+  .rep-top p b{color:var(--ink);font-family:var(--serif);font-weight:600;font-size:22px}
+  .rep-kit{background:var(--paper-2);border-radius:var(--r);padding:8px 18px}
+  .grupo{margin:14px 0}
+  .grupo h3{margin:0;font-size:17px;font-weight:650}
+  .grupo h3 small{font-weight:450;font-size:14px;color:var(--ink-2)}
+  .grupo p{margin:2px 0 0;line-height:1.55;font-size:16.5px}
+  .grupo .vazio{color:var(--ink-2);font-size:15px}
+  .w.usada{box-shadow:inset 0 -.38em 0 rgba(216,178,74,.7)}
+  .w.sua{color:var(--ouro);font-weight:650}
+  .sep{color:#A9A493}
+  .legenda{color:var(--ink-2);font-size:14.5px;margin-top:16px}
+  .add{display:grid;grid-template-columns:auto 1fr;gap:8px}
+  .add select{width:auto;max-width:136px;font-size:16px}
+  .add .btn{grid-column:1 / 3}
+  .msg{min-height:24px;margin:10px 0 0;font-size:15.5px}
+  .msg.erro{color:var(--errado-txt);font-weight:600}
+
+  /* ajustes */
+  .bloco p{color:var(--ink-2);margin:0 0 12px;max-width:30em}
+  .tgs{display:flex;flex-wrap:wrap;gap:6px}
+  .tg{min-height:44px;padding:0 16px;border-radius:999px;background:var(--paper-2);font-weight:650;font-size:15.5px}
+  .tg[aria-pressed="true"]{background:var(--pinho);color:var(--creme)}
+  .btn.perigo{background:var(--errado);color:var(--pinho)}
+
+  @media (max-width:370px){.campo{grid-template-columns:78px 1fr}.letra.lg{font-size:76px}.modo b{font-size:36px}}
+</style>
+</head><body>
+<div class="bar"><a class="back" href="../index.html">←</a><div class="title" id="titulo">Stop</div>
+  <div class="stat" id="statPts" hidden><small>Pontos</small><b id="score">0</b></div><div class="stat" id="statBest"><small>Recorde</small><b id="best">0</b></div></div>
+
+<div class="page" id="app"></div>
+
+<div class="overlay vermelho hide" id="overlay"><h1>Relâmpago</h1><p class="big" id="big" style="display:none"></p>
+  <p id="msg"></p>
+  <div class="row"><button class="btn" id="play">Jogar de novo</button><button class="btn ghost" id="other">Voltar pro menu</button></div></div>
+
+<script src="../common.js"></script>
+<script>
+// BANCO DE RESPOSTAS DO STOP
+// Pra adicionar uma resposta, coloque na linha da letra certa, separada por vírgula.
+// (Respostas que você aceita durante o jogo ficam guardadas só no aparelho.)
+const BANCO_RAW = {
+nome: `
+A: Ana, Antônio, Amanda, Arthur, Alice, André, Aline
+B: Bruno, Beatriz, Bernardo, Bianca, Bárbara, Breno
+C: Carlos, Camila, Carla, Caio, Clara, Cecília
+D: Daniel, Diego, Daniela, Débora, Davi, Diana
+E: Eduardo, Elisa, Enzo, Emanuel, Eduarda, Elaine
+F: Fernanda, Felipe, Fábio, Flávia, Francisco, Fabiana
+G: Gabriel, Gabriela, Gustavo, Giovana, Guilherme, Gisele
+H: Helena, Heitor, Henrique, Hugo, Heloísa, Hélio
+I: Isabela, Igor, Isadora, Ivan, Ingrid, Ítalo
+J: João, Júlia, José, Juliana, Jorge, Jéssica
+K: Karina, Kevin, Kátia, Kauã, Kelly, Kléber
+L: Lucas, Laura, Luana, Leonardo, Larissa, Luiz
+M: Maria, Marcos, Mariana, Mateus, Mônica, Miguel
+N: Natália, Nicolas, Nathan, Nicole, Nelson, Noemi
+O: Otávio, Olívia, Oscar, Orlando, Odete, Osvaldo
+P: Pedro, Paula, Paulo, Patrícia, Priscila, Pietro
+Q: Quitéria, Quésia, Quirino, Quintino
+R: Rafael, Renata, Rodrigo, Rebeca, Ricardo, Roberta
+S: Sofia, Samuel, Sandra, Sérgio, Sara, Sabrina
+T: Thiago, Tatiana, Túlio, Teresa, Thaís, Tomás
+U: Ulisses, Úrsula, Ubiratan, Uriel, Umberto
+V: Vitória, Vinícius, Valéria, Vanessa, Victor, Vera
+W: William, Wesley, Wagner, Wellington, Wanda, Washington
+X: Xavier, Ximena, Xênia
+Y: Yasmin, Yuri, Yago, Yara, Yolanda
+Z: Zacarias, Zilda, Zuleica, Zoe, Zeca
+`,
+cep: `
+A: Alemanha, Argentina, Amazonas, Aracaju, Angola, Austrália, Alagoas
+B: Brasil, Bahia, Belém, Bélgica, Bolívia, Belo Horizonte, Brasília
+C: Canadá, Chile, China, Curitiba, Ceará, Caruaru, Colômbia
+D: Dinamarca, Distrito Federal, Divinópolis, Diamantina, Dubai, Dublin
+E: Espanha, Egito, Equador, Espírito Santo, Estados Unidos, Escócia
+F: França, Fortaleza, Florianópolis, Finlândia, Feira de Santana, Fiji
+G: Goiás, Goiânia, Grécia, Garanhuns, Guatemala, Gana
+H: Holanda, Haiti, Honduras, Hungria, Havana, Hong Kong
+I: Itália, Índia, Inglaterra, Irlanda, Ipojuca, Islândia, Ilhéus, Igarassu
+J: Japão, João Pessoa, Jamaica, Juazeiro do Norte, Jaboatão dos Guararapes, Jordânia
+K: Kuwait, Kosovo, Kuala Lumpur, Kiribati, Kyoto
+L: Londres, Lisboa, Líbano, Londrina, Lima, Luxemburgo
+M: México, Maceió, Manaus, Minas Gerais, Marrocos, Madri, Maranhão
+N: Natal, Noruega, Nigéria, Nova Zelândia, Niterói, Nepal
+O: Olinda, Osasco, Omã, Oslo, Ouro Preto, Ottawa
+P: Pernambuco, Portugal, Paraná, Paris, Peru, Paraíba, Petrolina
+Q: Quênia, Quito, Quixadá, Quebec, Queimados
+R: Recife, Rio de Janeiro, Rússia, Roma, Roraima, Rondônia
+S: São Paulo, Salvador, Suíça, Sergipe, Santa Catarina, Suécia
+T: Tocantins, Teresina, Turquia, Tailândia, Tóquio, Texas
+U: Uruguai, Uberlândia, Ucrânia, Uganda, Uberaba, Ubatuba
+V: Venezuela, Vitória, Vietnã, Viçosa, Veneza, Vaticano
+W: Washington, Wellington, Wisconsin, Wyoming
+X: Xangai, Xique-Xique, Xapuri, Xanxerê
+Y: Yokohama, York, Yucatán
+Z: Zâmbia, Zimbábue, Zurique, Zagreb
+`,
+animal: `
+A: abelha, águia, anta, aranha, avestruz, arara, alce
+B: baleia, borboleta, boi, búfalo, besouro, bode
+C: cachorro, cavalo, camelo, coelho, cobra, coruja, canguru
+D: dromedário, doninha, dourado, dragão-de-komodo, dingo
+E: elefante, ema, esquilo, escorpião, enguia, égua
+F: foca, formiga, flamingo, furão, falcão, faisão
+G: gato, girafa, galinha, gorila, gavião, golfinho, gafanhoto
+H: hipopótamo, hiena, hamster, harpia, husky
+I: iguana, impala, iaque, irara, inhambu
+J: jacaré, jabuti, javali, joaninha, jaguatirica, jumento, jiboia
+K: kiwi, krill, koala
+L: leão, lobo, lagartixa, lhama, lula, leopardo, lagosta
+M: macaco, minhoca, mosquito, morcego, mula, marreco
+N: naja, narval, novilho, nambu, neon
+O: onça, ovelha, orca, ornitorrinco, ostra, ouriço
+P: pato, peixe, pinguim, papagaio, porco, pombo, panda
+Q: quati, quero-quero, quatipuru
+R: rato, raposa, rinoceronte, rã, rena, rouxinol
+S: sapo, sabiá, sucuri, siri, suricato, salmão, serpente
+T: tatu, tigre, tubarão, tartaruga, tucano, tamanduá, texugo
+U: urso, urubu, uirapuru, urutu
+V: vaca, veado, vespa, víbora, vira-lata, vagalume
+W: wombat, wallaby
+X: xexéu, xaréu, xerelete
+Y: yorkshire, yak
+Z: zebra, zebu, zangão, zorrilho
+`,
+flv: `
+A: abacaxi, abacate, acerola, alface, abóbora, amora, agrião
+B: banana, batata, beterraba, brócolis, berinjela, bergamota
+C: cenoura, caju, cebola, cereja, couve, chuchu, coco
+D: damasco, dendê, durião
+E: espinafre, ervilha, escarola, endívia
+F: figo, framboesa, feijão, fruta-pão, fruta-do-conde
+G: goiaba, graviola, groselha, grão-de-bico, gengibre
+H: hortelã, hibisco
+I: inhame, ingá
+J: jaca, jabuticaba, jiló, jambo, jerimum, jenipapo
+K: kiwi, kinkan, kale
+L: laranja, limão, lichia, lima, lentilha
+M: maçã, manga, melancia, mamão, maracujá, mandioca, milho, morango
+N: nectarina, nabo, nêspera, noz
+O: oliva, ora-pro-nóbis
+P: pera, pêssego, pepino, pimentão, pitanga, pitaya
+Q: quiabo, quinoa
+R: rabanete, repolho, romã, rúcula, ruibarbo
+S: siriguela, salsa, salsão, sapoti, soja
+T: tomate, tangerina, tamarindo, tâmara, taioba
+U: uva, umbu, uvaia, urucum
+V: vagem, vinagreira
+W: wasabi
+Y: yuzu
+`,
+cor: `
+A: azul, amarelo, âmbar, anil, ameixa
+B: branco, bege, bordô, bronze, berinjela
+C: cinza, coral, creme, cobre, caramelo, ciano
+D: dourado
+E: esmeralda, escarlate, ébano
+F: fúcsia, ferrugem
+G: grafite, gelo, goiaba
+H: havana
+I: índigo
+J: jade, jambo
+K: khaki
+L: laranja, lilás, lavanda
+M: marrom, magenta, mostarda, marfim, malva
+N: nude, neon
+O: ocre, oliva, ouro, off-white
+P: preto, prata, pink, pêssego, petróleo
+R: rosa, roxo, rubi
+S: salmão, sépia, safira
+T: turquesa, terracota, tijolo
+U: ultravioleta, uva
+V: verde, vermelho, violeta, vinho
+`,
+objeto: `
+A: anel, apito, abajur, agulha, armário, alicate
+B: bola, bolsa, balde, bicicleta, borracha, bule
+C: cadeira, caneta, copo, celular, chave, colher
+D: dado, disco, despertador, dedal, durex
+E: espelho, escova, esponja, estojo, escada, envelope
+F: faca, fita, funil, fogão, frigideira
+G: garfo, garrafa, guarda-chuva, grampeador, gaveta
+H: hashi, hélice, hidrante
+I: isqueiro, ímã, impressora, interruptor
+J: jarra, janela, joia, jornal, joystick
+K: kit
+L: lápis, livro, lanterna, lâmpada, luva
+M: mesa, martelo, mochila, mouse, meia
+N: navalha, notebook, novelo, nécessaire
+O: óculos, orelhão
+P: pente, panela, prato, parafuso, pincel
+Q: quadro, queijeira, quebra-cabeça
+R: relógio, régua, rádio, rodo, rede
+S: sofá, sapato, sabonete, secador, sacola
+T: tesoura, televisão, toalha, travesseiro, tapete
+U: urna, umidificador, ukulele
+V: vaso, vassoura, ventilador, vela, violão
+W: walkie-talkie, wok, webcam
+X: xícara, xampu, xilofone
+Y: yo-yo
+Z: zíper, zarabatana
+`,
+comida: `
+A: arroz, açaí, acarajé, almôndega, arrumadinho, angu
+B: bolo, brigadeiro, baião de dois, bife, bolo de rolo
+C: cuscuz, coxinha, churrasco, canjica, carne de sol
+D: dobradinha, doce de leite, donut
+E: empada, esfiha, estrogonofe, escondidinho
+F: feijoada, farofa, frango, fondue
+G: galinhada, goiabada, guacamole
+H: hambúrguer, homus, hot dog
+I: iogurte, isca de peixe
+J: jujuba, jabá
+K: kibe, kafta, kebab
+L: lasanha, linguiça, lombo
+M: macarrão, moqueca, mungunzá, mousse, macaxeira
+N: nhoque, nachos, nuggets
+O: omelete, ovo frito, ostra
+P: pizza, pastel, pamonha, pão, pudim, panqueca
+Q: queijo, quindim, quibe, quiche, queijadinha
+R: risoto, rabada, rapadura, rocambole
+S: sushi, sarapatel, sopa, salada, sanduíche
+T: tapioca, torta, tacacá, tutu
+U: umbuzada
+V: vatapá, virado à paulista, vaca atolada
+W: waffle, wrap
+X: xinxim de galinha, x-burguer, x-tudo
+Y: yakisoba
+Z: zabaione
+`,
+profissao: `
+A: advogado, arquiteto, ator, açougueiro, agricultor
+B: bombeiro, bancário, barbeiro, bailarino, biólogo
+C: cozinheiro, carpinteiro, cantor, contador, cientista
+D: dentista, delegado, designer, diarista, dublador
+E: engenheiro, enfermeiro, eletricista, escritor, estilista
+F: farmacêutico, fotógrafo, fisioterapeuta, frentista, faxineiro
+G: garçom, geógrafo, gari, gerente, guia turístico
+H: historiador, hoteleiro
+I: instrutor, intérprete, inspetor, ilustrador
+J: jornalista, juiz, jardineiro, joalheiro, jogador
+L: locutor, leiloeiro, lavrador, lojista
+M: médico, motorista, mecânico, marceneiro, músico
+N: nutricionista, nadador, narrador, neurologista
+O: oftalmologista, operário, ourives, odontólogo
+P: professor, padeiro, pedreiro, policial, programador, piloto
+Q: químico, quiropraxista, quitandeiro
+R: recepcionista, repórter, relojoeiro, radialista
+S: sapateiro, secretário, sociólogo, soldado, salva-vidas
+T: taxista, técnico, tradutor, torneiro, tatuador
+U: urologista, ufólogo
+V: veterinário, vendedor, vigilante, vereador
+W: webdesigner
+X: xerife, xilogravurista
+Y: youtuber
+Z: zelador, zootecnista, zoólogo
+`,
+marca: `
+A: Adidas, Apple, Avon, Asics, Amazon
+B: Brahma, Bauducco, Bic, BMW, Bis
+C: Coca-Cola, Colgate, Chevrolet, Casas Bahia, Chanel
+D: Dell, Disney, Danone, Dove, Dior
+E: Elma Chips, Electrolux, Epson
+F: Ford, Fiat, Faber-Castell, Ferrari, Fanta
+G: Google, Gucci, Guaraná Antarctica, Garoto, Gillette
+H: Havaianas, Honda, Heineken, Hering, HP
+I: Ipiranga, Itaú, Ikea, Intel, iFood
+J: Jeep, Johnson & Johnson, Jequiti
+K: Kibon, Kellogg's, Kia, Kodak, Knorr
+L: Lacoste, LG, Lego, Lenovo, Leite Moça
+M: McDonald's, Microsoft, Mercedes-Benz, Magazine Luiza, Melissa
+N: Nike, Nestlé, Natura, Netflix, Nissan
+O: Omo, O Boticário, Oakley, Olympikus
+P: Puma, Pepsi, Pantene, Porsche, Polishop
+Q: Quaker, Qualy
+R: Renault, Rolex, Ray-Ban, Reebok, Riachuelo
+S: Samsung, Sony, Sadia, Seara, Skol
+T: Toyota, Tramontina, Tok&Stok, Tang, Tesla
+U: Uber, Unilever, Umbro
+V: Vivo, Volkswagen, Vans, Visa, Volvo
+W: Whirlpool, Walmart, WhatsApp, Wickbold
+X: Xiaomi, Xerox, Xbox
+Y: Yamaha, Yakult, YouTube, Ypê
+Z: Zara, Zoom, Zé Delivery
+`,
+filme: `
+A: Avatar, Aladdin, Alien, A Origem, Auto da Compadecida
+B: Barbie, Bacurau, Breaking Bad, Bridgerton, Batman
+C: Cidade de Deus, Central do Brasil, Coringa, Carros, Crepúsculo
+D: Divertida Mente, Dark, Duna, Dexter, Deadpool
+E: Encanto, Elite, E.T., Euphoria, Enrolados
+F: Friends, Frozen, Forrest Gump, Fragmentado
+G: Gladiador, Gravidade, Grey's Anatomy, Gossip Girl, Gente Grande
+H: Harry Potter, Hulk, Homem-Aranha, House, Hércules
+I: Interestelar, It: A Coisa, Invocação do Mal, Irmão Urso
+J: Jumanji, Jurassic Park, Jogos Vorazes, Jessica Jones
+K: Kung Fu Panda, King Kong, Karatê Kid, Kill Bill
+L: Lilo & Stitch, Lost, La Casa de Papel, Lucifer, Lupin
+M: Matrix, Moana, Mulan, Madagascar, Malhação
+N: Narcos, Nosso Lar, Notting Hill, Ninguém Tá Olhando
+O: O Rei Leão, Oppenheimer, O Poderoso Chefão, Os Incríveis
+P: Pantera Negra, Procurando Nemo, Piratas do Caribe, Pinóquio, Peaky Blinders
+Q: Quarteto Fantástico, Que Horas Ela Volta?, Queer Eye, Quem Quer Ser um Milionário?
+R: Ratatouille, Rocky, Round 6, Riverdale
+S: Shrek, Stranger Things, Superman, Sintonia, Sing
+T: Titanic, Toy Story, Tropa de Elite, Thor, Todo Mundo Odeia o Chris
+U: Up: Altas Aventuras, Uncharted, Um Sonho de Liberdade, Uma Noite no Museu
+V: Velozes e Furiosos, Vingadores, Valente, Viva: A Vida é uma Festa, Vikings
+W: Wandinha, Wall-E, Westworld, Wicked, Wolverine
+X: X-Men, Xuxa e os Duendes
+Y: You, Yellowstone, Yu-Gi-Oh!
+Z: Zootopia, Zorro, Zodíaco
+`,
+corpo: `
+A: antebraço, axila, abdômen, artéria
+B: braço, boca, barriga, bochecha, bexiga
+C: cabeça, cotovelo, coração, costas, canela, cílio
+D: dedo, dente, dorso
+E: estômago, esôfago, escápula
+F: fígado, fêmur, face, falange
+G: garganta, gengiva, glúteo
+H: hálux, hipotálamo, hipófise
+I: intestino, íris
+J: joelho
+L: lábio, língua, lóbulo
+M: mão, mandíbula, músculo, medula
+N: nariz, nuca, nádega, nervo
+O: olho, orelha, ombro, osso, ouvido
+P: pé, perna, pescoço, pulmão, pálpebra
+Q: queixo, quadril
+R: rim, rosto, rótula
+S: sobrancelha, sovaco
+T: tornozelo, testa, tórax, tíbia, traqueia
+U: unha, umbigo, úvula, útero
+V: veia, virilha, vesícula
+Z: zigomático
+`,
+mse: `
+A: amável, alegre, animada, arrogante, atrevida
+B: bonita, brava, barulhenta, boazinha
+C: chata, carinhosa, ciumenta, cheirosa, corajosa
+D: doce, divertida, dramática, desastrada
+E: elegante, esperta, educada, egoísta
+F: fofoqueira, feliz, fofa, folgada
+G: gentil, gulosa, generosa, grossa
+H: honesta, humilde, histérica
+I: inteligente, invejosa, irritante, implicante
+J: jovem, jeitosa, justa
+L: linda, legal, lerda, louca
+M: maravilhosa, mandona, metida, mentirosa
+N: nervosa, nojenta, normal
+O: orgulhosa, otimista, ousada
+P: preguiçosa, paciente, perfeita, pão-dura
+Q: quieta, querida
+R: rabugenta, rica, ranzinza, risonha
+S: simpática, sincera, sábia, sapeca
+T: teimosa, tranquila, tagarela, trabalhadora
+U: única, útil, ultrapassada
+V: vaidosa, valente, velha, vingativa
+X: xereta
+Z: zangada, zelosa
+`,
+esporte: `
+A: atletismo, automobilismo, arco e flecha, alpinismo
+B: basquete, beisebol, boxe, badminton, bocha
+C: ciclismo, canoagem, capoeira, críquete
+D: dardos, downhill
+E: esgrima, escalada, equitação, esqui
+F: futebol, futsal, frescobol, futevôlei
+G: ginástica, golfe
+H: handebol, hipismo, hóquei
+I: iatismo
+J: judô, jiu-jítsu
+K: karatê, kitesurf, kart, kung fu
+L: luta livre, levantamento de peso
+M: maratona, motocross, muay thai, mergulho
+N: natação, nado artístico
+O: orientação
+P: polo aquático, patinação, paraquedismo, pingue-pongue
+Q: queimada
+R: rúgbi, remo, rapel
+S: surfe, sumô, skate, softbol
+T: tênis, triatlo, taekwondo, tiro com arco
+U: ultimate frisbee
+V: vôlei, vela, vale-tudo
+W: wakeboard, windsurfe, wrestling
+X: xadrez
+Y: yoga
+Z: zumba
+`
+};
+</script>
+<script>
+const ID = 'stop';
+const CATS = [
+  {id:'nome', nome:'Nome', dica:'nome de pessoa'},
+  {id:'cep', nome:'CEP', dica:'cidade, estado ou país'},
+  {id:'animal', nome:'Animal', dica:'bicho de qualquer tipo'},
+  {id:'flv', nome:'FLV', dica:'fruta, legume ou verdura'},
+  {id:'cor', nome:'Cor', dica:'cor ou tom'},
+  {id:'objeto', nome:'Objeto', dica:'coisa que dá pra pegar'},
+  {id:'comida', nome:'Comida', dica:'prato, doce ou lanche'},
+  {id:'profissao', nome:'Profissão', dica:'trabalho ou ofício'},
+  {id:'marca', nome:'Marca', dica:'empresa ou produto'},
+  {id:'filme', nome:'Filme/Série', dica:'filme, série ou novela'},
+  {id:'corpo', nome:'Corpo', dica:'parte do corpo'},
+  {id:'mse', nome:'MSÉ', dica:'minha sogra é…'},
+  {id:'esporte', nome:'Esporte', dica:'esporte ou modalidade'}
+];
+const LETRAS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const DIFICEIS = ['K','Q','W','X','Y','Z'];
+const SEG_RAIO = 10;
+
+const BANCO = {};
+for (const [cat, txt] of Object.entries(BANCO_RAW)) {
+  BANCO[cat] = {};
+  txt.trim().split('\n').forEach(linha => {
+    const m = linha.match(/^\s*([A-Z])\s*:\s*(.*)$/);
+    if (m) BANCO[cat][m[1]] = m[2].split(',').map(s => s.trim()).filter(Boolean);
+  });
+}
+const TOTAL = Object.values(BANCO).reduce((n, o) => n + Object.values(o).reduce((m, a) => m + a.length, 0), 0);
+
+const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9&]+/g, ' ').trim();
+const key = s => norm(s).replace(/ /g, '');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rand = n => Math.floor(Math.random() * n);
+const catBy = id => CATS.find(c => c.id === id);
+const fmtN = n => n.toLocaleString('pt-BR');
+const fmtT = ms => { const s = Math.ceil(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+const semMov = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const lista = ws => ws.map(esc).join('<span class="sep"> · </span>');
+
+// aceita sem acento, junto ou separado, plural e masculino/feminino ("chato" vale "chata")
+function chaves(w) { const k = [key(w)]; if (w.includes(':')) k.push(key(w.split(':')[0])); return k; }
+function parecido(a, b) {
+  if (a === b) return true;
+  if (a.length < 3 || b.length < 3) return false;
+  if (a + 's' === b || b + 's' === a) return true;
+  return a.length === b.length && a.slice(0, -1) === b.slice(0, -1) && /[ao]$/.test(a) && /[ao]$/.test(b);
+}
+
+/* ---------- progresso (só no aparelho) ---------- */
+function padrao() {
+  return {custom:{}, hit:{}, miss:{}, usadas:{}, rodadas:0, melhorRodada:0, ultimas:[],
+    cfg:{cats:['nome','cep','animal','flv','cor','objeto','marca','mse'], tempo:90, dificeis:false}};
+}
+function carregar() {
+  const d = J.get('stop', null), s = padrao();
+  if (!d || typeof d !== 'object') return s;
+  Object.assign(s, d);
+  s.cfg = Object.assign(padrao().cfg, d.cfg || {});
+  s.cfg.cats = (s.cfg.cats || []).filter(id => catBy(id));
+  if (s.cfg.cats.length < 3) s.cfg.cats = padrao().cfg.cats;
+  return s;
+}
+let st = carregar();
+const salvar = () => J.set('stop', st);
+
+function palavras(cat, L) {
+  const out = [...((BANCO[cat] && BANCO[cat][L]) || [])];
+  (st.custom[cat + '|' + L] || []).forEach(w => { if (!out.some(b => key(b) === key(w))) out.push(w); });
+  return out;
+}
+const ehSua = (cat, L, w) => !((BANCO[cat] && BANCO[cat][L]) || []).some(b => key(b) === key(w));
+const usada = (cat, L, w) => st.usadas[cat + '|' + L + '|' + key(w)];
+function acha(cat, L, ans) {
+  const k = key(ans); if (!k) return null;
+  return palavras(cat, L).find(w => chaves(w).some(c => parecido(c, k))) || null;
+}
+function avaliar(cat, L, ans) {
+  const a = String(ans || '').trim();
+  if (!a) return {cat, ans:a, status:'vazio', pts:0};
+  if (norm(a)[0] !== L.toLowerCase()) return {cat, ans:a, status:'letra', pts:0};
+  const m = acha(cat, L, a);
+  return m ? {cat, ans:a, status:'ok', pts:10, match:m} : {cat, ans:a, status:'duvida', pts:0};
+}
+function addSua(cat, L, w) {
+  const k = cat + '|' + L, arr = st.custom[k] || [];
+  if (!arr.some(x => key(x) === key(w))) arr.push(w.trim());
+  st.custom[k] = arr;
+}
+function registrar(cat, L, ok, w) {
+  const k = L + '|' + cat;
+  if (ok) { st.hit[k] = (st.hit[k] || 0) + 1; if (w) st.usadas[cat + '|' + L + '|' + key(w)] = 1; }
+  else st.miss[k] = (st.miss[k] || 0) + 1;
+}
+const kitPick = (cat, L) => { const ws = palavras(cat, L); return ws.find(w => usada(cat, L, w)) || ws[0] || null; };
+function letraDoDia() {
+  const pool = LETRAS.filter(l => !DIFICEIS.includes(l));
+  const n = Math.floor((new Date(new Date().toDateString()) - new Date(2026, 0, 1)) / 864e5);
+  return pool[((n % pool.length) + pool.length) % pool.length];
+}
+function fracos(n = 3) {
+  return Object.keys(st.miss).map(k => { const m = st.miss[k] || 0, h = st.hit[k] || 0; return {k, m, taxa: m / (m + h)}; })
+    .filter(x => x.m > 0 && catBy(x.k.split('|')[1])).sort((a, b) => b.taxa - a.taxa || b.m - a.m).slice(0, n);
+}
+function peso(L, cat) {
+  const k = L + '|' + cat, m = st.miss[k] || 0, h = st.hit[k] || 0;
+  return m + h === 0 ? 1.5 : 1 + 4 * m / (m + h);
+}
+
+/* ---------- telas ---------- */
+const S = {view:'menu', round:null, raio:null, repL:letraDoDia(), addCat:'nome', msgAdd:'', msgErro:false, confirm:false};
+const TITULOS = {menu:'Stop', rodada:'Rodada', raio:'Relâmpago', rep:'Repertório', ajustes:'Ajustes'};
+let timerId = null;
+
+function go(view) { S.view = view; J.$('overlay').classList.add('hide'); render(); scrollTo(0, 0); }
+function render() {
+  const v = S.view;
+  J.$('app').innerHTML = v === 'rodada' ? vRodada() : v === 'raio' ? vRaio() : v === 'rep' ? vRep() : v === 'ajustes' ? vAjustes() : vMenu();
+  J.$('titulo').textContent = TITULOS[v];
+  J.$('statPts').hidden = v !== 'raio';
+  J.$('statBest').hidden = !(v === 'menu' || v === 'raio');
+  J.$('best').textContent = J.best(ID);
+  if (v === 'raio') J.$('score').textContent = S.raio.pts;
+}
+function startTimer() { clearInterval(timerId); timerId = setInterval(tick, 200); tick(); }
+function stopTimer() { clearInterval(timerId); timerId = null; }
+function tick() {
+  const bar = J.$('barra');
+  if (S.view === 'rodada' && S.round && S.round.fase === 'jogando') {
+    const r = S.round, left = Math.max(0, r.endAt - Date.now()), seg = Math.ceil(left / 1000), rel = J.$('relogio');
+    if (bar) { bar.style.width = (left / (r.tempo * 10)) + '%'; bar.classList.toggle('acabando', left < 10000); }
+    if (rel) { rel.textContent = fmtT(left); rel.classList.toggle('acabando', left < 10000); }
+    if (seg <= 5 && seg > 0 && seg !== r.ultSeg) { r.ultSeg = seg; J.beep(880, .04, 'sine', .04); }
+    if (left <= 0) corrigir(false);
+  } else if (S.view === 'raio' && S.raio && S.raio.fase === 'pergunta') {
+    const left = Math.max(0, S.raio.endAt - Date.now());
+    if (bar) { bar.style.width = (left / (SEG_RAIO * 10)) + '%'; bar.classList.toggle('acabando', left < 4000); }
+    if (left <= 0) responderRaio(null, 'tempo');
+  } else stopTimer();
+}
+
+/* ---------- menu ---------- */
+function vMenu() {
+  const L = letraDoDia(), fr = fracos(), acertadas = Object.keys(st.usadas).length;
+  const kit = CATS.slice(0, 6).map(c => { const p = kitPick(c.id, L); return `<li><span class="c">${c.nome}</span><span class="r">${p ? esc(p) : '–'}</span></li>`; }).join('');
+  return `<h1 class="display">Stop</h1>
+  <p class="lede">Pra nunca mais travar quando sai a letra. São ${fmtN(TOTAL)} respostas em 13 categorias, de A a Z.</p>
+  <section class="dia">
+    <div class="dia-top"><div><small>Letra do dia</small><b>Se cair hoje, escreva:</b></div><span class="letra md">${L}</span></div>
+    <ul class="kit">${kit}</ul>
+    <button class="lnk" data-a="rep" data-l="${L}">Ver as 13 categorias da letra ${L}</button>
+  </section>
+  <div class="modos">
+    <button class="modo amarelo" data-a="rodada"><div><b>Rodada</b><small>Sorteia a letra e corre o tempo. Você grita STOP e o jogo corrige e mostra o que mais valia.</small></div>${st.melhorRodada ? `<em>Melhor: ${st.melhorRodada}</em>` : ''}</button>
+    <button class="modo vermelho" data-a="raio"><div><b>Relâmpago</b><small>10 perguntas de letra e categoria, ${SEG_RAIO} segundos cada. O que você erra volta mais.</small></div>${J.best(ID) ? `<em>Recorde ${J.best(ID)}</em>` : ''}</button>
+    <button class="modo azul" data-a="rep"><div><b>Repertório</b><small>Todas as respostas de cada letra e um kit pra decorar.</small></div>${acertadas ? `<em>${acertadas} acertadas</em>` : ''}</button>
+  </div>
+  ${fr.length ? `<section class="fracos"><h2 class="display">Onde você trava</h2><p>As combinações que você mais erra. O relâmpago traz elas mais vezes.</p>
+    <div class="pares">${fr.map(f => { const [l, c] = f.k.split('|'); return `<span class="par"><b>${l}</b>${catBy(c).nome}</span>`; }).join('')}</div>
+    <button class="btn mini" data-a="raio">Treinar no relâmpago</button></section>` : ''}
+  <p class="pe"><button class="lnk" data-a="ajustes">Ajustes da rodada: categorias, tempo e letras difíceis</button></p>`;
+}
+
+/* ---------- rodada ---------- */
+function iniciarRodada() {
+  let pool = LETRAS.filter(l => st.cfg.dificeis || !DIFICEIS.includes(l));
+  const nova = pool.filter(l => !st.ultimas.includes(l)); if (nova.length) pool = nova;
+  const L = pool[rand(pool.length)];
+  st.ultimas = [L, ...st.ultimas].slice(0, 4); salvar();
+  S.round = {L, cats: CATS.filter(c => st.cfg.cats.includes(c.id)).map(c => c.id), resp:{}, fase:'sorteio', tempo: st.cfg.tempo, endAt:0, sobrou:0, bonus:0, res:null};
+  go('rodada');
+  if (semMov()) { comecar(); return; }
+  const el = J.$('roleta'); let t = 0;
+  const iv = setInterval(() => {
+    t += 70;
+    if (S.view !== 'rodada' || !S.round || S.round.fase !== 'sorteio') { clearInterval(iv); return; }
+    if (t < 1150) { el.textContent = LETRAS[rand(26)]; J.beep(300 + rand(400), .02, 'triangle', .025); }
+    else { clearInterval(iv); el.textContent = L; el.classList.add('caiu'); J.good(); setTimeout(comecar, 700); }
+  }, 70);
+}
+function comecar() {
+  const r = S.round; if (S.view !== 'rodada' || !r || r.fase !== 'sorteio') return;
+  r.fase = 'jogando'; r.endAt = Date.now() + r.tempo * 1000;
+  render(); startTimer();
+}
+function corrigir(porStop) {
+  const r = S.round; if (!r || r.fase !== 'jogando') return;
+  r.cats.forEach(c => { const i = J.$('in-' + c); if (i) r.resp[c] = i.value; });
+  r.sobrou = Math.max(0, Math.round((r.endAt - Date.now()) / 1000));
+  r.res = r.cats.map(c => avaliar(c, r.L, r.resp[c]));
+  r.bonus = porStop && r.res.every(x => x.status !== 'vazio') ? 5 : 0;
+  r.porStop = porStop; r.fase = 'correcao';
+  r.res.forEach(x => { if (x.status !== 'duvida') registrar(x.cat, r.L, x.status === 'ok', x.match); });
+  st.rodadas++; st.melhorRodada = Math.max(st.melhorRodada || 0, total(r)); salvar();
+  stopTimer(); porStop ? J.beep(220, .18, 'square', .06) : J.bad();
+  render(); scrollTo(0, 0);
+}
+const total = r => r.res.reduce((n, x) => n + x.pts, 0) + r.bonus;
+function julgar(i, vale) {
+  const r = S.round, x = r.res[i]; if (!x || x.status !== 'duvida') return;
+  if (vale) { x.status = 'ok'; x.pts = 10; x.sua = true; addSua(x.cat, r.L, x.ans); registrar(x.cat, r.L, true, x.ans); J.good(); }
+  else { x.status = 'recusada'; registrar(x.cat, r.L, false); }
+  st.melhorRodada = Math.max(st.melhorRodada || 0, total(r)); salvar(); render();
+}
+function vRodada() {
+  const r = S.round;
+  if (r.fase === 'sorteio') return `<div class="sorteio"><small>Sorteando a letra…</small><span class="letra xl" id="roleta">${LETRAS[rand(26)]}</span><small>${r.cats.length} categorias · ${r.tempo < 120 ? r.tempo + ' segundos' : (r.tempo / 60) + ' minutos'}</small></div>`;
+  if (r.fase === 'jogando') {
+    const campos = r.cats.map(id => { const c = catBy(id); return `<div class="campo"><label for="in-${id}">${c.nome}<small>${c.dica}</small></label><input id="in-${id}" data-cat="${id}" value="${esc(r.resp[id] || '')}" placeholder="${r.L}…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next"></div>`; }).join('');
+    return `<div class="placa"><span class="letra md">${r.L}</span><div><span class="relogio" id="relogio">${fmtT(r.tempo * 1000)}</span><div class="timer"><i id="barra"></i></div></div><button class="btn" id="stopBtn" data-a="stop">STOP!</button></div>
+    ${campos}
+    <div class="acoes"><button class="btn" data-a="stop">STOP! Corrigir agora</button><button class="btn ghost" data-a="menu">Desistir</button></div>`;
+  }
+  const pend = r.res.filter(x => x.status === 'duvida').length;
+  return `<div class="corr"><span class="letra lg">${r.L}</span><div><h2 class="display">Correção</h2><p>${r.porStop ? `Você gritou STOP com ${r.sobrou}s sobrando.` : 'O tempo acabou.'}${pend ? ` Falta julgar ${pend} resposta${pend > 1 ? 's' : ''}.` : ''}</p></div></div>
+  ${r.res.map((x, i) => linhaCorr(x, i, r.L)).join('')}
+  <div class="total"><span>${r.bonus ? `Total, com +${r.bonus} por gritar STOP com tudo preenchido` : 'Total da rodada'}</span><b>${total(r)}</b></div>
+  <div class="acoes"><button class="btn" data-a="rodada">Nova rodada</button><button class="btn ghost" data-a="raioLetra" data-l="${r.L}">Treinar a letra ${r.L}</button></div>
+  <p class="pe"><button class="lnk" data-a="rep" data-l="${r.L}">Ver tudo da letra ${r.L}</button></p>`;
+}
+function linhaCorr(x, i, L) {
+  const c = catBy(x.cat), outras = palavras(x.cat, L).filter(w => !x.match || key(w) !== key(x.match)).slice(0, 5);
+  let resp, pts;
+  switch (x.status) {
+    case 'ok': resp = `<span class="r">${esc(x.ans)}</span>${x.sua ? '<span class="obs ok">Entrou no seu repertório</span>' : ''}`; pts = '<span class="pts ok">10</span>'; break;
+    case 'vazio': resp = '<span class="r vazio">Em branco</span>'; pts = '<span class="pts zero">0</span>'; break;
+    case 'letra': resp = `<span class="r riscado">${esc(x.ans)}</span><span class="obs">Não começa com ${L}</span>`; pts = '<span class="pts zero">0</span>'; break;
+    case 'recusada': resp = `<span class="r riscado">${esc(x.ans)}</span><span class="obs">Você não deu</span>`; pts = '<span class="pts zero">0</span>'; break;
+    default: resp = `<span class="r">${esc(x.ans)}</span>`; pts = '<span class="pts duv">?</span>';
+  }
+  const julga = x.status === 'duvida' ? `<div class="julga"><span>Essa não tá no banco. Vale?</span><button class="btn" data-a="vale" data-i="${i}">Vale</button><button class="btn ghost" data-a="naovale" data-i="${i}">Não vale</button></div>` : '';
+  const tb = outras.length ? `<div class="tb">${x.status === 'ok' ? 'Também valia' : 'Podia ser'}: <b>${lista(outras)}</b></div>` : '<div class="tb">Quase ninguém tem essa. Invente e defenda!</div>';
+  return `<div class="lc"><span class="c">${c.nome}</span>${resp}${pts}${julga}${tb}</div>`;
+}
+
+/* ---------- relâmpago ---------- */
+function iniciarRaio(letra) {
+  const combos = [];
+  LETRAS.forEach(L => {
+    if (letra ? L !== letra : (!st.cfg.dificeis && DIFICEIS.includes(L))) return;
+    CATS.forEach(c => { if (palavras(c.id, L).length) combos.push({L, cat:c.id, w:peso(L, c.id)}); });
+  });
+  const qs = [], pool = [...combos];
+  while (qs.length < 10 && pool.length) {
+    let x = Math.random() * pool.reduce((n, c) => n + c.w, 0), i = 0;
+    for (; i < pool.length - 1; i++) { x -= pool[i].w; if (x <= 0) break; }
+    qs.push(pool.splice(i, 1)[0]);
+  }
+  S.raio = {qs, i:0, pts:0, acertos:0, fase:'pergunta', endAt: Date.now() + SEG_RAIO * 1000, fb:null, log:[], letra: letra || null};
+  go('raio'); focar('raio-in'); startTimer();
+}
+const focar = id => { const el = J.$(id); if (el) el.focus(); };
+function responderRaio(valor, motivo) {
+  const R = S.raio; if (!R || R.fase !== 'pergunta') return;
+  const q = R.qs[R.i], left = Math.max(0, R.endAt - Date.now());
+  let fb;
+  if (motivo) fb = {status:motivo, ans:''};
+  else { const x = avaliar(q.cat, q.L, valor); fb = {status: x.status === 'vazio' ? 'passo' : x.status, ans:x.ans, match:x.match}; }
+  fb.left = left; fb.bonus = Math.ceil(left / 1000);
+  R.fase = 'feedback'; R.fb = fb;
+  if (fb.status === 'ok') acertou(); else if (fb.status !== 'duvida') errou();
+  stopTimer(); render(); focar('raio-prox');
+}
+function acertou() {
+  const R = S.raio, q = R.qs[R.i], fb = R.fb;
+  fb.pts = 10 + fb.bonus; R.pts += fb.pts; R.acertos++;
+  registrar(q.cat, q.L, true, fb.match || fb.ans); R.log.push({L:q.L, cat:q.cat, ok:true}); salvar(); J.good();
+}
+function errou() {
+  const R = S.raio, q = R.qs[R.i];
+  registrar(q.cat, q.L, false); R.log.push({L:q.L, cat:q.cat, ok:false}); salvar(); J.bad();
+}
+function julgarRaio(vale) {
+  const R = S.raio, q = R.qs[R.i], fb = R.fb; if (!fb || fb.status !== 'duvida') return;
+  if (vale) { fb.status = 'ok'; fb.sua = true; addSua(q.cat, q.L, fb.ans); acertou(); }
+  else { fb.status = 'recusada'; errou(); }
+  render(); focar('raio-prox');
+}
+function proxima() {
+  const R = S.raio; R.i++;
+  if (R.i >= R.qs.length) { fimRaio(); return; }
+  R.fase = 'pergunta'; R.fb = null; R.endAt = Date.now() + SEG_RAIO * 1000;
+  render(); focar('raio-in'); startTimer();
+}
+function fimRaio() {
+  const R = S.raio; R.fase = 'fim'; stopTimer();
+  const erros = R.log.filter(x => !x.ok);
+  J.over(ID, R.pts, `${R.acertos} de ${R.qs.length} certas${R.letra ? ' na letra ' + R.letra : ''}.` + (erros.length
+    ? `<span class="decorar"><b>Pra decorar</b>${erros.map(x => `<span><i>${x.L} · ${catBy(x.cat).nome}:</i> ${palavras(x.cat, x.L).slice(0, 3).map(esc).join(', ')}</span>`).join('')}</span>`
+    : ' Gabaritou, nada pra revisar!'));
+}
+function vRaio() {
+  const R = S.raio, n = R.qs.length;
+  if (R.fase === 'fim') return '';
+  const q = R.qs[R.i], c = catBy(q.cat);
+  const left = R.fase === 'pergunta' ? Math.max(0, R.endAt - Date.now()) : R.fb.left;
+  let corpo;
+  if (R.fase === 'pergunta') {
+    corpo = `<form data-f="raio" autocomplete="off">
+      <input id="raio-in" class="raio-in" placeholder="${q.L}…" aria-label="Sua resposta" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="send">
+      <div class="acoes"><button class="btn" type="submit">Responder</button><button class="btn ghost" type="button" data-a="passo">Passo</button></div></form>`;
+  } else {
+    const fb = R.fb; let msg, cls = 'erro';
+    switch (fb.status) {
+      case 'ok': cls = 'ok'; msg = `<b>Certo! +${fb.pts}</b> ${esc(fb.ans)}${fb.sua ? '. Guardei no seu repertório.' : ''}`; break;
+      case 'letra': msg = `<b><s>${esc(fb.ans)}</s></b> não começa com ${q.L}.`; break;
+      case 'tempo': msg = '<b>Tempo!</b> Ficou sem resposta.'; break;
+      case 'passo': msg = '<b>Passou essa.</b>'; break;
+      case 'recusada': msg = `Beleza, <b>${esc(fb.ans)}</b> não contou.`; break;
+      default: cls = 'duv'; msg = `Não conheço <b>${esc(fb.ans)}</b>. Vale mesmo?`;
+    }
+    const ws = palavras(q.cat, q.L).slice(0, 6).map(w => fb.match && key(w) === key(fb.match) ? `<mark>${esc(w)}</mark>` : esc(w)).join('<span class="sep"> · </span>');
+    corpo = `<div class="fb ${cls}" role="status">${msg}</div>` + (fb.status === 'duvida'
+      ? `<div class="acoes"><button class="btn" data-a="rvale">Vale, guarda pra mim</button><button class="btn ghost" data-a="rnaovale">Não vale</button></div>`
+      : `<p class="guardar"><small>Pra guardar</small>${ws}</p><div class="acoes"><button class="btn" id="raio-prox" data-a="prox">${R.i + 1 < n ? 'Próxima' : 'Ver resultado'}</button></div>`);
+  }
+  return `<div class="topo"><b>${R.i + 1} de ${n}</b><span>${R.letra ? 'Letra ' + R.letra : (st.cfg.dificeis ? 'Todas as letras' : 'Sem K, Q, W, X, Y, Z')}</span></div>
+  <div class="timer"><i id="barra" style="width:${left / (SEG_RAIO * 10)}%"></i></div>
+  <div class="raio-q"><span class="letra lg">${q.L}</span><div class="cat"><b>${c.nome}</b><small>${c.dica}</small></div></div>
+  ${corpo}`;
+}
+
+/* ---------- repertório ---------- */
+function vRep() {
+  const L = S.repL, grupos = CATS.map(c => [c, palavras(c.id, L)]), n = grupos.reduce((t, [, a]) => t + a.length, 0);
+  return `<div class="letras" role="group" aria-label="Escolha a letra">${LETRAS.map(l => `<button class="lt${DIFICEIS.includes(l) ? ' dif' : ''}" data-a="repL" data-l="${l}" aria-pressed="${l === L}">${l}</button>`).join('')}</div>
+  <div class="rep-top"><span class="letra lg">${L}</span><div><p><b>${n}</b> respostas${DIFICEIS.includes(L) ? ' · letra difícil' : ''}</p><button class="btn mini" data-a="raioLetra" data-l="${L}">Treinar a letra ${L}</button></div></div>
+  <h2 class="display">Se cair ${L}, escreva</h2>
+  <ul class="kit rep-kit">${CATS.map(c => { const p = kitPick(c.id, L); return `<li><span class="c">${c.nome}</span>${p ? `<span class="r">${esc(p)}</span>` : '<span class="nada">Quase ninguém tem. Invente e defenda!</span>'}</li>`; }).join('')}</ul>
+  <h2 class="display">Todas as respostas</h2>
+  ${grupos.map(([c, a]) => `<div class="grupo"><h3>${c.nome} <small>${c.dica}</small></h3><p>${a.length ? a.map(w => `<span class="w${usada(c.id, L, w) ? ' usada' : ''}${ehSua(c.id, L, w) ? ' sua' : ''}">${esc(w)}</span>`).join('<span class="sep"> · </span>') : '<span class="vazio">Nada comum por aqui.</span>'}</p></div>`).join('')}
+  <p class="legenda"><span class="w usada">Marcadas</span> você já acertou. <span class="w sua">Em dourado</span> são as que você adicionou.</p>
+  <h2 class="display">Adicionar resposta</h2>
+  <form class="add" data-f="add" autocomplete="off">
+    <select id="add-cat" aria-label="Categoria">${CATS.map(c => `<option value="${c.id}"${S.addCat === c.id ? ' selected' : ''}>${c.nome}</option>`).join('')}</select>
+    <input id="add-w" placeholder="${L}…" aria-label="Palavra" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done">
+    <button class="btn" type="submit">Adicionar na letra ${L}</button>
+  </form>
+  <p class="msg${S.msgErro ? ' erro' : ''}" role="status">${S.msgAdd}</p>`;
+}
+function adicionar() {
+  const L = S.repL, cat = J.$('add-cat').value, w = J.$('add-w').value.trim();
+  S.addCat = cat; S.msgErro = true;
+  if (!w) S.msgAdd = 'Escreva uma palavra primeiro.';
+  else if (norm(w)[0] !== L.toLowerCase()) S.msgAdd = `${esc(w)} não começa com ${L}.`;
+  else if (acha(cat, L, w)) S.msgAdd = `${esc(w)} já está no repertório.`;
+  else { addSua(cat, L, w); salvar(); S.msgErro = false; S.msgAdd = `Pronto, ${esc(w)} entrou em ${catBy(cat).nome}.`; J.good(); }
+  render();
+  if (S.msgErro && w) J.$('add-w').value = w;
+}
+
+/* ---------- ajustes ---------- */
+function vAjustes() {
+  const s = st.cfg;
+  return `<section class="bloco"><h2 class="display">Categorias</h2><p>As que aparecem na rodada. Escolha pelo menos 3 (agora: ${s.cats.length}).</p>
+    <div class="tgs">${CATS.map(c => `<button class="tg" aria-pressed="${s.cats.includes(c.id)}" data-a="tgCat" data-c="${c.id}">${c.nome}</button>`).join('')}</div></section>
+  <section class="bloco"><h2 class="display">Tempo</h2>
+    <div class="tgs">${[60, 90, 120, 180].map(t => `<button class="tg" aria-pressed="${s.tempo === t}" data-a="tempo" data-t="${t}">${t < 120 ? t + ' s' : (t / 60) + ' min'}</button>`).join('')}</div></section>
+  <section class="bloco"><h2 class="display">Letras difíceis</h2><p>K, Q, W, X, Y e Z costumam ficar de fora. Ligue pra elas caírem também na rodada e no relâmpago.</p>
+    <div class="tgs"><button class="tg" aria-pressed="${!s.dificeis}" data-a="dif" data-v="0">Fora do sorteio</button><button class="tg" aria-pressed="${s.dificeis}" data-a="dif" data-v="1">Entram no sorteio</button></div></section>
+  <section class="bloco"><h2 class="display">Progresso</h2>${S.confirm
+    ? `<p>Isso apaga as respostas que você adicionou, seus acertos, erros e a melhor rodada. O recorde do relâmpago fica. Não dá pra desfazer.</p><div class="acoes"><button class="btn perigo" data-a="zerarSim">Apagar</button><button class="btn ghost" data-a="zerarNao">Cancelar</button></div>`
+    : '<p>Respostas que você adicionou, acertos e erros ficam só neste aparelho.</p><button class="btn ghost" data-a="zerar">Zerar progresso do Stop</button>'}</section>`;
+}
+
+/* ---------- eventos ---------- */
+const acoes = {
+  menu: () => { stopTimer(); S.round = null; S.confirm = false; go('menu'); },
+  rodada: () => iniciarRodada(),
+  stop: () => corrigir(true),
+  vale: el => julgar(+el.dataset.i, true),
+  naovale: el => julgar(+el.dataset.i, false),
+  raio: () => iniciarRaio(null),
+  raioLetra: el => iniciarRaio(el.dataset.l),
+  passo: () => responderRaio(null, 'passo'),
+  prox: () => proxima(),
+  rvale: () => julgarRaio(true),
+  rnaovale: () => julgarRaio(false),
+  rep: el => { stopTimer(); S.repL = el.dataset.l || S.repL; S.msgAdd = ''; go('rep'); },
+  repL: el => { S.repL = el.dataset.l; S.msgAdd = ''; render(); J.beep(520, .03, 'sine', .03); },
+  ajustes: () => go('ajustes'),
+  tgCat: el => {
+    const c = el.dataset.c, cats = st.cfg.cats;
+    if (cats.includes(c)) { if (cats.length > 3) st.cfg.cats = cats.filter(x => x !== c); else J.bad(); }
+    else st.cfg.cats = CATS.map(x => x.id).filter(id => cats.includes(id) || id === c);
+    salvar(); render();
+  },
+  tempo: el => { st.cfg.tempo = +el.dataset.t; salvar(); render(); },
+  dif: el => { st.cfg.dificeis = el.dataset.v === '1'; salvar(); render(); },
+  zerar: () => { S.confirm = true; render(); },
+  zerarNao: () => { S.confirm = false; render(); },
+  zerarSim: () => { const cfg = st.cfg; st = padrao(); st.cfg = cfg; salvar(); S.confirm = false; render(); }
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el) return;
+  const f = acoes[el.dataset.a]; if (f) { e.preventDefault(); f(el); }
+});
+// a seta de voltar leva pro menu do Stop; no menu, fecha o jogo
+document.addEventListener('click', e => {
+  if (!e.target.closest('a.back') || S.view === 'menu') return;
+  e.preventDefault(); e.stopPropagation(); acoes.menu();
+}, true);
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  if (e.target.dataset.f === 'raio') responderRaio(J.$('raio-in').value, null);
+  else if (e.target.dataset.f === 'add') adicionar();
+});
+document.addEventListener('input', e => {
+  const c = e.target.dataset && e.target.dataset.cat;
+  if (c && S.round) S.round.resp[c] = e.target.value;
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('.campo input')) return;
+  e.preventDefault();
+  const all = [...document.querySelectorAll('.campo input')], i = all.indexOf(e.target);
+  if (i < all.length - 1) all[i + 1].focus(); else e.target.blur();
+});
+J.$('play').onclick = () => iniciarRaio(S.raio && S.raio.letra);
+J.$('other').onclick = () => acoes.menu();
+render();
+</script></body></html>
